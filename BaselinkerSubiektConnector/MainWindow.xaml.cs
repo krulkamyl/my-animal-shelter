@@ -9,6 +9,8 @@ namespace BaselinkerSubiektConnector
 {
     public partial class MainWindow : Window
     {
+        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -18,7 +20,23 @@ namespace BaselinkerSubiektConnector
                 ExceptionHandler = HandleException
             };
 
+            LoadConfiguration();
+
             DataContext = ViewModel;
+        }
+
+        private void LoadConfiguration()
+        {
+            MSSQL_IP.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host);
+            MSSQL_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login);
+            MSSQL_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password);
+            MSSQL_Name.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME);
+
+            Subiekt_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login);
+            Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
+
+            Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+
         }
 
         public MainWindowViewModel ViewModel { get; }
@@ -38,27 +56,17 @@ namespace BaselinkerSubiektConnector
         internal static DaneDoUruchomieniaSfery PodajDaneDoUruchomienia(DanePolaczenia danePolaczenia)
         {
             var dane = new DaneDoUruchomieniaSfery()
-            {
-                DanePolaczenia = danePolaczenia,
-                Produkt = ProductId.Subiekt,
-                LoginNexo = "Szef",
-                HasloNexo = "robocze"
+                {
+                    Serwer = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
+                    Baza = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                    LoginSql = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                    HasloSql = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password),
+                    LoginNexo = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login),
+                    HasloNexo = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password),
+                    Produkt = ProductId.Subiekt,
             };
-            return dane;
-        }
-
-        internal static DaneDoUruchomieniaSfery PodajDomyslneDaneDoUruchomienia()
-        {
-            var dane = new DaneDoUruchomieniaSfery()
-            {
-                Serwer = "(local)\\INSERTNEXO",
-                Baza = "Nexo_Demo_1",
-                Produkt = ProductId.Subiekt,
-                LoginNexo = "Szef",
-                HasloNexo = "robocze"
-            };
-            return dane;
-        }
+                return dane;
+            }
 
         private void HandleException(Exception e)
         {
@@ -70,14 +78,7 @@ namespace BaselinkerSubiektConnector
             DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
 
             var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
-            if (danePolaczenia != null)
-            {
-                daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
-            }
-            else
-            {
-                daneDoUruchomieniaSfery = PodajDomyslneDaneDoUruchomienia();
-            }
+            daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
 
             ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
         }
@@ -89,6 +90,21 @@ namespace BaselinkerSubiektConnector
                 var okno = ViewModel.UchwytDoSfery.PodajObiektTypu<IPodmiotOkno>();
                 _ = okno.Wybierz();
             }
+        }
+
+        private void SaveConfiguration_Click(object sender, RoutedEventArgs e)
+        {
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Host, MSSQL_IP.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
+
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
+
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
+
+            MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
     }
 }

@@ -93,6 +93,8 @@
     <Compile Include="PostepLadowaniaSfery.cs" />
     <Compile Include="PostepViewModel.cs" />
     <Compile Include="PropertyChangedNotifier.cs" />
+    <Compile Include="RegistryConfigurationKeys.cs" />
+    <Compile Include="RegistryManager.cs" />
     <Compile Include="Uchwyty.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

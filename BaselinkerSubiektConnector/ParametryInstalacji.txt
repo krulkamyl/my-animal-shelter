@@ -1,0 +1,15 @@
+﻿# Plik zawiera dane wymagane do połączenia z serwerem SQL 
+# oraz nazwy baz danych, w których ma zostać zainstalowany pakiet.
+# Wartości parametrów należy podawać bezpośrednio po znaku '='
+# oraz nie należy brać ich w " ponieważ może on stanowić wartość parametru.
+# Jeżeli wyłączymy uwierzytelnianie Windows, należy odkomentować i podać
+# nazwę użytkownika oraz hasło.
+# Jeżeli chcemy podać więcej niż jedną nazwę bazy danych, należy dopisać kolejne
+# parametry 'BazaDanych' (plik może zawierać dowolną liczbę takich parametrów).
+
+Serwer=(local)
+UwierzytelnianieWindows=Tak
+#Uzytkownik=
+#Haslo=
+BazaDanych=Nexo_Demo_1
+#BazaDanych=Nexo_Demo_2

@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Konfiguracja StworzPakiet="Tak" StworzInstalator="Tak"
+              NazwaFolderuPakietu="Pakiet" NazwaFolderuInstalatora="Instalator"
+              LokalizacjaSdkBin="C:\NexoSDK\nexoSDK_49.0.1.7256\Bin\"
+              LokalizacjaSdkNarzedzia="C:\NexoSDK\nexoSDK_49.0.1.7256\Narzedzia\">
+  <!-- Znacznik umożliwia podanie lokalizacji pliku zawierającego dane wymagane do połączenia z serwerem SQL
+  oraz zawierającego nazwy baz danych, w których ma zostać zainstalowany pakiet. Ścieżka ustawiona jest domyślnie
+  do pliku ParamertyInstalacji.txt, który został automatycznie stworzony i dodany do projektu z szablonu.
+  Po włączeniu tworzenia plików bat, po udanym buildzie zostaną utworzone dwa pliki Zainstaluj_Aktualizuj.bat i Odinstaluj.bat. 
+  Pozwalają one na szybką instalację/aktualizację oraz odinstalowanie pakietu. Natomiast, po włączeniu automatycznej instalacji, 
+  zaraz po udanym buildzie zostanie automatycznie przeprowadzona instalacja/aktualizacja pakietu.-->
+  <!--<ParametryInstalacji StworzPlikiBat="Tak" AutomatycznaInstalacja="Nie">
+    <PlikParametrowInstalacji>..\..\..\ParametryInstalacji.txt</PlikParametrowInstalacji>
+  </ParametryInstalacji>-->
+  <Pakiet>
+    <!-- source manifest -->
+    <Package Identity="BaselinkerSubiektConnector-49.0.1.7256" DisplayName="" VersionDisplayName="" MinimumServerVersion="">
+      <Contents>
+        <File Name="BaselinkerSubiektConnector.exe"/>
+      </Contents>
+      <LaunchScenarios>
+        <LaunchScenario Name="BaselinkerSubiektConnector" CanUpdate="false">
+          <LaunchAction ExePath="BaselinkerSubiektConnector.exe" CommandLineArguments="/UruchomionePrzezInsLauncher" RedirectedInput="!LauncherMessageFormatB!" RedirectedInputEncoding="utf-8" />
+        </LaunchScenario>
+      </LaunchScenarios>
+      <DeployActions />
+      <Dependencies>
+        <!-- jeżeli aplikacja jest przeznaczona dla konkretnej wersji programu, to należy odkomentować poniższy znacznik (domyślnie ustawiona jest wersja sdk) -->
+        <!--<Dependency Kind="Required" Specification="Nexo-49.0.1.7256"/>-->
+      </Dependencies>
+    </Package>
+    <!-- end of source manifest -->
+  </Pakiet>
+  <Instalator>
+    <Tytul>Instalator rozwiązania własnego dla nexo</Tytul>
+    <TekstPowitalny>Witamy w instalatorze rozwiązania własnego dla nexo.</TekstPowitalny>
+    <!-- dane autora rozwiązania własnego -->
+    <DostawcaInfo>Copyright © 2022</DostawcaInfo>
+    <UtworzSkrotNaPulpicie>false</UtworzSkrotNaPulpicie>
+    <UtworzSkrotWMenuStart>false</UtworzSkrotWMenuStart>
+    <WymaganyRestart>false</WymaganyRestart>
+    <KiP2>false</KiP2>
+    <PlikLogo></PlikLogo>
+    <PlikLicencji></PlikLicencji>
+    <PlikWynikowy>BaselinkerSubiektConnector-49.0.1.7256.exe</PlikWynikowy>
+    <!--<Skroty>
+      <Skrot NazwaScenariusza="BaselinkerSubiektConnector" Opis="BaselinkerSubiektConnector">
+        <PlikIkony>..\..\ikona.ico</PlikIkony>
+      </Skrot>
+    </Skroty>-->
+  </Instalator>
+</Konfiguracja>

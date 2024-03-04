@@ -1,0 +1,11 @@
+﻿<sferaUI:AplikacjaWpf x:Class="BaselinkerSubiektConnector.App"
+                      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                      xmlns:local="clr-namespace:BaselinkerSubiektConnector"
+                      xmlns:sferaUI="clr-namespace:InsERT.Moria.Sfera;assembly=InsERT.Moria.Sfera.UI"
+                      StartupUri="MainWindow.xaml"
+                      ShutdownMode="OnLastWindowClose">
+    <Application.Resources>
+         
+    </Application.Resources>
+</sferaUI:AplikacjaWpf>

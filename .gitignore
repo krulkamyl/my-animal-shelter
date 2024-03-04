@@ -1,0 +1,6 @@
+﻿################################################################################
+# Ten plik .gitignore został utworzony automatycznie przez Microsoft(R) Visual Studio.
+################################################################################
+
+/BaselinkerSubiektConnector/bin/Debug
+/BaselinkerSubiektConnector/.vs/BaselinkerSubiektConnector

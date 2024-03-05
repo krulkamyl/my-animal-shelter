@@ -138,7 +138,15 @@
 
             <TextBlock Text="Konfiguracja Baselinker" FontWeight="Bold" Grid.Row="16" Margin="5"/>
             <TextBlock Text="Klucz API:" Grid.Row="17" Margin="5"/>
-            <TextBox x:Name="Baselinker_ApiKey" Grid.Row="18" Margin="5"/>
+            <Grid Grid.Row="18" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <TextBox x:Name="Baselinker_ApiKey" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
+                <Button Grid.Column="1" Content="Testuj połączenie" Click="BaselinkerTest_Click" MinWidth="100"/>
+            </Grid>
             <TextBox x:Name="BlankTextBox" Grid.Row="19" Margin="5"/>
 
             <Button Content="Sprawdź konfigurację i zapisz" Click="SaveConfiguration_Click" Grid.Row="20" Margin="30" Padding="10"/>

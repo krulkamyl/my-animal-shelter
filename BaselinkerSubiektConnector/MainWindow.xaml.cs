@@ -1,8 +1,13 @@
-﻿using InsERT.Moria.Klienci;
+﻿using BaselinkerSubiektConnector.Adapters;
+using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Product;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.IO.Packaging;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace BaselinkerSubiektConnector
@@ -105,6 +110,39 @@ namespace BaselinkerSubiektConnector
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
 
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+        private async void BaselinkerTest_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(Baselinker_ApiKey.Text);
+
+                var storagesList = await baselinkerAdapter.GetStoragesListAsync();
+
+                baselinkerAdapter._storageId = "bl_1";
+                await baselinkerAdapter.GetOrderAsync(43704292);
+
+                if (storagesList.status == "SUCCESS")
+                {
+                    var alertText = "Udało się nawiązać połączenie z BaseLinker. Dostępne magazyny:\n";
+
+                    foreach ( var storage in storagesList.storages )
+                    {
+                        alertText += " • " + storage.name + "\n";
+                    }
+
+                    MessageBox.Show(alertText, "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+                else
+                {
+                    throw new Exception(storagesList.error_message);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
     }
 }

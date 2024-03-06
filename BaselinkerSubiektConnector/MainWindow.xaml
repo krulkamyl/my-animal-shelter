@@ -127,8 +127,16 @@
             <TextBox x:Name="MSSQL_User" Grid.Row="4" Margin="5"/>
             <TextBlock Text="Hasło:" Grid.Row="5" Margin="5"/>
             <TextBox x:Name="MSSQL_Password" Grid.Row="6" Margin="5"/>
-            <TextBlock Text="Nazwa bazy danych:" Grid.Row="9" Margin="5"/>
-            <TextBox x:Name="MSSQL_Name" Grid.Row="10" Margin="5"/>
+            <TextBlock Text="Wybierz baze danych:" Grid.Row="9" Margin="5"/>
+            <Grid Grid.Row="10" Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <ComboBox x:Name="MSSQL_Name" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
+        
+                <Button Grid.Column="1" Content="Pobierz dostępne bazy" Click="MssqlTest_Click" MinWidth="100"/>
+            </Grid>
 
             <TextBlock Text="Dane logowania Subiekt" FontWeight="Bold" Grid.Row="11" Margin="5"/>
             <TextBlock Text="Użytkownik:" Grid.Row="12" Margin="5"/>

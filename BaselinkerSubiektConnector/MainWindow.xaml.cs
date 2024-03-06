@@ -1,6 +1,7 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
+using InsERT.Mox.Launcher;
 using InsERT.Mox.Product;
 using Newtonsoft.Json;
 using System;
@@ -15,6 +16,7 @@ namespace BaselinkerSubiektConnector
     public partial class MainWindow : Window
     {
         internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
+        private MSSQLAdapter mssqlAdapter;
 
         public MainWindow()
         {
@@ -35,12 +37,24 @@ namespace BaselinkerSubiektConnector
             MSSQL_IP.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host);
             MSSQL_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login);
             MSSQL_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password);
-            MSSQL_Name.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME);
 
             Subiekt_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login);
             Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+
+            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME).Length > 0)
+            {
+                MSSQL_Name.Items.Clear();
+
+                MSSQL_Name.Items.Add(
+                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME)
+                );
+                MSSQL_Name.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME);
+            } else
+            {
+                MSSQL_Name.IsEnabled = false;
+            }
 
         }
 
@@ -112,6 +126,35 @@ namespace BaselinkerSubiektConnector
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
+        private void MssqlTest_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                MSSQL_Name.Items.Clear();
+
+
+                mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
+                List<string> databaseNames = mssqlAdapter.GetNexoDatabaseNames();
+
+                if (databaseNames.Count > 0 )
+                {
+                    MSSQL_Name.IsEnabled = true;
+                }
+
+                foreach (string dbName in databaseNames)
+                {
+                    MSSQL_Name.Items.Add(dbName);
+                }
+
+                MessageBox.Show("Pobrano listę dostępnych baz!", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+        }
+
         private async void BaselinkerTest_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -119,9 +162,6 @@ namespace BaselinkerSubiektConnector
                 BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(Baselinker_ApiKey.Text);
 
                 var storagesList = await baselinkerAdapter.GetStoragesListAsync();
-
-                baselinkerAdapter._storageId = "bl_1";
-                await baselinkerAdapter.GetOrderAsync(43704292);
 
                 if (storagesList.status == "SUCCESS")
                 {

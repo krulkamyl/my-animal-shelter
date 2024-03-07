@@ -1,4 +1,5 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
+using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Launcher;
@@ -10,6 +11,7 @@ using System.IO.Packaging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Xml.Linq;
 
 namespace BaselinkerSubiektConnector
 {
@@ -17,6 +19,7 @@ namespace BaselinkerSubiektConnector
     {
         internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
         private MSSQLAdapter mssqlAdapter;
+        private List<BaselinkerStoragesResponseStorage> storages;
 
         public MainWindow()
         {
@@ -42,6 +45,22 @@ namespace BaselinkerSubiektConnector
             Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+
+
+            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName).Length > 0)
+            {
+                Baselinker_StorageName.Items.Clear();
+
+                Baselinker_StorageName.Items.Add(
+                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName)
+                );
+                Baselinker_StorageName.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName);
+            }
+            else
+            {
+                Baselinker_StorageName.IsEnabled = false;
+            }
+
 
             if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME).Length > 0)
             {
@@ -118,6 +137,13 @@ namespace BaselinkerSubiektConnector
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
 
+            int ProductIndex = Baselinker_StorageName.SelectedIndex;
+            var selected = storages[ProductIndex];
+            if (selected != null)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
+            }
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
 
@@ -126,7 +152,7 @@ namespace BaselinkerSubiektConnector
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
-        private void MssqlTest_Click(object sender, RoutedEventArgs e)
+        private void MssqlGetDbName(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -155,7 +181,7 @@ namespace BaselinkerSubiektConnector
 
         }
 
-        private async void BaselinkerTest_Click(object sender, RoutedEventArgs e)
+        private async void BaselinkerGetStorage_Click(object sender, RoutedEventArgs e)
         {
             try
             {
@@ -165,14 +191,16 @@ namespace BaselinkerSubiektConnector
 
                 if (storagesList.status == "SUCCESS")
                 {
-                    var alertText = "Udało się nawiązać połączenie z BaseLinker. Dostępne magazyny:\n";
+                    Baselinker_StorageName.IsEnabled = true;
+                    Baselinker_StorageName.Items.Clear();
+                    storages = storagesList.storages;
 
                     foreach ( var storage in storagesList.storages )
                     {
-                        alertText += " • " + storage.name + "\n";
+                        Baselinker_StorageName.Items.Add(storage.name);
                     }
 
-                    MessageBox.Show(alertText, "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    MessageBox.Show("Udało się nawiązać połączenie z BaseLinker. Wybierz magazyn.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
                 else
                 {

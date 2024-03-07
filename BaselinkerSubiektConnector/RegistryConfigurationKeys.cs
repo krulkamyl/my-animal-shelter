@@ -20,6 +20,8 @@ namespace BaselinkerSubiektConnector
 
         // Baselinker
         public const string Baselinker_ApiKey = "BASELINKER_APIKEY";
+        public const string Baselinker_StorageId = "BASELINKER_STORAGE_ID";
+        public const string Baselinker_StorageName = "BASELINKER_STORAGE_Name";
 
     }
 }

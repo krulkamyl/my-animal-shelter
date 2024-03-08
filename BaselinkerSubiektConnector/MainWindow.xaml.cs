@@ -1,5 +1,6 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+using BaselinkerSubiektConnector.Services.HttpService;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Launcher;
@@ -11,6 +12,8 @@ using System.IO.Packaging;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using System.Windows.Threading;
 using System.Xml.Linq;
 
 namespace BaselinkerSubiektConnector
@@ -19,7 +22,9 @@ namespace BaselinkerSubiektConnector
     {
         internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
         private MSSQLAdapter mssqlAdapter;
-        private List<BaselinkerStoragesResponseStorage> storages;
+        private List<BaselinkerStoragesResponseStorage> storages; 
+        private HttpService httpService;
+        private DispatcherTimer timer;
 
         public MainWindow()
         {
@@ -29,10 +34,16 @@ namespace BaselinkerSubiektConnector
             {
                 ExceptionHandler = HandleException
             };
-
             LoadConfiguration();
 
             DataContext = ViewModel;
+
+            httpService = new HttpService();
+
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(2);
+            timer.Tick += CheckHttpServiceEnabled;
+            timer.Start();
         }
 
         private void LoadConfiguration()
@@ -210,6 +221,25 @@ namespace BaselinkerSubiektConnector
             catch (Exception ex)
             {
                 MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+
+        private void StopStartHttpService_Click(object sender, RoutedEventArgs e)
+        {
+            httpService.StartStop();
+        }
+
+        private void CheckHttpServiceEnabled(object sender, EventArgs e)
+        {
+            if (httpService.IsEnabled)
+            {
+                HttpServiceCheck.Text = "Serwer HTTP działa. Adres: http://"+ httpService.ServerIpAddress+":"+httpService.port;
+                HttpServiceCheck.Foreground = Brushes.Green;
+            }
+            else
+            {
+                HttpServiceCheck.Text = "Serwer HTTP nie jest uruchomiony.";
+                HttpServiceCheck.Foreground = Brushes.Red;
             }
         }
     }

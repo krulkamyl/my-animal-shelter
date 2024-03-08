@@ -141,6 +141,8 @@
     <Compile Include="PropertyChangedNotifier.cs" />
     <Compile Include="RegistryConfigurationKeys.cs" />
     <Compile Include="RegistryManager.cs" />
+    <Compile Include="Services\HttpService\HttpService.cs" />
+    <Compile Include="Support\Helpers.cs" />
     <Compile Include="Uchwyty.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>

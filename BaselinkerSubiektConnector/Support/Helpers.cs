@@ -20,6 +20,7 @@ namespace BaselinkerSubiektConnector.Support
             {
                 string number = match.Groups[1].Value;
                 Console.WriteLine("[Baselinker GetOrderId] Order ID: " + number);
+                return number;
             }
             else
             {

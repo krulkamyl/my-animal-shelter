@@ -122,6 +122,7 @@
   <ItemGroup>
     <Compile Include="Adapters\BaselinkerAdapter.cs" />
     <Compile Include="Adapters\MssqlAdapter.cs" />
+    <Compile Include="Builders\SubiektInvoiceReceiptGenerator.cs" />
     <Compile Include="Objects\Baselinker\Orders\BaselinkerOrderResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductDataResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductsListResponse.cs" />

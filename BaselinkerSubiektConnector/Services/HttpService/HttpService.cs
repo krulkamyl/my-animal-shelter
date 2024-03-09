@@ -8,6 +8,7 @@ using System.Net.NetworkInformation;
 using System.Threading.Tasks;
 using System.Windows;
 using BaselinkerSubiektConnector.Support;
+using BaselinkerSubiektConnector.Builders;
 
 namespace BaselinkerSubiektConnector.Services.HttpService
 {
@@ -127,7 +128,11 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                         {
                             if (key == "baselinker_order_href")
                             {
-                                Helpers.GetOrderId(request.QueryString[key]);
+                                int orderId = int.Parse(Helpers.GetOrderId(request.QueryString[key]));
+                                if (orderId > 0)
+                                {
+                                   new SubiektInvoiceReceiptBuilder(orderId);
+                                }
                             }
                         }
                     }

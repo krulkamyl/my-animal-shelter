@@ -1,6 +1,7 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Services.HttpService;
+using InsERT.Moria.Dokumenty.Logistyka;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Launcher;
@@ -226,7 +227,14 @@ namespace BaselinkerSubiektConnector
 
         private void StopStartHttpService_Click(object sender, RoutedEventArgs e)
         {
-            httpService.StartStop();
+            if (ViewModel.CzySferaJestUruchomiona)
+            {
+                httpService.StartStop();
+            }
+            else
+            {
+                MessageBox.Show("Sfera nie jest uruchiomiona.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void CheckHttpServiceEnabled(object sender, EventArgs e)

@@ -40,6 +40,7 @@ namespace BaselinkerSubiektConnector
             DataContext = ViewModel;
 
             httpService = new HttpService();
+            httpService.mainWindowViewModel = ViewModel;
 
             timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(2);

@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using BaselinkerSubiektConnector.Support;
 using BaselinkerSubiektConnector.Builders;
+using InsERT.Moria.Dokumenty.Logistyka;
 
 namespace BaselinkerSubiektConnector.Services.HttpService
 {
@@ -16,6 +17,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
     {
         private HttpListener httpListener;
         private Thread listenerThread;
+        public MainWindowViewModel mainWindowViewModel;
 
         public string port = "8913";
 
@@ -131,7 +133,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                                 int orderId = int.Parse(Helpers.GetOrderId(request.QueryString[key]));
                                 if (orderId > 0)
                                 {
-                                   new SubiektInvoiceReceiptBuilder(orderId);
+                                   new SubiektInvoiceReceiptBuilder(orderId, mainWindowViewModel);
                                 }
                             }
                         }

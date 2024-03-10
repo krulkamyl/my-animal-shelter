@@ -2,6 +2,8 @@
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+using InsERT.Moria.Klienci;
+using InsERT.Moria.ModelDanych;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -16,11 +18,13 @@ namespace BaselinkerSubiektConnector.Builders
         internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
         private int baselinkerOrderId;
         private BaselinkerAdapter blAdapter;
+        public MainWindowViewModel mainWindowViewModel;
         private BaselinkerOrderResponse blOrderResponse;
 
-        public SubiektInvoiceReceiptBuilder(int baselinkerOrderId)
+        public SubiektInvoiceReceiptBuilder(int baselinkerOrderId, MainWindowViewModel mainWindowViewModel)
         {
             this.baselinkerOrderId = baselinkerOrderId;
+            this.mainWindowViewModel = mainWindowViewModel;
 
             string blApiKey = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
             string storageId = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
@@ -28,6 +32,11 @@ namespace BaselinkerSubiektConnector.Builders
             this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
             InitializeOrderResponseAsync().Wait();
             Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
+            Podmiot customer = checkCustomerExist();
+            if (customer == null)
+            {
+                this.createCustomer();
+            }
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -35,9 +44,22 @@ namespace BaselinkerSubiektConnector.Builders
             this.blOrderResponse = await blAdapter.GetOrderAsync(baselinkerOrderId);
         }
 
-        private bool checkCustomerExist()
+        private Podmiot checkCustomerExist()
         {
-            return false;
+            IPodmioty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IPodmioty>();
+            BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+            Podmiot customerNip = podmioty.Dane.Wszystkie().Where(pdm => pdm.NIP == blResponseOrder.invoice_nip).FirstOrDefault();
+            if (customerNip != null)
+            {
+                return customerNip;
+            }
+            Podmiot customerPerson = podmioty.Dane.Wszystkie().Where(pdm => pdm.NazwaSkrocona == blResponseOrder.invoice_fullname)
+                .Where(pdm => pdm.DomyslnyAdresZameldowania.Linia2 == blResponseOrder.invoice_postcode + " " + blResponseOrder.invoice_city).FirstOrDefault();
+            if (customerPerson != null)
+            {
+                return customerPerson;
+            }
+            return null;
         }
 
 

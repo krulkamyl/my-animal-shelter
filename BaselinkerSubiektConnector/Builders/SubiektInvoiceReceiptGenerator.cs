@@ -14,6 +14,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace BaselinkerSubiektConnector.Builders
 {
@@ -37,7 +38,7 @@ namespace BaselinkerSubiektConnector.Builders
             this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
             InitializeOrderResponseAsync().Wait();
             Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
-            Console.WriteLine("Checking customer exist");
+            Console.WriteLine("Check customer exist");
             this.customer = null;
             while (this.customer == null)
             {
@@ -45,11 +46,14 @@ namespace BaselinkerSubiektConnector.Builders
                 if (this.customer == null)
                 {
                     this.createCustomer();
+                } else
+                {
+                    this.checkCustomerHaveSameEmail();
                 }
-            }
+            };
+
             Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
 
-            // TODO: check user has the same email
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -162,6 +166,46 @@ namespace BaselinkerSubiektConnector.Builders
                     else
                     {
                         nowyPodmiot.WypiszBledy();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Problem with save user");
+                Console.WriteLine(ex.Message);
+            }
+        }
+
+        private void checkCustomerHaveSameEmail()
+        {
+            try
+            {
+                BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+                IPodmioty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IPodmioty>();
+                IRodzajeKontaktu rodzajeKontaktu = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IRodzajeKontaktu>();
+                bool emailFound = false;
+                foreach (Podmiot podmiot in podmioty.Dane.Wszystkie())
+                {
+                    if (podmiot.Kontakty.Where(k => k.Wartosc == blResponseOrder.email).Where(k => k.Podmiot_Id == this.customer.Id).FirstOrDefault() != null)
+                    {
+                        emailFound = true;
+                        Console.WriteLine("Email found!: " + blResponseOrder.email);
+                    }
+                }
+                if (!emailFound)
+                {
+                    Console.WriteLine("E-mail is diffrent: " + blResponseOrder.email);
+                    using (IPodmiot customer = podmioty.Znajdz(this.customer))
+                    {
+                        Kontakt newEmail = new Kontakt();
+                        customer.Dane.Kontakty.Add(newEmail);
+                        newEmail.Rodzaj = rodzajeKontaktu.DaneDomyslne.Email;
+                        newEmail.Wartosc = blResponseOrder.email;
+                        newEmail.Podstawowy = true;
+                        if (customer.Zapisz())
+                            Console.WriteLine("Email updated");
+                        else
+                            customer.WypiszBledy();
                     }
                 }
             }

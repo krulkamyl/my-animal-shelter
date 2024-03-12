@@ -28,5 +28,14 @@ namespace BaselinkerSubiektConnector.Support
             }
             return url;
         }
+
+       public static string ExtractDigits(string input)
+       {
+            string pattern = @"\D+";
+
+            string result = Regex.Replace(input, pattern, "");
+
+            return result;
+        }
     }
 }

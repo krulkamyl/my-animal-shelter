@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
+using InsERT.Moria.ModelDanych;
+using System.Security.Cryptography.X509Certificates;
 
 namespace BaselinkerSubiektConnector.Adapters
 {
@@ -48,5 +50,44 @@ namespace BaselinkerSubiektConnector.Adapters
 
             return databaseNames;
         }
+
+        public List<string> GetProductFromEan(string dbName, string ean)
+        {
+            List<string> products = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = $@"SELECT jma.Asortyment_Id
+                                FROM {dbName}.ModelDanychContainer.KodyKreskowe kk
+                                INNER JOIN {dbName}.ModelDanychContainer.JednostkiMiarAsortymentow jma
+                                ON jma.Id = kk.JednostkaMiaryAsortymentu_Id
+                                WHERE Kod = @EAN";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@EAN", ean);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    Console.WriteLine(reader.ToString());
+                    while (reader.Read())
+                    {
+                        string productId = reader["Asortyment_Id"].ToString();
+                        products.Add(productId);
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+            return products;
+        }
+
     }
 }

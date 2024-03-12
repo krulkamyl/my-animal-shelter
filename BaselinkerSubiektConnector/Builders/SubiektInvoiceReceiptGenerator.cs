@@ -2,9 +2,14 @@
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+using BaselinkerSubiektConnector.Support;
+using InsERT.Moria.Asortymenty;
+using InsERT.Moria.Dokumenty.Logistyka;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.ModelDanych;
 using InsERT.Moria.ModelOrganizacyjny;
+using InsERT.Moria.Narzedzia.EPP.Typy;
+using InsERT.Moria.Sfera;
 using InsERT.Mox.BusinessObjects;
 using InsERT.Mox.ObiektyBiznesowe;
 using Newtonsoft.Json;
@@ -26,11 +31,20 @@ namespace BaselinkerSubiektConnector.Builders
         public MainWindowViewModel mainWindowViewModel;
         private BaselinkerOrderResponse blOrderResponse;
         private Podmiot customer;
+        private MSSQLAdapter mssqlAdapter;
 
         public SubiektInvoiceReceiptBuilder(int baselinkerOrderId, MainWindowViewModel mainWindowViewModel)
         {
             this.baselinkerOrderId = baselinkerOrderId;
             this.mainWindowViewModel = mainWindowViewModel;
+
+
+
+            this.mssqlAdapter = new MSSQLAdapter(
+                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
+                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password)
+            );
 
             string blApiKey = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
             string storageId = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
@@ -54,6 +68,12 @@ namespace BaselinkerSubiektConnector.Builders
 
             Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
 
+            if (this.customer.NIP.Length > 8)
+            {
+                this.createInvoice();
+            }
+
+            // TODO: add to baselinker sell document number
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -228,7 +248,75 @@ namespace BaselinkerSubiektConnector.Builders
 
         private void createInvoice()
         {
+            try
+            {
+                BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+                using (IDokumentSprzedazy invoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureSprzedazy())
+                {
+                    invoice.PodmiotyDokumentu.UstawNabywceWedlugNIP(Helpers.ExtractDigits(blResponseOrder.invoice_nip));
+                    Console.WriteLine("Added customer by NIP");
 
+                    foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
+                    {
+                        Console.WriteLine("Searching product: " + orderItem.name);
+                        Console.WriteLine("Test hot reload #2");
+
+                        IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        int asortymentId = Convert.ToInt32(
+                            this.mssqlAdapter.GetProductFromEan(
+                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 orderItem.ean
+                                ).First()
+                        );
+
+                        Console.WriteLine("Assortiment found in DB: " + asortymentId);
+                        IAsortymenty asortymenty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        InsERT.Moria.ModelDanych.Asortyment asortyment = asortymenty.Dane.Wszystkie().Where(k => k.Id == asortymentId).Single();
+                        if (asortyment != null)
+                        {
+                            Console.WriteLine("Assortiment Found in Subiekt: " + asortymentId);
+                            Cena cena = new Cena();
+                            cena.BruttoPoRabacie = Convert.ToDecimal(orderItem.price_brutto);
+                            cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
+                            cena.NettoPrzedRabatem = orderItem.price_netto();
+                            cena.NettoPoRabacie = orderItem.price_netto();
+                            Console.WriteLine("Created pricing for: " + asortymentId);
+
+                            PozycjaDokumentu pozycjaDokumentu = new PozycjaDokumentu();
+                            pozycjaDokumentu.AsortymentAktualny = asortyment;
+                            var pozycjaProdukt = invoice.Pozycje.Dodaj(asortyment.Symbol, Convert.ToDecimal(orderItem.quantity));
+                            pozycjaProdukt.Cena = cena;
+                            invoice.Pozycje.AktualizujAsortyment(pozycjaProdukt);
+
+                            invoice.Przelicz();
+
+                            Console.WriteLine("make invoice count for position: " + asortymentId);
+                        } else
+                        {
+                            Console.WriteLine("Assortiment not found in Subiekt: " + asortymentId);
+                            // TODO: exception not found product
+                        }
+                    }
+
+                    invoice.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
+                    Console.WriteLine("save invoice");
+                    if (invoice.Zapisz())
+                    {
+                        Console.WriteLine($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
+                    }
+                    else
+                    {
+                        invoice.WypiszBledy();
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Problem with save invoice");
+                Console.WriteLine(ex.Message);
+            }
         }
 
     }

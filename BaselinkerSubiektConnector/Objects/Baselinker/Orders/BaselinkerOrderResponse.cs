@@ -82,6 +82,13 @@ namespace BaselinkerSubiektConnector.Objects.Baselinker.Orders
         public int? quantity { get; set; }
         public double? weight { get; set; }
         public int? bundle_id { get; set; }
+
+        public decimal price_netto()
+        {
+            // Obliczanie ceny netto na podstawie ceny brutto i stawki podatku
+            decimal netPrice = Convert.ToDecimal(this.price_brutto / (1 + (this.tax_rate / 100)));
+            return Math.Round(netPrice, 2);
+        }
     }
 
     public class BaselinkerOrderResponse

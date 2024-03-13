@@ -54,6 +54,8 @@ namespace BaselinkerSubiektConnector.Builders
             InitializeOrderResponseAsync().Wait();
             Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
             Console.WriteLine("Check customer exist");
+            IDokumentSprzedazy receiptInvoice = null;
+
             this.customer = null;
             while (this.customer == null)
             {
@@ -68,14 +70,19 @@ namespace BaselinkerSubiektConnector.Builders
             };
 
             Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
-
+            // TODO: check customer pay for delivery
             if (this.customer.NIP.Length > 8)
             {
-                string invoiceNumber = this.createInvoice();
-                if (invoiceNumber != null)
-                {
-                    // TODO: add to baselinker sell document number and check is not duplicate
-                }
+                receiptInvoice = this.createInvoice();
+            }
+            else
+            {
+                receiptInvoice = this.createReceipt();
+            }
+
+            if (receiptInvoice != null)
+            {
+                // TODO: add to baselinker sell document number and check is not duplicate
             }
 
 
@@ -250,12 +257,71 @@ namespace BaselinkerSubiektConnector.Builders
             return false;
         }
 
-        private void createReceipt()
+        private IDokumentSprzedazy createReceipt()
         {
+            try
+            {
+                BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+                using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagonFiskalny())
+                {
+                    receipt.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
+                    Console.WriteLine("Added customer by ID");
 
+                    foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
+                    {
+                        Console.WriteLine("Searching product: " + orderItem.name);
+
+                        IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        int asortymentId = Convert.ToInt32(
+                            this.mssqlAdapter.GetProductFromEan(
+                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 orderItem.ean
+                                ).First()
+                        );
+
+                        Console.WriteLine("Assortiment found in DB: " + asortymentId);
+                        IAsortymenty asortymenty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        InsERT.Moria.ModelDanych.Asortyment asortyment = asortymenty.Dane.Wszystkie().Where(k => k.Id == asortymentId).Single();
+                        if (asortyment != null)
+                        {
+                            Console.WriteLine("Assortiment Found in Subiekt: " + asortymentId);
+                            PozycjaDokumentu invoiceitem = receipt.Pozycje.Dodaj(asortyment, Convert.ToDecimal(orderItem.quantity), asortyment.JednostkaSprzedazy);
+                            invoiceitem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
+
+                            receipt.Przelicz();
+
+                            Console.WriteLine("make receipt count for position: " + asortymentId);
+                        }
+                        else
+                        {
+                            throw new Exception("Produkt nie zostal znaleziony. EAN:" + orderItem.ean + " nazwa " + orderItem.name);
+                        }
+                    }
+
+                    receipt.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
+                    Console.WriteLine("save receipt");
+                    if (receipt.Zapisz())
+                    {
+                        Console.WriteLine($"Receipt number: {receipt.Dane.NumerWewnetrzny.PelnaSygnatura}.");
+                        return receipt;
+                    }
+                    else
+                    {
+                        throw new Exception(receipt.DumpErrors());
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Problem with save receipt");
+                Console.WriteLine(ex.Message);
+                return null;
+            }
         }
 
-        private string createInvoice()
+        private IDokumentSprzedazy createInvoice()
         {
             try
             {
@@ -263,12 +329,11 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy invoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureSprzedazy())
                 {
                     invoice.PodmiotyDokumentu.UstawNabywceWedlugNIP(Helpers.ExtractDigits(blResponseOrder.invoice_nip));
-                    Console.WriteLine("Added customer by NIP");
+                    Console.WriteLine("Added company by NIP");
 
                     foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
                     {
                         Console.WriteLine("Searching product: " + orderItem.name);
-                        Console.WriteLine("Test hot reload #2");
 
                         IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
                         int asortymentId = Convert.ToInt32(
@@ -301,7 +366,7 @@ namespace BaselinkerSubiektConnector.Builders
                     if (invoice.Zapisz())
                     {
                         Console.WriteLine($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
-                        return invoice.Dane.NumerWewnetrzny.PelnaSygnatura;
+                        return invoice;
                     }
                     else
                     {
@@ -320,7 +385,7 @@ namespace BaselinkerSubiektConnector.Builders
         }
 
     }
-
+    
     public static class DumpingErrors
     {
         internal static string DumpErrors(this IObiektBiznesowy obiektBiznesowy)

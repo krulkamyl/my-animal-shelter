@@ -262,7 +262,7 @@ namespace BaselinkerSubiektConnector.Builders
             try
             {
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
-                using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagonFiskalny())
+                using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagon())
                 {
                     receipt.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
                     Console.WriteLine("Added customer by ID");

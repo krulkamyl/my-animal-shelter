@@ -19,6 +19,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Navigation;
 using System.Xml.Linq;
 
 namespace BaselinkerSubiektConnector.Builders
@@ -70,10 +71,13 @@ namespace BaselinkerSubiektConnector.Builders
 
             if (this.customer.NIP.Length > 8)
             {
-                this.createInvoice();
+                string invoiceNumber = this.createInvoice();
+                if (invoiceNumber != null)
+                {
+                    // TODO: add to baselinker sell document number and check is not duplicate
+                }
             }
 
-            // TODO: add to baselinker sell document number
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -185,7 +189,7 @@ namespace BaselinkerSubiektConnector.Builders
 
                     else
                     {
-                        nowyPodmiot.WypiszBledy();
+                        throw new Exception(nowyPodmiot.DumpErrors());
                     }
                 }
             }
@@ -223,9 +227,14 @@ namespace BaselinkerSubiektConnector.Builders
                         newEmail.Wartosc = blResponseOrder.email;
                         newEmail.Podstawowy = true;
                         if (customer.Zapisz())
+                        {
                             Console.WriteLine("Email updated");
+                        }
                         else
-                            customer.WypiszBledy();
+                        {
+                            throw new Exception(customer.DumpErrors());
+                        }
+                       
                     }
                 }
             }
@@ -246,7 +255,7 @@ namespace BaselinkerSubiektConnector.Builders
 
         }
 
-        private void createInvoice()
+        private string createInvoice()
         {
             try
             {
@@ -275,26 +284,15 @@ namespace BaselinkerSubiektConnector.Builders
                         if (asortyment != null)
                         {
                             Console.WriteLine("Assortiment Found in Subiekt: " + asortymentId);
-                            Cena cena = new Cena();
-                            cena.BruttoPoRabacie = Convert.ToDecimal(orderItem.price_brutto);
-                            cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
-                            cena.NettoPrzedRabatem = orderItem.price_netto();
-                            cena.NettoPoRabacie = orderItem.price_netto();
-                            Console.WriteLine("Created pricing for: " + asortymentId);
-
-                            PozycjaDokumentu pozycjaDokumentu = new PozycjaDokumentu();
-                            pozycjaDokumentu.AsortymentAktualny = asortyment;
-                            var pozycjaProdukt = invoice.Pozycje.Dodaj(asortyment.Symbol, Convert.ToDecimal(orderItem.quantity));
-                            pozycjaProdukt.Cena = cena;
-                            invoice.Pozycje.AktualizujAsortyment(pozycjaProdukt);
-
+                            PozycjaDokumentu invoiceitem = invoice.Pozycje.Dodaj(asortyment, Convert.ToDecimal(orderItem.quantity), asortyment.JednostkaSprzedazy);
+                            invoiceitem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
+                            
                             invoice.Przelicz();
 
                             Console.WriteLine("make invoice count for position: " + asortymentId);
                         } else
                         {
-                            Console.WriteLine("Assortiment not found in Subiekt: " + asortymentId);
-                            // TODO: exception not found product
+                            throw new Exception("Produkt nie zostal znaleziony. EAN:" + orderItem.ean + " nazwa " + orderItem.name);
                         }
                     }
 
@@ -303,10 +301,11 @@ namespace BaselinkerSubiektConnector.Builders
                     if (invoice.Zapisz())
                     {
                         Console.WriteLine($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
+                        return invoice.Dane.NumerWewnetrzny.PelnaSygnatura;
                     }
                     else
                     {
-                        invoice.WypiszBledy();
+                        throw new Exception(invoice.DumpErrors());
                     }
 
 
@@ -316,6 +315,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Console.WriteLine("Problem with save invoice");
                 Console.WriteLine(ex.Message);
+                return null;
             }
         }
 
@@ -323,34 +323,38 @@ namespace BaselinkerSubiektConnector.Builders
 
     public static class DumpingErrors
     {
-        internal static void WypiszBledy(this IObiektBiznesowy obiektBiznesowy)
+        internal static string DumpErrors(this IObiektBiznesowy obiektBiznesowy)
         {
-            WypiszBledy((IBusinessObject)obiektBiznesowy);
+            string errors = "";
+            errors  += DumpErrors((IBusinessObject)obiektBiznesowy)+"\n";
             var uow = ((IGetUnitOfWork)obiektBiznesowy).UnitOfWork;
             foreach (var innyObiektBiznesowy in uow.Participants.OfType<IBusinessObject>().Where(bo => bo != obiektBiznesowy))
             {
-                WypiszBledy(innyObiektBiznesowy);
+                errors += DumpErrors(innyObiektBiznesowy) + "\n";
             }
+            return errors;
         }
 
-        internal static void WypiszBledy(this IBusinessObject obiektBiznesowy)
+        internal static string DumpErrors(this IBusinessObject obiektBiznesowy)
         {
+            var errors = "";
             foreach (var encjaZBledami in obiektBiznesowy.InvalidData)
             {
                 foreach (var bladNaCalejEncji in encjaZBledami.Errors)
                 {
-                    Console.Error.WriteLine(bladNaCalejEncji);
-                    Console.Error.WriteLine(" na encjach:" + encjaZBledami.GetType().Name);
-                    Console.Error.WriteLine();
+                    errors += bladNaCalejEncji+"\n";
+                    errors += " na encjach:" + encjaZBledami.GetType().Name +"\n";
+                    errors += "\n";
                 }
                 foreach (var bladNaKonkretnychPolach in encjaZBledami.MemberErrors)
                 {
-                    Console.Error.WriteLine(bladNaKonkretnychPolach.Key);
-                    Console.Error.WriteLine(" na polach:");
-                    Console.Error.WriteLine(string.Join(", ", bladNaKonkretnychPolach.Select(b => encjaZBledami.GetType().Name + "." + b)));
-                    Console.Error.WriteLine();
+                    errors += bladNaKonkretnychPolach.Key + "\n";
+                    errors += "na polach:" + "\n";
+                    errors += string.Join(", ", bladNaKonkretnychPolach.Select(b => encjaZBledami.GetType().Name + "." + b)) + "\n";
+                    errors += "\n";
                 }
             }
+            return errors;
         }
     }
 }

@@ -2,7 +2,9 @@
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+using BaselinkerSubiektConnector.Repositories;
 using BaselinkerSubiektConnector.Support;
+using InsERT.Moria.Archiwa;
 using InsERT.Moria.Asortymenty;
 using InsERT.Moria.Dokumenty.Logistyka;
 using InsERT.Moria.Klienci;
@@ -53,6 +55,7 @@ namespace BaselinkerSubiektConnector.Builders
             this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
             InitializeOrderResponseAsync().Wait();
             Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
+
             Console.WriteLine("Check customer exist");
             IDokumentSprzedazy receiptInvoice = null;
 
@@ -82,9 +85,10 @@ namespace BaselinkerSubiektConnector.Builders
 
             if (receiptInvoice != null)
             {
+                // TODO: add radiobox - send to e-mail
+                // TODO: add combobox - select department and warehouse
                 // TODO: add to baselinker sell document number and check is not duplicate
             }
-
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -298,6 +302,23 @@ namespace BaselinkerSubiektConnector.Builders
                         }
                     }
 
+
+                    if (this.blOrderResponse.orders[0].delivery_price != 0)
+                    {
+                        Console.WriteLine("Add delivery position to invoice");
+                        var deliveryAssortmentRepository = new DeliveryAssortmentRepository(
+                            this.mainWindowViewModel
+                        );
+                        var deliveryPosition = deliveryAssortmentRepository.GetAssortment();
+                        if (deliveryPosition == null)
+                        {
+                            throw new Exception("Delivery item position not found");
+                        }
+                        PozycjaDokumentu deliveryItem = receipt.Pozycje.Dodaj(deliveryPosition, 1, deliveryPosition.JednostkaSprzedazy);
+                        deliveryItem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(blResponseOrder.delivery_price);
+                        receipt.Przelicz();
+                    }
+
                     receipt.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
                     Console.WriteLine("save receipt");
                     if (receipt.Zapisz())
@@ -359,6 +380,22 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             throw new Exception("Produkt nie zostal znaleziony. EAN:" + orderItem.ean + " nazwa " + orderItem.name);
                         }
+                    }
+
+                    if (this.blOrderResponse.orders[0].delivery_price != 0)
+                    {
+                        Console.WriteLine("Add delivery position to invoice");
+                        var deliveryAssortmentRepository = new DeliveryAssortmentRepository(
+                            this.mainWindowViewModel
+                        );
+                        var deliveryPosition = deliveryAssortmentRepository.GetAssortment();
+                        if (deliveryPosition == null)
+                        {
+                            throw new Exception("Delivery item position not found");
+                        }
+                        PozycjaDokumentu deliveryItem = invoice.Pozycje.Dodaj(deliveryPosition, 1, deliveryPosition.JednostkaSprzedazy);
+                        deliveryItem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(blResponseOrder.delivery_price);
+                        invoice.Przelicz();
                     }
 
                     invoice.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();

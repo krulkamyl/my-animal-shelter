@@ -142,6 +142,7 @@
     <Compile Include="PropertyChangedNotifier.cs" />
     <Compile Include="RegistryConfigurationKeys.cs" />
     <Compile Include="RegistryManager.cs" />
+    <Compile Include="Repositories\DeliveryAssortmentRepository.cs" />
     <Compile Include="Services\HttpService\HttpService.cs" />
     <Compile Include="Support\Helpers.cs" />
     <Compile Include="Uchwyty.cs" />

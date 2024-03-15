@@ -105,6 +105,26 @@ namespace BaselinkerSubiektConnector.Adapters
             return JsonConvert.DeserializeObject<BaselinkerStoragesResponse>(responseBody);
 
         }
+
+
+
+        public async void UpdateOrder(int order_id, Dictionary<string, string> postParams)
+        {
+            postParams.Add("order_id", order_id.ToString());
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "setOrderFields" },
+                { "parameters", JsonConvert.SerializeObject(postParams) }
+            };
+
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            Console.Write(JsonConvert.DeserializeObject<BaselinkerStoragesResponse>(responseBody));
+
+        }
     }
 
     public interface BaselinkerAdapterInterface

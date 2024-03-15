@@ -13,6 +13,7 @@ using InsERT.Moria.ModelOrganizacyjny;
 using InsERT.Moria.Narzedzia.EPP.Typy;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.BusinessObjects;
+using InsERT.Mox.Launcher;
 using InsERT.Mox.ObiektyBiznesowe;
 using Newtonsoft.Json;
 using System;
@@ -57,7 +58,7 @@ namespace BaselinkerSubiektConnector.Builders
             Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
 
             Console.WriteLine("Check customer exist");
-            IDokumentSprzedazy receiptInvoice = null;
+            int receiptInvoice = 0;
 
             this.customer = null;
             while (this.customer == null)
@@ -73,7 +74,7 @@ namespace BaselinkerSubiektConnector.Builders
             };
 
             Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
-            // TODO: check customer pay for delivery
+
             if (this.customer.NIP.Length > 8)
             {
                 receiptInvoice = this.createInvoice();
@@ -83,17 +84,54 @@ namespace BaselinkerSubiektConnector.Builders
                 receiptInvoice = this.createReceipt();
             }
 
-            if (receiptInvoice != null)
+            if (receiptInvoice > 0)
             {
+                // TODO Get invoice
+                IDokumentySprzedazy sdi = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
+                var receiptInvoiceObj = sdi.Dane.Wszystkie().Where(pdm => pdm.Id == receiptInvoice).FirstOrDefault();
+                if (receiptInvoiceObj != null)
+                {
+                    this.UpdateOrder(receiptInvoiceObj);
+                }
+                // TODO: add to baselinker sell document number
+                // TODO: check from baselinker - invoice number exist in comments
+                // TODO: check customer without NIP want invoice
+
                 // TODO: add radiobox - send to e-mail
                 // TODO: add combobox - select department and warehouse
-                // TODO: add to baselinker sell document number and check is not duplicate
             }
 
         }
         private async Task InitializeOrderResponseAsync()
         {
             this.blOrderResponse = await blAdapter.GetOrderAsync(baselinkerOrderId);
+        }
+
+        private Task UpdateOrder(DokumentDS receiptInvoice)
+        {
+            try
+            {
+                Console.WriteLine("update in baselinker");
+                var data = new Dictionary<string, string>
+            {
+                {
+                    "extra_field_1", "#ZAIMPORTOWANE#"
+                },
+                {
+                    "extra_field_2", receiptInvoice.NumerWewnetrzny.PelnaSygnatura
+                },
+            };
+
+                blAdapter.UpdateOrder(baselinkerOrderId, data);
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("problem save to baselinker");
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(ex.StackTrace);
+            }
+            return Task.CompletedTask;
         }
 
         private Podmiot checkCustomerExist()
@@ -261,7 +299,7 @@ namespace BaselinkerSubiektConnector.Builders
             return false;
         }
 
-        private IDokumentSprzedazy createReceipt()
+        private int createReceipt()
         {
             try
             {
@@ -269,6 +307,7 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagon())
                 {
                     receipt.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
+                    receipt.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
                     Console.WriteLine("Added customer by ID");
 
                     foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
@@ -323,8 +362,9 @@ namespace BaselinkerSubiektConnector.Builders
                     Console.WriteLine("save receipt");
                     if (receipt.Zapisz())
                     {
+
                         Console.WriteLine($"Receipt number: {receipt.Dane.NumerWewnetrzny.PelnaSygnatura}.");
-                        return receipt;
+                        return receipt.Dane.Id;
                     }
                     else
                     {
@@ -338,11 +378,11 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Console.WriteLine("Problem with save receipt");
                 Console.WriteLine(ex.Message);
-                return null;
+                return 0;
             }
         }
 
-        private IDokumentSprzedazy createInvoice()
+        private int createInvoice()
         {
             try
             {
@@ -350,6 +390,8 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy invoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureSprzedazy())
                 {
                     invoice.PodmiotyDokumentu.UstawNabywceWedlugNIP(Helpers.ExtractDigits(blResponseOrder.invoice_nip));
+                    invoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
+
                     Console.WriteLine("Added company by NIP");
 
                     foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
@@ -372,7 +414,6 @@ namespace BaselinkerSubiektConnector.Builders
                             Console.WriteLine("Assortiment Found in Subiekt: " + asortymentId);
                             PozycjaDokumentu invoiceitem = invoice.Pozycje.Dodaj(asortyment, Convert.ToDecimal(orderItem.quantity), asortyment.JednostkaSprzedazy);
                             invoiceitem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
-                            
                             invoice.Przelicz();
 
                             Console.WriteLine("make invoice count for position: " + asortymentId);
@@ -403,7 +444,7 @@ namespace BaselinkerSubiektConnector.Builders
                     if (invoice.Zapisz())
                     {
                         Console.WriteLine($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
-                        return invoice;
+                        return invoice.Dane.Id;
                     }
                     else
                     {
@@ -417,7 +458,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Console.WriteLine("Problem with save invoice");
                 Console.WriteLine(ex.Message);
-                return null;
+                return 0;
             }
         }
 

@@ -42,64 +42,81 @@ namespace BaselinkerSubiektConnector.Builders
             this.baselinkerOrderId = baselinkerOrderId;
             this.mainWindowViewModel = mainWindowViewModel;
 
-
-
-            this.mssqlAdapter = new MSSQLAdapter(
-                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
-                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
-                SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password)
-            );
-
-            string blApiKey = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
-            string storageId = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
-
-            this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
-            InitializeOrderResponseAsync().Wait();
-            Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
-
-            Console.WriteLine("Check customer exist");
-            int receiptInvoice = 0;
-
-            this.customer = null;
-            while (this.customer == null)
+            try
             {
-                this.checkCustomerExist();
-                if (this.customer == null)
+                this.mssqlAdapter = new MSSQLAdapter(
+                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
+                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password)
+                );
+
+                string blApiKey = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+                string storageId = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
+
+                this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
+                InitializeOrderResponseAsync().Wait();
+                Console.WriteLine(JsonConvert.SerializeObject(this.blOrderResponse));
+
+                if (this.blOrderResponse.orders[0].extra_field_1 == "#ZAIMPORTOWANE#")
                 {
-                    this.createCustomer();
-                } else
-                {
-                    this.checkCustomerHaveSameEmail();
+                    throw new Exception("Zamówienie zostało już zaimporowane do Subiekta.");
                 }
-            };
 
-            Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
+                Console.WriteLine("Check customer exist");
+                int receiptInvoice = 0;
 
-            if (this.customer.NIP.Length > 8)
-            {
-                receiptInvoice = this.createInvoice();
-            }
-            else
-            {
-                receiptInvoice = this.createReceipt();
-            }
-
-            if (receiptInvoice > 0)
-            {
-                // TODO Get invoice
-                IDokumentySprzedazy sdi = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
-                var receiptInvoiceObj = sdi.Dane.Wszystkie().Where(pdm => pdm.Id == receiptInvoice).FirstOrDefault();
-                if (receiptInvoiceObj != null)
+                this.customer = null;
+                while (this.customer == null)
                 {
-                    this.UpdateOrder(receiptInvoiceObj);
-                }
-                // TODO: add to baselinker sell document number
-                // TODO: check from baselinker - invoice number exist in comments
-                // TODO: check customer without NIP want invoice
+                    this.checkCustomerExist();
+                    if (this.customer == null)
+                    {
+                        this.createCustomer();
+                    }
+                    else
+                    {
+                        this.checkCustomerHaveSameEmail();
+                    }
+                };
 
-                // TODO: add radiobox - send to e-mail
-                // TODO: add combobox - select department and warehouse
+                Console.WriteLine("Found!: " + this.customer.NazwaSkrocona);
+
+                if (this.customer.NIP.Length > 8)
+                {
+                    receiptInvoice = this.createInvoice();
+                }
+                else
+                {
+                    if (this.blOrderResponse.orders[0].want_invoice == "1")
+                    {
+                        receiptInvoice = this.createRetailInvoice();
+                    }
+                    else
+                    {
+                        receiptInvoice = this.createReceipt();
+                    }
+                }
+
+                if (receiptInvoice > 0)
+                {
+                    // TODO Get invoice
+                    IDokumentySprzedazy sdi = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
+                    var receiptInvoiceObj = sdi.Dane.Wszystkie().Where(pdm => pdm.Id == receiptInvoice).FirstOrDefault();
+                    if (receiptInvoiceObj != null)
+                    {
+                        this.UpdateOrder(receiptInvoiceObj);
+                    }
+
+                    // TODO: add radiobox - send to e-mail
+                    // TODO: add combobox - select department and warehouse
+                }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+           
 
         }
         private async Task InitializeOrderResponseAsync()
@@ -449,6 +466,86 @@ namespace BaselinkerSubiektConnector.Builders
                     else
                     {
                         throw new Exception(invoice.DumpErrors());
+                    }
+
+
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Problem with save invoice");
+                Console.WriteLine(ex.Message);
+                return 0;
+            }
+        }
+
+        private int createRetailInvoice()
+        {
+            try
+            {
+                BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+                using (IDokumentSprzedazy retailInvoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureDetaliczna())
+                {
+                    retailInvoice.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
+                    retailInvoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
+
+                    Console.WriteLine("Added retail customer by id");
+
+                    foreach (BaselinkerOrderResponseOrderProduct orderItem in blResponseOrder.products)
+                    {
+                        Console.WriteLine("Searching product: " + orderItem.name);
+
+                        IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        int asortymentId = Convert.ToInt32(
+                            this.mssqlAdapter.GetProductFromEan(
+                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 orderItem.ean
+                                ).First()
+                        );
+
+                        Console.WriteLine("Assortiment found in DB: " + asortymentId);
+                        IAsortymenty asortymenty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+                        InsERT.Moria.ModelDanych.Asortyment asortyment = asortymenty.Dane.Wszystkie().Where(k => k.Id == asortymentId).Single();
+                        if (asortyment != null)
+                        {
+                            Console.WriteLine("Assortiment Found in Subiekt: " + asortymentId);
+                            PozycjaDokumentu invoiceitem = retailInvoice.Pozycje.Dodaj(asortyment, Convert.ToDecimal(orderItem.quantity), asortyment.JednostkaSprzedazy);
+                            invoiceitem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(orderItem.price_brutto);
+                            retailInvoice.Przelicz();
+
+                        }
+                        else
+                        {
+                            throw new Exception("Produkt nie zostal znaleziony. EAN:" + orderItem.ean + " nazwa " + orderItem.name);
+                        }
+                    }
+
+                    if (this.blOrderResponse.orders[0].delivery_price != 0)
+                    {
+                        Console.WriteLine("Add delivery position to invoice retail");
+                        var deliveryAssortmentRepository = new DeliveryAssortmentRepository(
+                            this.mainWindowViewModel
+                        );
+                        var deliveryPosition = deliveryAssortmentRepository.GetAssortment();
+                        if (deliveryPosition == null)
+                        {
+                            throw new Exception("Delivery item position not found");
+                        }
+                        PozycjaDokumentu deliveryItem = retailInvoice.Pozycje.Dodaj(deliveryPosition, 1, deliveryPosition.JednostkaSprzedazy);
+                        deliveryItem.Cena.BruttoPrzedRabatem = Convert.ToDecimal(blResponseOrder.delivery_price);
+                        retailInvoice.Przelicz();
+                    }
+
+                    retailInvoice.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
+                    Console.WriteLine("save invoice");
+                    if (retailInvoice.Zapisz())
+                    {
+                        Console.WriteLine($"Invoice number: {retailInvoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
+                        return retailInvoice.Dane.Id;
+                    }
+                    else
+                    {
+                        throw new Exception(retailInvoice.DumpErrors());
                     }
 
 

@@ -18,6 +18,16 @@ namespace BaselinkerSubiektConnector
         public const string Subiekt_Login = "SUBIEKT_LOGIN";
         public const string Subiekt_Password = "SUBIEKT_PASSWORD";
 
+        public const string Subiekt_Default_Warehouse = "SUBIEKT_DEFAULT_WAREHOUSE";
+        public const string Subiekt_Default_Branch = "SUBIEKT_DEFAULT_BRANCH";
+
+
+        public const string Subiekt_PrinterEnabled = "SUBIEKT_PRINTER_ENABLED";
+        public const string Subiekt_PrinterName = "SUBIEKT_PRINTER_NAME";
+
+        public const string Subiekt_CashRegisterEnabled = "SUBIEKT_CASH_REGISTER_ENABLED";
+        public const string Subiekt_CashRegisterName = "SUBIEKT_CASH_REGISTER_NAME";
+
         // Baselinker
         public const string Baselinker_ApiKey = "BASELINKER_APIKEY";
         public const string Baselinker_StorageId = "BASELINKER_STORAGE_ID";

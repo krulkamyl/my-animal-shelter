@@ -1,21 +1,16 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Services.HttpService;
-using InsERT.Moria.Dokumenty.Logistyka;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
-using InsERT.Mox.Launcher;
 using InsERT.Mox.Product;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO.Packaging;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Xml.Linq;
 
 namespace BaselinkerSubiektConnector
 {
@@ -59,35 +54,37 @@ namespace BaselinkerSubiektConnector
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
 
-
-            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName).Length > 0)
+            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
             {
-                Baselinker_StorageName.Items.Clear();
+                Subiekt_CashRegisterEnabled.IsChecked = true;
+            }
 
-                Baselinker_StorageName.Items.Add(
-                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName)
-                );
-                Baselinker_StorageName.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageName);
+            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
+            {
+                Subiekt_PrinterEnabled.IsChecked = true;
+            }
+
+            UpdateComboBox(Baselinker_StorageName, RegistryConfigurationKeys.Baselinker_StorageName);
+            UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
+            UpdateComboBox(Subiekt_DefaultBranch, RegistryConfigurationKeys.Subiekt_Default_Branch);
+            UpdateComboBox(Subiekt_DefaultWarehouse, RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+
+        }
+
+        private void UpdateComboBox(ComboBox comboBox, string registryKey)
+        {
+            string value = SharedRegistryManager.GetValue(registryKey);
+
+            if (value.Length > 0)
+            {
+                comboBox.Items.Clear();
+                comboBox.Items.Add(value);
+                comboBox.Text = value;
             }
             else
             {
-                Baselinker_StorageName.IsEnabled = false;
+                comboBox.IsEnabled = false;
             }
-
-
-            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME).Length > 0)
-            {
-                MSSQL_Name.Items.Clear();
-
-                MSSQL_Name.Items.Add(
-                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME)
-                );
-                MSSQL_Name.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME);
-            } else
-            {
-                MSSQL_Name.IsEnabled = false;
-            }
-
         }
 
         public MainWindowViewModel ViewModel { get; }
@@ -97,7 +94,6 @@ namespace BaselinkerSubiektConnector
             var commandLineArguments = Environment.GetCommandLineArgs();
             if (commandLineArguments != null && commandLineArguments.Contains(@"/UruchomionePrzezInsLauncher"))
             {
-                //pobieramy parametry podane przez Launcher
                 return DanePolaczenia.Odbierz();
             }
 
@@ -150,6 +146,10 @@ namespace BaselinkerSubiektConnector
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
 
+
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
+
             int ProductIndex = Baselinker_StorageName.SelectedIndex;
             var selected = storages[ProductIndex];
             if (selected != null)
@@ -157,6 +157,17 @@ namespace BaselinkerSubiektConnector
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
             }
+
+            SharedRegistryManager.SetValue(
+                RegistryConfigurationKeys.Subiekt_PrinterEnabled,
+                Subiekt_PrinterEnabled.IsChecked == true ? "1" : "0"
+                );
+
+            SharedRegistryManager.SetValue(
+                RegistryConfigurationKeys.Subiekt_CashRegisterEnabled,
+                Subiekt_CashRegisterEnabled.IsChecked == true ? "1" : "0"
+                );
+
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
 

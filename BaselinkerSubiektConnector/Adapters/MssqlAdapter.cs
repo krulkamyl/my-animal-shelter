@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
-using InsERT.Moria.ModelDanych;
-using System.Security.Cryptography.X509Certificates;
 
 namespace BaselinkerSubiektConnector.Adapters
 {

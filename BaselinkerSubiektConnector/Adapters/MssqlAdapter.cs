@@ -87,5 +87,39 @@ namespace BaselinkerSubiektConnector.Adapters
             return products;
         }
 
+        public List<string> GetWarehouses(string dbName)
+        {
+            List<string> warehouses = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+
+                    string query = $@"SELECT Symbol
+                                FROM {dbName}.ModelDanychContainer.Magazyny";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    Console.WriteLine(reader.ToString());
+                    while (reader.Read())
+                    {
+                        warehouses.Add(reader["Symbol"].ToString());
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+            return warehouses;
+        }
+
     }
 }

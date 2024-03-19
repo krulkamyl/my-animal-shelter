@@ -147,15 +147,22 @@ namespace BaselinkerSubiektConnector
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
 
 
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
-
             int ProductIndex = Baselinker_StorageName.SelectedIndex;
             var selected = storages[ProductIndex];
             if (selected != null)
             {
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
+            }
+
+            if (Subiekt_DefaultWarehouse.Text.Length > 0)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
+            }
+
+            if (Subiekt_DefaultBranch.Text.Length > 0)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
             }
 
             SharedRegistryManager.SetValue(
@@ -203,6 +210,25 @@ namespace BaselinkerSubiektConnector
                 MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
+        }
+
+        private void MSSQL_Name_SelectionChanged(Object sender, EventArgs e)
+        {
+            if (MSSQL_Name.Text.StartsWith("Nexo_")) { 
+                Subiekt_DefaultWarehouse.Items.Clear();
+                mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
+                List<string> warehouses = mssqlAdapter.GetWarehouses(MSSQL_Name.Text);
+                if (warehouses.Count > 0)
+                {
+                    Subiekt_DefaultWarehouse.IsEnabled = true;
+                }
+
+                foreach (string warehouse in warehouses)
+                {
+                    Subiekt_DefaultWarehouse.Items.Add(warehouse);
+                }
+
+            }
         }
 
         private async void BaselinkerGetStorage_Click(object sender, RoutedEventArgs e)

@@ -6,6 +6,7 @@ using InsERT.Moria.Asortymenty;
 using InsERT.Moria.Dokumenty.Logistyka;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.ModelDanych;
+using InsERT.Moria.ModelOrganizacyjny;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.BusinessObjects;
 using InsERT.Mox.ObiektyBiznesowe;
@@ -313,6 +314,8 @@ namespace BaselinkerSubiektConnector.Builders
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
                 using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagon())
                 {
+                    receipt.Dane.Magazyn = getWarehouse();
+
                     receipt.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
                     receipt.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
                     Console.WriteLine("Added customer by ID");
@@ -389,6 +392,13 @@ namespace BaselinkerSubiektConnector.Builders
             }
         }
 
+        private InsERT.Moria.ModelDanych.Magazyn getWarehouse()
+        {
+            IMagazyny warehouses = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IMagazyny>();
+            var warehouseKeyValue = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse).ToString();
+            return warehouses.Dane.Wszystkie().Where(key => key.Symbol == warehouseKeyValue).Single();
+        }
+
         private int createInvoice()
         {
             try
@@ -396,6 +406,7 @@ namespace BaselinkerSubiektConnector.Builders
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
                 using (IDokumentSprzedazy invoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureSprzedazy())
                 {
+                    invoice.Dane.Magazyn = getWarehouse();
                     invoice.PodmiotyDokumentu.UstawNabywceWedlugNIP(Helpers.ExtractDigits(blResponseOrder.invoice_nip));
                     invoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
 
@@ -476,6 +487,7 @@ namespace BaselinkerSubiektConnector.Builders
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
                 using (IDokumentSprzedazy retailInvoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureDetaliczna())
                 {
+                    retailInvoice.Dane.Magazyn = getWarehouse();
                     retailInvoice.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
                     retailInvoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
 

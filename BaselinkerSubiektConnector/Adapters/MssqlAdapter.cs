@@ -121,5 +121,39 @@ namespace BaselinkerSubiektConnector.Adapters
             return warehouses;
         }
 
+        public List<string> GetBranches(string dbName)
+        {
+            List<string> warehouses = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+
+                    string query = $@"SELECT Symbol
+                                FROM {dbName}.ModelDanychContainer.JednostkiOrganizacyjne";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    Console.WriteLine(reader.ToString());
+                    while (reader.Read())
+                    {
+                        warehouses.Add(reader["Symbol"].ToString());
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error: " + ex.Message);
+            }
+
+            return warehouses;
+        }
+
     }
 }

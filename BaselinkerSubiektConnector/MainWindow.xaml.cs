@@ -218,6 +218,7 @@ namespace BaselinkerSubiektConnector
                 Subiekt_DefaultWarehouse.Items.Clear();
                 mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
                 List<string> warehouses = mssqlAdapter.GetWarehouses(MSSQL_Name.Text);
+                List<string> branches = mssqlAdapter.GetBranches(MSSQL_Name.Text);
                 if (warehouses.Count > 0)
                 {
                     Subiekt_DefaultWarehouse.IsEnabled = true;
@@ -226,6 +227,19 @@ namespace BaselinkerSubiektConnector
                 foreach (string warehouse in warehouses)
                 {
                     Subiekt_DefaultWarehouse.Items.Add(warehouse);
+                }
+
+                if (branches.Count > 0)
+                {
+                    Subiekt_DefaultBranch.IsEnabled = true;
+                }
+
+                foreach (string branch in branches)
+                {
+                    if (!Subiekt_DefaultBranch.Items.Contains(branch))
+                    {
+                        Subiekt_DefaultBranch.Items.Add(branch);
+                    }
                 }
 
             }

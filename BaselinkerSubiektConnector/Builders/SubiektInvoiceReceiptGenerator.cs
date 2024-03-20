@@ -4,6 +4,7 @@ using BaselinkerSubiektConnector.Repositories;
 using BaselinkerSubiektConnector.Support;
 using InsERT.Moria.Asortymenty;
 using InsERT.Moria.Dokumenty.Logistyka;
+using InsERT.Moria.Kadry.Duze;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.ModelDanych;
 using InsERT.Moria.ModelOrganizacyjny;
@@ -315,6 +316,8 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy receipt = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzParagon())
                 {
                     receipt.Dane.Magazyn = getWarehouse();
+                    receipt.Dane.MiejsceSprzedazy = getBranch();
+
 
                     receipt.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
                     receipt.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
@@ -399,6 +402,13 @@ namespace BaselinkerSubiektConnector.Builders
             return warehouses.Dane.Wszystkie().Where(key => key.Symbol == warehouseKeyValue).Single();
         }
 
+        private InsERT.Moria.ModelDanych.MiejsceSprzedazy getBranch()
+        {
+            IMiejscaSprzedazy branches = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IMiejscaSprzedazy>();
+            var branchesKeyValue = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Default_Branch).ToString();
+            return branches.Dane.Wszystkie().Where(key => key.Symbol == branchesKeyValue).Single();
+        }
+
         private int createInvoice()
         {
             try
@@ -407,6 +417,7 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy invoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureSprzedazy())
                 {
                     invoice.Dane.Magazyn = getWarehouse();
+                    invoice.Dane.MiejsceSprzedazy = getBranch();
                     invoice.PodmiotyDokumentu.UstawNabywceWedlugNIP(Helpers.ExtractDigits(blResponseOrder.invoice_nip));
                     invoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
 
@@ -488,6 +499,7 @@ namespace BaselinkerSubiektConnector.Builders
                 using (IDokumentSprzedazy retailInvoice = this.mainWindowViewModel.UchwytDoSfery.DokumentySprzedazy().UtworzFaktureDetaliczna())
                 {
                     retailInvoice.Dane.Magazyn = getWarehouse();
+                    retailInvoice.Dane.MiejsceSprzedazy = getBranch();
                     retailInvoice.PodmiotyDokumentu.UstawNabywceWedlugId(this.customer.Id);
                     retailInvoice.Dane.OperacjePrzeliczaniaPozycji = OperacjePrzeliczaniaPozycji.Brutto_ID;
 

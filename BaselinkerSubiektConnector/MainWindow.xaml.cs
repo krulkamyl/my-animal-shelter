@@ -1,12 +1,14 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Services.HttpService;
+using BaselinkerSubiektConnector.Support;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -68,6 +70,21 @@ namespace BaselinkerSubiektConnector
             UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
             UpdateComboBox(Subiekt_DefaultBranch, RegistryConfigurationKeys.Subiekt_Default_Branch);
             UpdateComboBox(Subiekt_DefaultWarehouse, RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+
+
+            var defaultPrinter = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
+            if (defaultPrinter.Length > 3)
+            {
+                Subiekt_PrinterName.Items.Add(defaultPrinter);
+                Subiekt_PrinterName.SelectedItem = defaultPrinter;
+            }
+            foreach (string printer in Helpers.GetPrinters())
+            {
+                if (defaultPrinter != printer)
+                {
+                    Subiekt_PrinterName.Items.Add(printer);
+                }
+            }
 
         }
 
@@ -163,6 +180,11 @@ namespace BaselinkerSubiektConnector
             if (Subiekt_DefaultBranch.Text.Length > 0)
             {
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
+            }
+
+            if (Subiekt_PrinterName.Text.Length > 0)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_PrinterName, Subiekt_PrinterName.Text);
             }
 
             SharedRegistryManager.SetValue(

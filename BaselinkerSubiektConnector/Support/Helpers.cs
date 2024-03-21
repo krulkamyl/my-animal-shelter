@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Management;
 using System.Text.RegularExpressions;
 
 namespace BaselinkerSubiektConnector.Support 
@@ -31,6 +33,23 @@ namespace BaselinkerSubiektConnector.Support
             string result = Regex.Replace(input, pattern, "");
 
             return result;
+        }
+
+        public static List<string> GetPrinters()
+        {
+            List<string> printers = new List<string>();
+            ManagementScope objScope = new ManagementScope(ManagementPath.DefaultPath);
+            objScope.Connect();
+
+            SelectQuery selectQuery = new SelectQuery();
+            selectQuery.QueryString = "Select * from win32_Printer";
+            ManagementObjectSearcher MOS = new ManagementObjectSearcher(objScope, selectQuery);
+            ManagementObjectCollection MOC = MOS.Get();
+            foreach (ManagementObject mo in MOC)
+            {
+                printers.Add(mo["Name"].ToString());
+            }
+            return printers;
         }
     }
 }

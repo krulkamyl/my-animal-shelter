@@ -2,20 +2,28 @@
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Repositories;
 using BaselinkerSubiektConnector.Support;
+using InsERT.Moria.Archiwa;
 using InsERT.Moria.Asortymenty;
 using InsERT.Moria.Dokumenty.Logistyka;
-using InsERT.Moria.Kadry.Duze;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.ModelDanych;
 using InsERT.Moria.ModelOrganizacyjny;
 using InsERT.Moria.Sfera;
+using InsERT.Moria.Wydruki;
 using InsERT.Mox.BusinessObjects;
 using InsERT.Mox.ObiektyBiznesowe;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Printing;
 using System.Threading.Tasks;
+using System.Windows.Documents;
+using System.Windows;
+using Microsoft.Win32;
+using Spire.Pdf;
+using System.Threading;
 
 namespace BaselinkerSubiektConnector.Builders
 {
@@ -28,6 +36,7 @@ namespace BaselinkerSubiektConnector.Builders
         private BaselinkerOrderResponse blOrderResponse;
         private Podmiot customer;
         private MSSQLAdapter mssqlAdapter;
+        private string documentType;
 
         public SubiektInvoiceReceiptBuilder(int baselinkerOrderId, MainWindowViewModel mainWindowViewModel)
         {
@@ -91,26 +100,89 @@ namespace BaselinkerSubiektConnector.Builders
 
                 if (receiptInvoice > 0)
                 {
-                    // TODO Get invoice
                     IDokumentySprzedazy sdi = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
                     var receiptInvoiceObj = sdi.Dane.Wszystkie().Where(pdm => pdm.Id == receiptInvoice).FirstOrDefault();
                     if (receiptInvoiceObj != null)
                     {
-                        this.UpdateOrder(receiptInvoiceObj);
+                        // TODO: temp
+                        // this.UpdateOrder(receiptInvoiceObj);
+
+
+                        if (this.documentType == "FS" || this.documentType == "FD")
+                        {
+                            this.saveInvoiceWithPrint(receiptInvoiceObj);
+                        }
                     }
 
                     // TODO: add radiobox - send to e-mail
                     // TODO: add combobox - select department and warehouse
+
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
-
-           
-
         }
+        private void saveInvoiceWithPrint(DokumentDS receiptInvoiceObj)
+        {
+            Console.WriteLine("saveInvoiceWithPrint");
+
+            IWydruki wydruki = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IWydruki>();
+            IDokumentySprzedazy dokumentySprzedazy = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
+            DokumentDS dokumentSprzedazy = dokumentySprzedazy.Dane.Wszystkie().Where(ds => ds.Id == receiptInvoiceObj.Id).FirstOrDefault();
+
+            using (IDokumentSprzedazy ds = dokumentySprzedazy.Znajdz(dokumentSprzedazy))
+            {
+                InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku typWzorca = InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku.FakturaSprzedazy;
+                if (this.documentType == "FD")
+                {
+                    typWzorca = InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku.FakturaDetaliczna;
+                }
+                using (IWydruk printDoc = wydruki.Utworz(typWzorca))
+                {
+                    printDoc.ParametryDrukowania.WybranyWzorzec = printDoc.ParametryDrukowania.DostepneWzorce.FirstOrDefault(w => w.Domyslny);
+
+                    printDoc.ObiektDoWydruku = ds.Dane;
+                    printDoc.ParametryDrukowania.NazwaDokumentuUzytkownika = ds.Dane.Id+"";
+                    printDoc.ParametryDrukowania.SciezkaEksportu = @"C:\SubiektBL_Eksports";
+                    Console.WriteLine(ds.Dane.Id + ".pdf");
+
+                    try
+                    {
+                        printDoc.Eksport();
+                        if (!printDoc.OstatniaOperacjaZakonczonaSukcesem)
+                        {
+                            throw new Exception(printDoc.PobierzListeBledow().First());
+                        }
+
+
+                        if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1"
+                            && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName).Length > 3)
+                        {
+                            int milliseconds = 2000;
+                            Thread.Sleep(milliseconds);
+                            PdfDocument pdfdocument = new PdfDocument();
+                            var filepath = @"C:\\SubiektBL_Eksports\\" + ds.Dane.Id + ".pdf";
+                            Console.WriteLine(filepath);
+                            pdfdocument.LoadFromFile(filepath);
+                            pdfdocument.PrintSettings.PrinterName = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
+                            pdfdocument.Print();
+                            pdfdocument.Dispose();
+                        }
+
+
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Problem z zapisem do pliku");
+                        Console.WriteLine(ex.Message);
+                    }
+                }
+
+            }
+        }
+
         private async Task InitializeOrderResponseAsync()
         {
             this.blOrderResponse = await blAdapter.GetOrderAsync(baselinkerOrderId);
@@ -375,7 +447,7 @@ namespace BaselinkerSubiektConnector.Builders
                     Console.WriteLine("save receipt");
                     if (receipt.Zapisz())
                     {
-
+                        this.documentType = "PA";
                         Console.WriteLine($"Receipt number: {receipt.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return receipt.Dane.Id;
                     }
@@ -406,7 +478,8 @@ namespace BaselinkerSubiektConnector.Builders
         {
             IMiejscaSprzedazy branches = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IMiejscaSprzedazy>();
             var branchesKeyValue = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Default_Branch).ToString();
-            return branches.Dane.Wszystkie().Where(key => key.Symbol == branchesKeyValue).Single();
+            Console.WriteLine(branchesKeyValue);
+            return branches.Dane.Wszystkie().Where(key => key.Symbol.Contains(branchesKeyValue)).Single();
         }
 
         private int createInvoice()
@@ -472,6 +545,7 @@ namespace BaselinkerSubiektConnector.Builders
                     Console.WriteLine("save invoice");
                     if (invoice.Zapisz())
                     {
+                        this.documentType = "FS";
                         Console.WriteLine($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return invoice.Dane.Id;
                     }
@@ -554,6 +628,7 @@ namespace BaselinkerSubiektConnector.Builders
                     Console.WriteLine("save invoice");
                     if (retailInvoice.Zapisz())
                     {
+                        this.documentType = "FD";
                         Console.WriteLine($"Invoice number: {retailInvoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return retailInvoice.Dane.Id;
                     }

@@ -508,3 +508,6 @@ C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\Baselink.75C58ADC.Up2Date
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\BaselinkerSubiektConnector.exe
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\BaselinkerSubiektConnector.pdb
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Spire.Pdf.dll
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Microsoft.mshtml.dll
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Spire.Pdf.xml

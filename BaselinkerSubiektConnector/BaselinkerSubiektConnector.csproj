@@ -71,6 +71,9 @@
       <HintPath>packages\Newtonsoft.Json.13.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Spire.Pdf, Version=10.3.7.0, Culture=neutral, PublicKeyToken=663f351905198cb3, processorArchitecture=MSIL">
+      <HintPath>packages\Spire.PDF.10.3.7\lib\net40\Spire.Pdf.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -85,6 +88,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Printing" />
     <Reference Include="System.Runtime, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>packages\System.Runtime.4.3.0\lib\net462\System.Runtime.dll</HintPath>
       <Private>True</Private>
@@ -196,8 +200,10 @@ copy /y "$(nexoSdkBinPath)InsERT.Moria.ThemeDark.dll" "$(TargetDir)\InsERT.Moria
 copy /y "$(nexoSdkBinPath)Xaml.pak" "$(TargetDir)\Xaml.pak"
 copy /y "$(nexoSdkBinPath)Xml.pak" "$(TargetDir)\Xml.pak"
 copy /y "$(nexoSdkBinPath)Sgd.pak" "$(TargetDir)\Sgd.pak"
+copy /y "$(nexoSdkBinPath)mrt.pak" "$(TargetDir)\mrt.pak"
+copy /y "$(nexoSdkBinPath)wnf.pak" "$(TargetDir)\wnf.pak"
 if exist "$(nexoSdkNarzedziaPath)PackageAndInstallerBuilder.exe" (call "$(nexoSdkNarzedziaPath)PackageAndInstallerBuilder.exe" /PlikKonfiguracji:Konfiguracja.xml) else (echo Nie można zbudować pakietu i instalatora, ponieważ nie istnieje plik: "$(nexoSdkNarzedziaPath)PackageAndInstallerBuilder.exe")
-    </PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

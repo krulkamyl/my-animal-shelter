@@ -45,8 +45,8 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                 }
                 ServerIpAddress = GetLocalIPAddress();
 
-                Console.WriteLine($"IP: {ServerIpAddress}");
-                Console.WriteLine($"Port: {port}");
+                Helpers.Log($"IP: {ServerIpAddress}");
+                Helpers.Log($"Port: {port}");
 
                 httpListener.Prefixes.Add("http://" + ServerIpAddress + ":" + port + "/");
                 httpListener.Start();
@@ -55,7 +55,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                 IsEnabled = true;
 
 
-                Console.WriteLine($"Serwis HTTP został uruchomiony. Adres IP serwera: {ServerIpAddress}");
+                Helpers.Log($"Serwis HTTP został uruchomiony. Adres IP serwera: {ServerIpAddress}");
             }
             catch (Exception ex)
             {
@@ -72,7 +72,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                     httpListener.Stop();
                     listenerThread.Abort();
                     IsEnabled = false;
-                    Console.WriteLine("Serwis HTTP został zatrzymany.");
+                    Helpers.Log("Serwis HTTP został zatrzymany.");
                 }
             }
             catch (Exception ex)
@@ -144,7 +144,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Błąd serwera: {ex.Message}");
+                Helpers.Log($"Błąd serwera: {ex.Message}");
             }
         }
     }

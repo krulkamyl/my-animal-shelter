@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Management;
 using System.Text.RegularExpressions;
 
-namespace BaselinkerSubiektConnector.Support 
+namespace BaselinkerSubiektConnector.Support
 {
+
     public class Helpers
     {
+        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
+
         public static string GetOrderId(string url)
         {
             Regex regex = new Regex(@"https://orders-e\.baselinker\.com/(\d+)/");
@@ -16,12 +20,12 @@ namespace BaselinkerSubiektConnector.Support
             if (match.Success)
             {
                 string number = match.Groups[1].Value;
-                Console.WriteLine("[Baselinker GetOrderId] Order ID: " + number);
+                Helpers.Log("[Baselinker GetOrderId] Order ID: " + number);
                 return number;
             }
             else
             {
-                Console.WriteLine("[Baselinker GetOrderId] Nie znaleziono pasującego numeru.");
+                Helpers.Log("[Baselinker GetOrderId] Nie znaleziono pasującego numeru.");
             }
             return url;
         }
@@ -50,6 +54,59 @@ namespace BaselinkerSubiektConnector.Support
                 printers.Add(mo["Name"].ToString());
             }
             return printers;
+        }
+
+        public static void Log(string message)
+        {
+            DateTime now = DateTime.Now;
+            string timestamp = now.ToString("yyyy-MM-dd HH:mm:ss");
+            string logMessage = $"{timestamp}: {message}";
+            var folder = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
+            string logFilePath = Path.Combine(folder, "Logs.txt");
+
+            try
+            {
+                using (StreamWriter writer = new StreamWriter(logFilePath, true))
+                {
+                    writer.WriteLine(logMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log($"Błąd podczas zapisu do pliku logów: {ex.Message}");
+            }
+
+            Console.WriteLine(logMessage);
+        }
+
+        public static void StartLog()
+        {
+            Log("############################");
+            Log("############################");
+            Log("############################");
+        }
+
+        public static void EnsureExportFolderExists()
+        {
+            try
+            {
+                string folderPath = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
+                string exportFolderPath = Path.Combine(folderPath, "Export");
+
+                if (!Directory.Exists(exportFolderPath))
+                {
+                    Directory.CreateDirectory(exportFolderPath);
+                    Log("Utworzono folder 'Export'.");
+                }
+                else
+                {
+                    Log("Folder 'Export' już istnieje.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log($"Wystąpił błąd podczas sprawdzania/utwarzania folderu 'Export': {ex.Message}");
+            }
         }
     }
 }

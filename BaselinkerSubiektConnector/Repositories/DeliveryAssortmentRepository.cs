@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using BaselinkerSubiektConnector.Builders;
+using BaselinkerSubiektConnector.Support;
 using InsERT.Moria.Asortymenty;
 using InsERT.Moria.Sfera;
 
@@ -22,13 +23,13 @@ namespace BaselinkerSubiektConnector.Repositories
         public InsERT.Moria.ModelDanych.Asortyment GetAssortment()
         {
             this.asortymenty = this.sfera.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
-            Console.WriteLine("DeliveryAssortmentRepository Get()");
+            Helpers.Log("DeliveryAssortmentRepository Get()");
             try
             {
                 InsERT.Moria.ModelDanych.Asortyment assortment = this.asortymenty.Dane.Wszystkie().Where(k => k.Symbol == ASSORTMENT_SYMBOL).FirstOrDefault();
                 if (assortment != null)
                 {
-                    Console.WriteLine("ASSORTMENT FOUND! : "+ assortment.Symbol);
+                    Helpers.Log("ASSORTMENT FOUND! : "+ assortment.Symbol);
                     return assortment;
                 }
                 var assortmentCreated = this.CreateAssortment();
@@ -37,15 +38,15 @@ namespace BaselinkerSubiektConnector.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine("ASSORTMENT FAIL");
-                Console.WriteLine(ex.Message);
+                Helpers.Log("ASSORTMENT FAIL");
+                Helpers.Log(ex.Message);
                 return null;
             }
         }
 
         public InsERT.Moria.ModelDanych.Asortyment CreateAssortment()
         {
-            Console.WriteLine("DeliveryAssortmentRepository Create()");
+            Helpers.Log("DeliveryAssortmentRepository Create()");
             try
             {
                 var jednostkiMiar = this.sfera.UchwytDoSfery.JednostkiMiar();
@@ -110,7 +111,7 @@ namespace BaselinkerSubiektConnector.Repositories
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Helpers.Log(ex.Message);
             }
             return null;
         }

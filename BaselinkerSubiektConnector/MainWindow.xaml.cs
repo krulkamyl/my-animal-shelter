@@ -11,8 +11,10 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using MessageBox = System.Windows.MessageBox;
 
 namespace BaselinkerSubiektConnector
 {
@@ -53,6 +55,7 @@ namespace BaselinkerSubiektConnector
 
             Subiekt_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login);
             Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
+            Config_FolderPath.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
 
@@ -88,7 +91,7 @@ namespace BaselinkerSubiektConnector
 
         }
 
-        private void UpdateComboBox(ComboBox comboBox, string registryKey)
+        private void UpdateComboBox(System.Windows.Controls.ComboBox comboBox, string registryKey)
         {
             string value = SharedRegistryManager.GetValue(registryKey);
 
@@ -140,6 +143,8 @@ namespace BaselinkerSubiektConnector
         private void PolaczButton_Click(object sender, RoutedEventArgs e)
         {
             DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
+            Helpers.StartLog();
+            Helpers.EnsureExportFolderExists();
 
             var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
             daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
@@ -156,21 +161,39 @@ namespace BaselinkerSubiektConnector
             }
         }
 
+        private void SelectFolder_Click(object sender, RoutedEventArgs e)
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                DialogResult result = dialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
+                {
+                    Config_FolderPath.Text = dialog.SelectedPath;
+                }
+            }
+        }
+
         private void SaveConfiguration_Click(object sender, RoutedEventArgs e)
         {
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Host, MSSQL_IP.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_Folderpath, Config_FolderPath.Text);
 
 
             int ProductIndex = Baselinker_StorageName.SelectedIndex;
-            var selected = storages[ProductIndex];
-            if (selected != null)
+            if (storages != null)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
+                var selected = storages[ProductIndex];
+                if (selected != null)
+                {
+                    SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
+                    SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
+                }
+
             }
+            
 
             if (Subiekt_DefaultWarehouse.Text.Length > 0)
             {

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
+using BaselinkerSubiektConnector.Support;
 
 namespace BaselinkerSubiektConnector.Adapters
 {
@@ -43,7 +44,7 @@ namespace BaselinkerSubiektConnector.Adapters
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Helpers.Log("Error: " + ex.Message);
             }
 
             return databaseNames;
@@ -69,7 +70,7 @@ namespace BaselinkerSubiektConnector.Adapters
                     command.Parameters.AddWithValue("@EAN", ean);
 
                     SqlDataReader reader = command.ExecuteReader();
-                    Console.WriteLine(reader.ToString());
+                    Helpers.Log(reader.ToString());
                     while (reader.Read())
                     {
                         string productId = reader["Asortyment_Id"].ToString();
@@ -81,7 +82,7 @@ namespace BaselinkerSubiektConnector.Adapters
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Helpers.Log("Error: " + ex.Message);
             }
 
             return products;
@@ -104,7 +105,7 @@ namespace BaselinkerSubiektConnector.Adapters
                     SqlCommand command = new SqlCommand(query, connection);
 
                     SqlDataReader reader = command.ExecuteReader();
-                    Console.WriteLine(reader.ToString());
+                    Helpers.Log(reader.ToString());
                     while (reader.Read())
                     {
                         warehouses.Add(reader["Symbol"].ToString());
@@ -115,7 +116,7 @@ namespace BaselinkerSubiektConnector.Adapters
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Helpers.Log("Error: " + ex.Message);
             }
 
             return warehouses;
@@ -138,7 +139,6 @@ namespace BaselinkerSubiektConnector.Adapters
                     SqlCommand command = new SqlCommand(query, connection);
 
                     SqlDataReader reader = command.ExecuteReader();
-                    Console.WriteLine(reader.ToString());
                     while (reader.Read())
                     {
                         warehouses.Add(reader["Symbol"].ToString());
@@ -149,7 +149,7 @@ namespace BaselinkerSubiektConnector.Adapters
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Error: " + ex.Message);
+                Helpers.Log("Error: " + ex.Message);
             }
 
             return warehouses;

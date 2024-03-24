@@ -29,5 +29,13 @@
 
         public const string Config_Folderpath = "CONFIG_FOLDERPATH";
 
+        // Email
+
+        public const string Config_EmailSendAuto = "CONFIG_EMAIL_SEND_AUTO";
+        public const string Config_EmailServer = "CONFIG_EMAIL_SERVER";
+        public const string Config_EmailPort = "CONFIG_EMAIL_PORT";
+        public const string Config_EmailLogin = "CONFIG_EMAIL_LOGIN";
+        public const string Config_EmailPassword = "CONFIG_EMAIL_PASSWORD";
+
     }
 }

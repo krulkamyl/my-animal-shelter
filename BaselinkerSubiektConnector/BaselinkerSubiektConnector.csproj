@@ -124,6 +124,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WpfMessageBox, Version=1.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>packages\WpfMessageBox.1.2.0\lib\net40-client\WpfMessageBox.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Adapters\BaselinkerAdapter.cs" />
@@ -149,6 +152,7 @@
     <Compile Include="RegistryConfigurationKeys.cs" />
     <Compile Include="RegistryManager.cs" />
     <Compile Include="Repositories\DeliveryAssortmentRepository.cs" />
+    <Compile Include="Services\EmailService\EmailService.cs" />
     <Compile Include="Services\HttpService\HttpService.cs" />
     <Compile Include="Support\Helpers.cs" />
     <Compile Include="Uchwyty.cs" />

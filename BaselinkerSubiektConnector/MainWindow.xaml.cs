@@ -1,5 +1,6 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+using BaselinkerSubiektConnector.Services.EmailService;
 using BaselinkerSubiektConnector.Services.HttpService;
 using BaselinkerSubiektConnector.Support;
 using InsERT.Moria.Klienci;
@@ -8,12 +9,11 @@ using InsERT.Mox.Product;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
+using WpfMessageBoxLibrary;
 using MessageBox = System.Windows.MessageBox;
 
 namespace BaselinkerSubiektConnector
@@ -59,6 +59,11 @@ namespace BaselinkerSubiektConnector
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
 
+            Config_EmailServer.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailServer);
+            Config_EmailPort.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPort);
+            Config_EmailLogin.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
+            Config_EmailPassword.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
+
             if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
             {
                 Subiekt_CashRegisterEnabled.IsChecked = true;
@@ -67,6 +72,11 @@ namespace BaselinkerSubiektConnector
             if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
             {
                 Subiekt_PrinterEnabled.IsChecked = true;
+            }
+
+            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1")
+            {
+                Config_EmailSendAuto.IsChecked = true;
             }
 
             UpdateComboBox(Baselinker_StorageName, RegistryConfigurationKeys.Baselinker_StorageName);
@@ -216,14 +226,25 @@ namespace BaselinkerSubiektConnector
                 );
 
             SharedRegistryManager.SetValue(
-                RegistryConfigurationKeys.Subiekt_CashRegisterEnabled,
-                Subiekt_CashRegisterEnabled.IsChecked == true ? "1" : "0"
+                RegistryConfigurationKeys.Subiekt_PrinterEnabled,
+                Subiekt_PrinterEnabled.IsChecked == true ? "1" : "0"
+                );
+
+            SharedRegistryManager.SetValue(
+                RegistryConfigurationKeys.Config_EmailSendAuto,
+                Config_EmailSendAuto.IsChecked == true ? "1" : "0"
                 );
 
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
 
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
+
+
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
+            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
 
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -253,6 +274,45 @@ namespace BaselinkerSubiektConnector
             catch (Exception ex)
             {
                 MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
+        }
+
+        private void TestEmail_Click(object sender, RoutedEventArgs e)
+        {
+            if (Config_EmailLogin.Text.Length > 3 && Config_EmailPassword.Text.Length > 3 && Config_EmailPort.Text.Length >= 2 && Config_EmailServer.Text.Length > 3)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
+
+                var msgProperties = new WpfMessageBoxProperties()
+                {
+                    Button = MessageBoxButton.OKCancel,
+                    ButtonOkText = "Wyślij",
+                    CheckBoxText = "Anuluj",
+                    Image = MessageBoxImage.Information,
+                    Header = "Testowanie wysyłania e-mail",
+                    IsCheckBoxChecked = true,
+                    IsCheckBoxVisible = false,
+                    IsTextBoxVisible = true,
+                    Text = "Wprowadź swój adres e-mail, na którego ma zostać wysłany testowa wiadomość e-mail.",
+                    Title = "Test e-mail",
+                };
+
+                MessageBoxResult result = WpfMessageBox.Show(this, ref msgProperties);
+                if (msgProperties.TextBoxText.Length > 3 && msgProperties.TextBoxText.Contains("@"))
+                {
+                    EmailService emailService = new EmailService();
+                    emailService.SendEmail(msgProperties.TextBoxText, "Testowa wiadomosć e-mail", "Jeżeli otrzymałeś/aś tę wiadomość e-mail, to znaczy, że wysyłanie e-maili działa!");
+                    MessageBox.Show("Wiadomość została wysłana. Sprawdź swój adres e-mail.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+               
+            }
+            else
+            {
+                MessageBox.Show("Wystąpił błąd: \n" + "Nie uzupełniono wszystkich pól wymaganych dla działania wysyłania wiadomości e-mail.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
         }

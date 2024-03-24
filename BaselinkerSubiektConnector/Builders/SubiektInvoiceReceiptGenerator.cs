@@ -24,6 +24,7 @@ using System.Windows;
 using Microsoft.Win32;
 using Spire.Pdf;
 using System.Threading;
+using BaselinkerSubiektConnector.Services.EmailService;
 
 namespace BaselinkerSubiektConnector.Builders
 {
@@ -109,7 +110,7 @@ namespace BaselinkerSubiektConnector.Builders
 
                         if (this.documentType == "FS" || this.documentType == "FD")
                         {
-                            this.saveInvoiceWithPrint(receiptInvoiceObj);
+                            this.SavePrintInvoiceAndSendEmail(receiptInvoiceObj);
                         }
                     }
 
@@ -123,7 +124,7 @@ namespace BaselinkerSubiektConnector.Builders
                 Helpers.Log(ex.Message);
             }
         }
-        private void saveInvoiceWithPrint(DokumentDS receiptInvoiceObj)
+        private void SavePrintInvoiceAndSendEmail(DokumentDS receiptInvoiceObj)
         {
             Helpers.Log("saveInvoiceWithPrint");
 
@@ -156,6 +157,7 @@ namespace BaselinkerSubiektConnector.Builders
                             throw new Exception(printDoc.PobierzListeBledow().First());
                         }
 
+                        var filepath = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath) + "\\Export\\" + fileName + ".pdf";
 
                         if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1"
                             && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName).Length > 3)
@@ -163,7 +165,6 @@ namespace BaselinkerSubiektConnector.Builders
                             int milliseconds = 2000;
                             Thread.Sleep(milliseconds);
                             PdfDocument pdfdocument = new PdfDocument();
-                            var filepath = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath)+"\\Export\\" + fileName + ".pdf";
                             Helpers.Log(filepath);
                             pdfdocument.LoadFromFile(filepath);
                             pdfdocument.PrintSettings.PrinterName = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
@@ -171,8 +172,26 @@ namespace BaselinkerSubiektConnector.Builders
                             pdfdocument.Dispose();
                         }
 
+                        BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
+                        if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1"
+                            && blResponseOrder.email.Length > 3 
+                            && blResponseOrder.email.Contains("@")
+                            )
+                        {
+                            Helpers.Log("Send email to: " + blResponseOrder.email);
+                            EmailService emailService = new EmailService();
+                            string subject = "Faktura elektroniczna nr." + receiptInvoiceObj.NumerWewnetrzny.PelnaSygnatura;
+                            string body = "Szanowni Państwo!\n\n W załączniku przesyłamy Fakturę VAT o numerze " + receiptInvoiceObj.NumerWewnetrzny.PelnaSygnatura;
 
-                    }
+
+                            List<string> attachments = new List<string>();
+                            attachments.Add(filepath);
+
+                            emailService.SendEmail(blResponseOrder.email, subject, body, attachments);
+                        }
+
+
+                 }
                     catch (Exception ex)
                     {
                         Helpers.Log("Problem z zapisem do pliku");

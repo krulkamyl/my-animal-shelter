@@ -187,6 +187,10 @@
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
                     </Grid.RowDefinitions>
 
                     <Grid Grid.Row="0">
@@ -233,6 +237,51 @@
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="Config_FolderPath" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
                         <Button Grid.Column="1" Content="Wybierz folder" Click="SelectFolder_Click" MinWidth="100"/>
+                    </Grid>
+
+                    <TextBlock Text="Konfiguracja poczty email" FontWeight="Bold" Grid.Row="4" Margin="5"/>
+                    <Grid Grid.Row="5">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox x:Name="Config_EmailSendAuto" Margin="5" Grid.Row="5" Content="Wysyłać e-maile do klientów automatycznie?" />
+                        <Button Grid.Column="1" Content="Wyślij testowy e-mail" Click="TestEmail_Click" MinWidth="100"/>
+                    </Grid>
+                    
+                    <Grid Grid.Row="6">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Serwer SMTP" FontWeight="Bold" Grid.Row="0" Margin="5 5 0 0"/>
+                            <TextBox x:Name="Config_EmailServer"  Margin="5 5 0 0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Port SMTP" FontWeight="Bold" Grid.Row="0"  Margin="5 5 0 0"/>
+                            <TextBox x:Name="Config_EmailPort"  Margin="5 5 0 0"/>
+                        </StackPanel>
+                    </Grid>
+                    <Grid Grid.Row="7">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="Login (e-mail)" FontWeight="Bold" Grid.Row="0"  Margin="5 5 0 0"/>
+                            <TextBox x:Name="Config_EmailLogin"  Margin="5 5 0 0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1">
+                            <TextBlock Text="Hasło" FontWeight="Bold" Grid.Row="0"  Margin="5 5 0 0"/>
+                            <TextBox x:Name="Config_EmailPassword"  Margin="5 5 0 0"/>
+                        </StackPanel>
                     </Grid>
                 </Grid>
             </StackPanel>

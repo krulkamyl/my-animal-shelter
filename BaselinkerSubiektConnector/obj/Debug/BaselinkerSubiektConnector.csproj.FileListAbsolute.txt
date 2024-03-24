@@ -511,3 +511,5 @@ C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Spire.Pdf.dll
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Microsoft.mshtml.dll
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\Spire.Pdf.xml
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\WpfMessageBox.dll
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\WpfMessageBox.xml

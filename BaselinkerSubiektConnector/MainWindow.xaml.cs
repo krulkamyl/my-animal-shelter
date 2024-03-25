@@ -83,6 +83,7 @@ namespace BaselinkerSubiektConnector
             UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
             UpdateComboBox(Subiekt_DefaultBranch, RegistryConfigurationKeys.Subiekt_Default_Branch);
             UpdateComboBox(Subiekt_DefaultWarehouse, RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+            UpdateComboBox(Subiekt_CashRegisterName, RegistryConfigurationKeys.Subiekt_CashRegisterName);
 
 
             var defaultPrinter = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
@@ -203,11 +204,16 @@ namespace BaselinkerSubiektConnector
                 }
 
             }
-            
+
 
             if (Subiekt_DefaultWarehouse.Text.Length > 0)
             {
                 SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
+            }
+
+            if (Subiekt_CashRegisterName.Text.Length > 0)
+            {
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName, Subiekt_CashRegisterName.Text);
             }
 
             if (Subiekt_DefaultBranch.Text.Length > 0)
@@ -226,8 +232,8 @@ namespace BaselinkerSubiektConnector
                 );
 
             SharedRegistryManager.SetValue(
-                RegistryConfigurationKeys.Subiekt_PrinterEnabled,
-                Subiekt_PrinterEnabled.IsChecked == true ? "1" : "0"
+                RegistryConfigurationKeys.Subiekt_CashRegisterEnabled,
+                Subiekt_CashRegisterEnabled.IsChecked == true ? "1" : "0"
                 );
 
             SharedRegistryManager.SetValue(
@@ -319,10 +325,14 @@ namespace BaselinkerSubiektConnector
 
         private void MSSQL_Name_SelectionChanged(Object sender, EventArgs e)
         {
-            if (MSSQL_Name.Text.StartsWith("Nexo_")) { 
+            if (MSSQL_Name.Text.StartsWith("Nexo_"))
+            {
                 Subiekt_DefaultWarehouse.Items.Clear();
+                Subiekt_DefaultBranch.Items.Clear();
+                Subiekt_CashRegisterName.Items.Clear();
                 mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
                 List<string> warehouses = mssqlAdapter.GetWarehouses(MSSQL_Name.Text);
+                List<string> cashRegisters = mssqlAdapter.GetCashRegisters(MSSQL_Name.Text);
                 List<string> branches = mssqlAdapter.GetBranches(MSSQL_Name.Text);
                 if (warehouses.Count > 0)
                 {
@@ -334,9 +344,19 @@ namespace BaselinkerSubiektConnector
                     Subiekt_DefaultWarehouse.Items.Add(warehouse);
                 }
 
+                foreach (string cashRegister in cashRegisters)
+                {
+                    Subiekt_CashRegisterName.Items.Add(cashRegister);
+                }
+
                 if (branches.Count > 0)
                 {
                     Subiekt_DefaultBranch.IsEnabled = true;
+                }
+
+                if (cashRegisters.Count > 0)
+                {
+                    Subiekt_CashRegisterName.IsEnabled = true;
                 }
 
                 foreach (string branch in branches)

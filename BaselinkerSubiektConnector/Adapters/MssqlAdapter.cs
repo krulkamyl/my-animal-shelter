@@ -155,5 +155,38 @@ namespace BaselinkerSubiektConnector.Adapters
             return warehouses;
         }
 
+        public List<string> GetCashRegisters(string dbName)
+        {
+            List<string> cashRegisters = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+
+                    string query = $@"SELECT Nazwa
+                                FROM {dbName}.ModelDanychContainer.UrzadzeniaZewnetrzne WHERE Typ = 1";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        cashRegisters.Add(reader["Nazwa"].ToString());
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log("Error: " + ex.Message);
+            }
+
+            return cashRegisters;
+        }
+
     }
 }

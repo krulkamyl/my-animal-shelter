@@ -25,6 +25,8 @@ using Microsoft.Win32;
 using Spire.Pdf;
 using System.Threading;
 using BaselinkerSubiektConnector.Services.EmailService;
+using InsERT.Moria.Urzadzenia;
+using InsERT.Moria.Urzadzenia.Core;
 
 namespace BaselinkerSubiektConnector.Builders
 {
@@ -112,6 +114,10 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             this.SavePrintInvoiceAndSendEmail(receiptInvoiceObj);
                         }
+                        else if((this.documentType == "PA" || this.documentType == "PF") && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
+                        {
+                            this.PrintFiscalReceipt(receiptInvoiceObj);
+                        }
                     }
 
                     // TODO: add radiobox - send to e-mail
@@ -124,6 +130,7 @@ namespace BaselinkerSubiektConnector.Builders
                 Helpers.Log(ex.Message);
             }
         }
+
         private void SavePrintInvoiceAndSendEmail(DokumentDS receiptInvoiceObj)
         {
             Helpers.Log("saveInvoiceWithPrint");
@@ -199,6 +206,23 @@ namespace BaselinkerSubiektConnector.Builders
                     }
                 }
 
+            }
+        }
+
+        private void PrintFiscalReceipt(DokumentDS receiptInvoiceObj)
+        {
+            //TODO: check it below works
+            Helpers.Log("PrintFiscalReceipt");
+
+            IFiskalizacjaDokumentu fiskalizator = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IFiskalizacjaDokumentu>();
+            IUrzadzeniaZewnetrzne cashRegisters = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IUrzadzeniaZewnetrzne>();
+            string cashRegisterName = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName).ToString();
+            UrzadzenieZewnetrzne cashRegisterDevice = cashRegisters.Dane.Wszystkie().Where(ds => ds.Nazwa == cashRegisterName).FirstOrDefault();
+
+
+            using (IUrzadzenieZewnetrzne device = cashRegisters.Znajdz(cashRegisterDevice))
+            {
+                fiskalizator.Fiskalizuj(receiptInvoiceObj.Id, device.Dane.Id);
             }
         }
 

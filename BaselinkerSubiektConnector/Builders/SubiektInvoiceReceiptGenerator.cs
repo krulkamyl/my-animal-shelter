@@ -114,7 +114,7 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             this.SavePrintInvoiceAndSendEmail(receiptInvoiceObj);
                         }
-                        else if((this.documentType == "PA" || this.documentType == "PF") && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
+                        else if((this.documentType == "PA" || this.documentType == "PF") && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
                         {
                             this.PrintFiscalReceipt(receiptInvoiceObj);
                         }

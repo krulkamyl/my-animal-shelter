@@ -167,7 +167,7 @@ namespace BaselinkerSubiektConnector.Adapters
 
 
                     string query = $@"SELECT Nazwa
-                                FROM {dbName}.ModelDanychContainer.UrzadzeniaZewnetrzne WHERE Typ = 1";
+                                FROM {dbName}.ModelDanychContainer.UrzadzeniaZewnetrzne";
 
                     SqlCommand command = new SqlCommand(query, connection);
 

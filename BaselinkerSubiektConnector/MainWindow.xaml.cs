@@ -6,6 +6,7 @@ using BaselinkerSubiektConnector.Support;
 using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Product;
+using InsERT.Mox.UIFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +16,10 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using WpfMessageBoxLibrary;
 using MessageBox = System.Windows.MessageBox;
+using System.Threading;
+using Timer = System.Threading.Timer;
+using Helpers = BaselinkerSubiektConnector.Support.Helpers;
+using DialogResult = System.Windows.Forms.DialogResult;
 
 namespace BaselinkerSubiektConnector
 {
@@ -25,6 +30,7 @@ namespace BaselinkerSubiektConnector
         private List<BaselinkerStoragesResponseStorage> storages; 
         private HttpService httpService;
         private DispatcherTimer timer;
+        private static Timer checkSferaIsEnabled;
 
         public MainWindow()
         {
@@ -45,7 +51,31 @@ namespace BaselinkerSubiektConnector
             timer.Interval = TimeSpan.FromSeconds(2);
             timer.Tick += CheckHttpServiceEnabled;
             timer.Start();
+
+            checkSferaIsEnabled = new Timer(CheckSferaIsEnabledMethod, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
+ 
+            Closing += MainWindow_Closing;
+
         }
+
+        private void CheckSferaIsEnabledMethod(object state)
+        {
+            if (ViewModel.CzySferaJestUruchomiona)
+            {
+                httpService.StartStop();
+                checkSferaIsEnabled.Dispose();
+            }
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (httpService.IsEnabled)
+            {
+                httpService.Stop();
+            }
+        }
+
 
         private void LoadConfiguration()
         {
@@ -87,7 +117,7 @@ namespace BaselinkerSubiektConnector
 
 
             var defaultPrinter = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
-            if (defaultPrinter.Length > 3)
+            if (defaultPrinter != null && defaultPrinter.Length > 3)
             {
                 Subiekt_PrinterName.Items.Add(defaultPrinter);
                 Subiekt_PrinterName.SelectedItem = defaultPrinter;
@@ -106,7 +136,7 @@ namespace BaselinkerSubiektConnector
         {
             string value = SharedRegistryManager.GetValue(registryKey);
 
-            if (value.Length > 0)
+            if (value != null && value.Length > 0)
             {
                 comboBox.Items.Clear();
                 comboBox.Items.Add(value);
@@ -153,22 +183,23 @@ namespace BaselinkerSubiektConnector
 
         private void PolaczButton_Click(object sender, RoutedEventArgs e)
         {
-            DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
-            Helpers.StartLog();
-            Helpers.EnsureExportFolderExists();
-
-            var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
-            daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
-
-            ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
-        }
-
-        private void UruchomButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModel.UchwytDoSfery != null)
+            if (httpService.IsEnabled)
             {
-                var okno = ViewModel.UchwytDoSfery.PodajObiektTypu<IPodmiotOkno>();
-                _ = okno.Wybierz();
+                httpService.Stop();
+            }
+            else
+            {
+                if (!ViewModel.CzySferaJestUruchomiona)
+                {
+                    DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
+                    Helpers.StartLog();
+                    Helpers.EnsureExportFolderExists();
+
+                    var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
+                    daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
+
+                    ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
+                }
             }
         }
 
@@ -402,29 +433,19 @@ namespace BaselinkerSubiektConnector
             }
         }
 
-        private void StopStartHttpService_Click(object sender, RoutedEventArgs e)
-        {
-            if (ViewModel.CzySferaJestUruchomiona)
-            {
-                httpService.StartStop();
-            }
-            else
-            {
-                MessageBox.Show("Sfera nie jest uruchiomiona.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-
         private void CheckHttpServiceEnabled(object sender, EventArgs e)
         {
             if (httpService.IsEnabled)
             {
-                HttpServiceCheck.Text = "Serwer HTTP działa. Adres: http://"+ httpService.ServerIpAddress+":"+httpService.port;
-                HttpServiceCheck.Foreground = Brushes.Green;
+                HttpServiceEnabled.Text = "Serwer HTTP działa. Adres: http://" + httpService.ServerIpAddress + ":" + httpService.port;
+                HttpServiceEnabledIcon.Fill = Brushes.Green;
+                ButtonEnableDisableApp.Content = "Wyłacz";
             }
             else
             {
-                HttpServiceCheck.Text = "Serwer HTTP nie jest uruchomiony.";
-                HttpServiceCheck.Foreground = Brushes.Red;
+                HttpServiceEnabled.Text = "Serwer HTTP wyłączony";
+                HttpServiceEnabledIcon.Fill = Brushes.Red;
+                ButtonEnableDisableApp.Content = "Włącz";
             }
         }
     }

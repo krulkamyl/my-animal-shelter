@@ -2,11 +2,8 @@
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Services.EmailService;
 using BaselinkerSubiektConnector.Services.HttpService;
-using BaselinkerSubiektConnector.Support;
-using InsERT.Moria.Klienci;
 using InsERT.Moria.Sfera;
 using InsERT.Mox.Product;
-using InsERT.Mox.UIFramework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +13,11 @@ using System.Windows.Media;
 using System.Windows.Threading;
 using WpfMessageBoxLibrary;
 using MessageBox = System.Windows.MessageBox;
-using System.Threading;
 using Timer = System.Threading.Timer;
 using Helpers = BaselinkerSubiektConnector.Support.Helpers;
 using DialogResult = System.Windows.Forms.DialogResult;
+using System.IO;
+using BaselinkerSubiektConnector.Services.SQLiteService;
 
 namespace BaselinkerSubiektConnector
 {
@@ -35,6 +33,10 @@ namespace BaselinkerSubiektConnector
         public MainWindow()
         {
             InitializeComponent();
+
+            CheckAppDataFolderExists();
+            InitializeDatabase();
+
 
             ViewModel = new MainWindowViewModel
             {
@@ -58,6 +60,37 @@ namespace BaselinkerSubiektConnector
             Closing += MainWindow_Closing;
 
         }
+
+        private void CheckAppDataFolderExists()
+        {
+            if (!Directory.Exists(Helpers.GetApplicationPath()))
+            {
+                try
+                {
+                    Directory.CreateDirectory(Helpers.GetApplicationPath());
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Wystąpił błąd podczas tworzenia folderu '{Helpers.GetApplicationPath()}': {ex.Message}", "Błąd!", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            }
+        }
+
+        private void InitializeDatabase()
+        {
+            try
+            {
+                SQLiteService.InitializeDatabase();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("[SQLITE] " + ex.Message);
+                Console.WriteLine(ex.StackTrace);
+                MessageBox.Show(ex.Message, "Błąd SQLite!", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
 
         private void CheckSferaIsEnabledMethod(object state)
         {

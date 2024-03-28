@@ -59,7 +59,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show(ex.Message + "\n Sprawdź czy aplikacja została uruchomiona jako \"ADMINISTRATOR\"", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
         }
 

@@ -39,6 +39,15 @@ namespace BaselinkerSubiektConnector.Support
             return result;
         }
 
+
+
+        public static string GetApplicationPath()
+        {
+            string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+
+            return appDataFolder + "\\cichy.cloud\\Subiekt Baselinker Connector\\";
+        }
+
         public static List<string> GetPrinters()
         {
             List<string> printers = new List<string>();

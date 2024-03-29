@@ -154,7 +154,7 @@ namespace BaselinkerSubiektConnector.Builders
 
                     printDoc.ObiektDoWydruku = ds.Dane;
                     printDoc.ParametryDrukowania.NazwaDokumentuUzytkownika = fileName;
-                    printDoc.ParametryDrukowania.SciezkaEksportu = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath) + "\\Export\\";
+                    printDoc.ParametryDrukowania.SciezkaEksportu = Helpers.GetExportApplicationPath() + "\\";
 
                     try
                     {
@@ -164,7 +164,7 @@ namespace BaselinkerSubiektConnector.Builders
                             throw new Exception(printDoc.PobierzListeBledow().First());
                         }
 
-                        var filepath = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath) + "\\Export\\" + fileName + ".pdf";
+                        var filepath = Helpers.GetExportApplicationPath() + "\\" + fileName + ".pdf";
 
                         if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1"
                             && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName).Length > 3)

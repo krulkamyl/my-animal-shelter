@@ -260,6 +260,10 @@
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductDataResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductsListResponse.cs" />
     <Compile Include="Objects\Baselinker\Storages\BaselinkerStoragesResponse.cs" />
+    <Compile Include="Objects\SQLite\SQLiteSubiektBranchObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteSubiektCashRegisterObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteBaselinkerWarehouseObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteSubiektWarehouseObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -276,10 +280,15 @@
     <Compile Include="RegistryConfigurationKeys.cs" />
     <Compile Include="RegistryManager.cs" />
     <Compile Include="Repositories\DeliveryAssortmentRepository.cs" />
+    <Compile Include="Repositories\SQLite\SubiektBranches.cs" />
+    <Compile Include="Repositories\SQLite\SubiektCashRegisters.cs" />
+    <Compile Include="Repositories\SQLite\BaselinkerWarehouses.cs" />
+    <Compile Include="Repositories\SQLite\SubiektWarehouses.cs" />
     <Compile Include="Services\EmailService\EmailService.cs" />
     <Compile Include="Services\HttpService\HttpService.cs" />
     <Compile Include="Services\SQLiteService\SQLiteService.cs" />
     <Compile Include="Support\Helpers.cs" />
+    <Compile Include="Support\SQLiteDatabaseNames.cs" />
     <Compile Include="Uchwyty.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -320,9 +329,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Repositories\SQLite\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

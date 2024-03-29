@@ -70,8 +70,7 @@ namespace BaselinkerSubiektConnector.Support
             DateTime now = DateTime.Now;
             string timestamp = now.ToString("yyyy-MM-dd HH:mm:ss");
             string logMessage = $"{timestamp}: {message}";
-            var folder = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
-            string logFilePath = Path.Combine(folder, "Logs.txt");
+            string logFilePath = Path.Combine(GetApplicationPath(), "Logs.txt");
 
             try
             {
@@ -95,16 +94,18 @@ namespace BaselinkerSubiektConnector.Support
             Log("############################");
         }
 
+        public static string GetExportApplicationPath()
+        {
+            return Path.Combine(GetApplicationPath(),"Export");
+        }
+
         public static void EnsureExportFolderExists()
         {
             try
             {
-                string folderPath = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
-                string exportFolderPath = Path.Combine(folderPath, "Export");
-
-                if (!Directory.Exists(exportFolderPath))
+                if (!Directory.Exists(GetExportApplicationPath()))
                 {
-                    Directory.CreateDirectory(exportFolderPath);
+                    Directory.CreateDirectory(GetExportApplicationPath());
                     Log("Utworzono folder 'Export'.");
                 }
                 else

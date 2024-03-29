@@ -27,8 +27,6 @@
         public const string Baselinker_StorageId = "BASELINKER_STORAGE_ID";
         public const string Baselinker_StorageName = "BASELINKER_STORAGE_Name";
 
-        public const string Config_Folderpath = "CONFIG_FOLDERPATH";
-
         // Email
 
         public const string Config_EmailSendAuto = "CONFIG_EMAIL_SEND_AUTO";

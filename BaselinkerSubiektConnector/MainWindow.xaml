@@ -162,7 +162,7 @@
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="MSSQL_Name" SelectionChanged="MSSQL_Name_SelectionChanged" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
+                                    <ComboBox x:Name="MSSQL_Name" DropDownClosed="MSSQL_Name_DropDownClosed" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
 
                                     <Button Grid.Column="1" Content="Pobierz dostępne bazy" Click="MssqlGetDbName" MinWidth="100"/>
                                 </Grid>
@@ -240,16 +240,6 @@
                                         <CheckBox x:Name="Subiekt_CashRegisterEnabled" Margin="5" Content="Fiskalizować automatycznie?" />
                                         <ComboBox x:Name="Subiekt_CashRegisterName" Margin="5"/>
                                     </StackPanel>
-                                </Grid>
-
-                                <TextBlock Text="Wybierz folder zapisu" FontWeight="Bold" Grid.Row="2" Margin="5"/>
-                                <Grid Grid.Row="3" Margin="5">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                    </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="Config_FolderPath" IsReadOnly="True" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
-                                    <Button Grid.Column="1" Content="Wybierz folder" Click="SelectFolder_Click" MinWidth="100"/>
                                 </Grid>
 
                                 <TextBlock Text="Konfiguracja poczty email" FontWeight="Bold" Grid.Row="4" Margin="5"/>

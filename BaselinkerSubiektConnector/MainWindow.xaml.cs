@@ -18,6 +18,10 @@ using Helpers = BaselinkerSubiektConnector.Support.Helpers;
 using DialogResult = System.Windows.Forms.DialogResult;
 using System.IO;
 using BaselinkerSubiektConnector.Services.SQLiteService;
+using BaselinkerSubiektConnector.Repositories.SQLite;
+using BaselinkerSubiektConnector.Support;
+using BaselinkerSubiektConnector.Objects.SQLite;
+using System.Windows.Controls.Primitives;
 
 namespace BaselinkerSubiektConnector
 {
@@ -29,6 +33,8 @@ namespace BaselinkerSubiektConnector
         private HttpService httpService;
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
+
+        public MainWindowViewModel ViewModel { get; }
 
         public MainWindow()
         {
@@ -112,13 +118,19 @@ namespace BaselinkerSubiektConnector
 
         private void LoadConfiguration()
         {
+
+            LoadItemsAndSetDefault(Subiekt_DefaultWarehouse, SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+            LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
+            LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
+            LoadItemsAndSetDefault(Baselinker_StorageName, SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(), RegistryConfigurationKeys.Baselinker_StorageName);
+            UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
+
             MSSQL_IP.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host);
             MSSQL_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login);
             MSSQL_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password);
 
             Subiekt_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login);
             Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
-            Config_FolderPath.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_Folderpath);
 
             Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
 
@@ -142,12 +154,6 @@ namespace BaselinkerSubiektConnector
                 Config_EmailSendAuto.IsChecked = true;
             }
 
-            UpdateComboBox(Baselinker_StorageName, RegistryConfigurationKeys.Baselinker_StorageName);
-            UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
-            UpdateComboBox(Subiekt_DefaultBranch, RegistryConfigurationKeys.Subiekt_Default_Branch);
-            UpdateComboBox(Subiekt_DefaultWarehouse, RegistryConfigurationKeys.Subiekt_Default_Warehouse);
-            UpdateComboBox(Subiekt_CashRegisterName, RegistryConfigurationKeys.Subiekt_CashRegisterName);
-
 
             var defaultPrinter = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
             if (defaultPrinter != null && defaultPrinter.Length > 3)
@@ -163,6 +169,26 @@ namespace BaselinkerSubiektConnector
                 }
             }
 
+        }
+
+        private void LoadItemsAndSetDefault(System.Windows.Controls.ComboBox comboBox, string databaseName, string registryKey)
+        {
+            List<Record> records = SQLiteService.ReadRecords(databaseName);
+
+            if (records.Count > 0)
+            {
+                comboBox.Items.Clear();
+                foreach (Record record in records)
+                {
+                    comboBox.Items.Add(record.key);
+                }
+            }
+
+            var defaultValue = SharedRegistryManager.GetValue(registryKey);
+            if (!string.IsNullOrEmpty(defaultValue) && defaultValue.Length > 1)
+            {
+                comboBox.SelectedItem = defaultValue;
+            }
         }
 
         private void UpdateComboBox(System.Windows.Controls.ComboBox comboBox, string registryKey)
@@ -181,7 +207,7 @@ namespace BaselinkerSubiektConnector
             }
         }
 
-        public MainWindowViewModel ViewModel { get; }
+
 
         internal static DanePolaczenia OdbierzDanePolaczeniaZInsLauncher()
         {
@@ -225,25 +251,13 @@ namespace BaselinkerSubiektConnector
                 if (!ViewModel.CzySferaJestUruchomiona)
                 {
                     DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
-                    Helpers.StartLog();
                     Helpers.EnsureExportFolderExists();
+                    Helpers.StartLog();
 
                     var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
                     daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
 
                     ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
-                }
-            }
-        }
-
-        private void SelectFolder_Click(object sender, RoutedEventArgs e)
-        {
-            using (var dialog = new FolderBrowserDialog())
-            {
-                DialogResult result = dialog.ShowDialog();
-                if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(dialog.SelectedPath))
-                {
-                    Config_FolderPath.Text = dialog.SelectedPath;
                 }
             }
         }
@@ -254,21 +268,19 @@ namespace BaselinkerSubiektConnector
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
             SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_Folderpath, Config_FolderPath.Text);
 
 
-            int ProductIndex = Baselinker_StorageName.SelectedIndex;
-            if (storages != null)
+            Record BaselinkerWarehouseSelected = SQLiteService.ReadRecord(
+                SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(),
+                "key",
+                Baselinker_StorageName.Text
+            );
+
+            if (BaselinkerWarehouseSelected != null)
             {
-                var selected = storages[ProductIndex];
-                if (selected != null)
-                {
-                    SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, selected.storage_id);
-                    SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, selected.name);
-                }
-
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, BaselinkerWarehouseSelected.value);
+                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, BaselinkerWarehouseSelected.key);
             }
-
 
             if (Subiekt_DefaultWarehouse.Text.Length > 0)
             {
@@ -340,6 +352,7 @@ namespace BaselinkerSubiektConnector
                 }
 
                 MessageBox.Show("Pobrano listę dostępnych baz!", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+
             }
             catch (Exception ex)
             {
@@ -387,7 +400,7 @@ namespace BaselinkerSubiektConnector
 
         }
 
-        private void MSSQL_Name_SelectionChanged(Object sender, EventArgs e)
+        private void MSSQL_Name_DropDownClosed(Object sender, EventArgs e)
         {
             if (MSSQL_Name.Text.StartsWith("Nexo_"))
             {
@@ -395,41 +408,30 @@ namespace BaselinkerSubiektConnector
                 Subiekt_DefaultBranch.Items.Clear();
                 Subiekt_CashRegisterName.Items.Clear();
                 mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
-                List<string> warehouses = mssqlAdapter.GetWarehouses(MSSQL_Name.Text);
-                List<string> cashRegisters = mssqlAdapter.GetCashRegisters(MSSQL_Name.Text);
-                List<string> branches = mssqlAdapter.GetBranches(MSSQL_Name.Text);
-                if (warehouses.Count > 0)
+                
+                SubiektWarehouses.UpdateExistingData(mssqlAdapter.GetWarehouses(MSSQL_Name.Text));
+                SubiektBranches.UpdateExistingData(mssqlAdapter.GetBranches(MSSQL_Name.Text));
+                SubiektCashRegisters.UpdateExistingData(mssqlAdapter.GetCashRegisters(MSSQL_Name.Text));
+                LoadItemsAndSetDefault(Subiekt_DefaultWarehouse, SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+                LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
+                LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
+
+                if (Subiekt_DefaultWarehouse.Items.Count > 0)
                 {
                     Subiekt_DefaultWarehouse.IsEnabled = true;
                 }
 
-                foreach (string warehouse in warehouses)
-                {
-                    Subiekt_DefaultWarehouse.Items.Add(warehouse);
-                }
-
-                foreach (string cashRegister in cashRegisters)
-                {
-                    Subiekt_CashRegisterName.Items.Add(cashRegister);
-                }
-
-                if (branches.Count > 0)
+                if (Subiekt_DefaultBranch.Items.Count > 0)
                 {
                     Subiekt_DefaultBranch.IsEnabled = true;
                 }
 
-                if (cashRegisters.Count > 0)
+                if (Subiekt_CashRegisterName.Items.Count > 0)
                 {
                     Subiekt_CashRegisterName.IsEnabled = true;
                 }
 
-                foreach (string branch in branches)
-                {
-                    if (!Subiekt_DefaultBranch.Items.Contains(branch))
-                    {
-                        Subiekt_DefaultBranch.Items.Add(branch);
-                    }
-                }
+
 
             }
         }
@@ -447,6 +449,8 @@ namespace BaselinkerSubiektConnector
                     Baselinker_StorageName.IsEnabled = true;
                     Baselinker_StorageName.Items.Clear();
                     storages = storagesList.storages;
+
+                    BaselinkerWarehouses.UpdateExistingData(storagesList.storages);
 
                     foreach ( var storage in storagesList.storages )
                     {

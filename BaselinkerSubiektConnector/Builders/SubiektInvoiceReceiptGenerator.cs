@@ -27,12 +27,12 @@ using System.Threading;
 using BaselinkerSubiektConnector.Services.EmailService;
 using InsERT.Moria.Urzadzenia;
 using InsERT.Moria.Urzadzenia.Core;
+using BaselinkerSubiektConnector.Repositories.SQLite;
 
 namespace BaselinkerSubiektConnector.Builders
 {
     public class SubiektInvoiceReceiptBuilder
     {
-        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
         private int baselinkerOrderId;
         private BaselinkerAdapter blAdapter;
         public MainWindowViewModel mainWindowViewModel;
@@ -49,13 +49,14 @@ namespace BaselinkerSubiektConnector.Builders
             try
             {
                 this.mssqlAdapter = new MSSQLAdapter(
-                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
-                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
-                    SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password)
+                    ConfigRepository.GetValue(
+                        RegistryConfigurationKeys.MSSQL_Host),
+                    ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                    ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password)
                 );
 
-                string blApiKey = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
-                string storageId = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
+                string blApiKey = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+                string storageId = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
 
                 this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
                 InitializeOrderResponseAsync().Wait();
@@ -114,7 +115,7 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             this.SavePrintInvoiceAndSendEmail(receiptInvoiceObj);
                         }
-                        else if((this.documentType == "PA" || this.documentType == "PF") && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
+                        else if((this.documentType == "PA" || this.documentType == "PF") && ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
                         {
                             this.PrintFiscalReceipt(receiptInvoiceObj);
                         }
@@ -166,21 +167,21 @@ namespace BaselinkerSubiektConnector.Builders
 
                         var filepath = Helpers.GetExportApplicationPath() + "\\" + fileName + ".pdf";
 
-                        if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1"
-                            && SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName).Length > 3)
+                        if (ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1"
+                            && ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName).Length > 3)
                         {
                             int milliseconds = 2000;
                             Thread.Sleep(milliseconds);
                             PdfDocument pdfdocument = new PdfDocument();
                             Helpers.Log(filepath);
                             pdfdocument.LoadFromFile(filepath);
-                            pdfdocument.PrintSettings.PrinterName = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
+                            pdfdocument.PrintSettings.PrinterName = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
                             pdfdocument.Print();
                             pdfdocument.Dispose();
                         }
 
                         BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
-                        if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1"
+                        if (ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1"
                             && blResponseOrder.email.Length > 3 
                             && blResponseOrder.email.Contains("@")
                             )
@@ -216,7 +217,7 @@ namespace BaselinkerSubiektConnector.Builders
 
             IFiskalizacjaDokumentu fiskalizator = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IFiskalizacjaDokumentu>();
             IUrzadzeniaZewnetrzne cashRegisters = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IUrzadzeniaZewnetrzne>();
-            string cashRegisterName = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName).ToString();
+            string cashRegisterName = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName).ToString();
             UrzadzenieZewnetrzne cashRegisterDevice = cashRegisters.Dane.Wszystkie().Where(ds => ds.Nazwa == cashRegisterName).FirstOrDefault();
 
 
@@ -445,7 +446,7 @@ namespace BaselinkerSubiektConnector.Builders
                         IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
                         int asortymentId = Convert.ToInt32(
                             this.mssqlAdapter.GetProductFromEan(
-                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
                                  orderItem.ean
                                 ).First()
                         );
@@ -513,14 +514,14 @@ namespace BaselinkerSubiektConnector.Builders
         private InsERT.Moria.ModelDanych.Magazyn getWarehouse()
         {
             IMagazyny warehouses = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IMagazyny>();
-            var warehouseKeyValue = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse).ToString();
+            var warehouseKeyValue = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse).ToString();
             return warehouses.Dane.Wszystkie().Where(key => key.Symbol == warehouseKeyValue).Single();
         }
 
         private InsERT.Moria.ModelDanych.MiejsceSprzedazy getBranch()
         {
             IMiejscaSprzedazy branches = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IMiejscaSprzedazy>();
-            var branchesKeyValue = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Default_Branch).ToString();
+            var branchesKeyValue = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Default_Branch).ToString();
             Helpers.Log(branchesKeyValue);
             return branches.Dane.Wszystkie().Where(key => key.Symbol.Contains(branchesKeyValue)).Single();
         }
@@ -546,7 +547,7 @@ namespace BaselinkerSubiektConnector.Builders
                         IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
                         int asortymentId = Convert.ToInt32(
                             this.mssqlAdapter.GetProductFromEan(
-                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
                                  orderItem.ean
                                 ).First()
                         );
@@ -629,7 +630,7 @@ namespace BaselinkerSubiektConnector.Builders
                         IAsortymenty podmioty = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
                         int asortymentId = Convert.ToInt32(
                             this.mssqlAdapter.GetProductFromEan(
-                                 SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                                 ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
                                  orderItem.ean
                                 ).First()
                         );

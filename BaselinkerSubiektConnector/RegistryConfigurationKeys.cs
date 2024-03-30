@@ -1,6 +1,6 @@
 ﻿namespace BaselinkerSubiektConnector
 {
-    public class RegistryConfigurationKeys
+    public class  RegistryConfigurationKeys
     {
         // MSSQL
         public const string MSSQL_Host = "MSSQL_HOST";

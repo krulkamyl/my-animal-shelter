@@ -3,13 +3,12 @@ using System.Net;
 using BaselinkerSubiektConnector.Support;
 using System.Collections.Generic;
 using System.Net.Mail;
+using BaselinkerSubiektConnector.Repositories.SQLite;
 
 namespace BaselinkerSubiektConnector.Services.EmailService
 {
     public class EmailService
     {
-        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
-     
         private readonly string _smtpServer;
         private readonly int _smtpPort;
         private readonly string _senderEmail;
@@ -17,10 +16,10 @@ namespace BaselinkerSubiektConnector.Services.EmailService
 
         public EmailService()
         {
-            _smtpServer = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailServer);
-            _smtpPort = int.Parse(SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPort));
-            _senderEmail = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
-            _senderPassword = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
+            _smtpServer = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailServer);
+            _smtpPort = int.Parse(ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPort));
+            _senderEmail = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
+            _senderPassword = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
 
             ServicePointManager.ServerCertificateValidationCallback = (sender, certificate, chain, sslPolicyErrors) => true;
         }

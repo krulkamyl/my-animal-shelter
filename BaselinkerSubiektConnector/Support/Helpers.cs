@@ -9,7 +9,6 @@ namespace BaselinkerSubiektConnector.Support
 
     public class Helpers
     {
-        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
 
         public static string GetOrderId(string url)
         {

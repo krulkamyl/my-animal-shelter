@@ -27,7 +27,6 @@ namespace BaselinkerSubiektConnector
 {
     public partial class MainWindow : Window
     {
-        internal static RegistryManager SharedRegistryManager { get; } = new RegistryManager();
         private MSSQLAdapter mssqlAdapter;
         private List<BaselinkerStoragesResponseStorage> storages; 
         private HttpService httpService;
@@ -119,43 +118,44 @@ namespace BaselinkerSubiektConnector
         private void LoadConfiguration()
         {
 
-            LoadItemsAndSetDefault(Subiekt_DefaultWarehouse, SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Warehouse);
+            LoadItemsAndSetDefault(Subiekt_DefaultWarehouse, SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName(),
+                RegistryConfigurationKeys.Subiekt_Default_Warehouse);
             LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
             LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
             LoadItemsAndSetDefault(Baselinker_StorageName, SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(), RegistryConfigurationKeys.Baselinker_StorageName);
             UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
 
-            MSSQL_IP.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host);
-            MSSQL_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login);
-            MSSQL_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password);
+            MSSQL_IP.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host);
+            MSSQL_User.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login);
+            MSSQL_Password.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password);
 
-            Subiekt_User.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login);
-            Subiekt_Password.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password);
+            Subiekt_User.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login);
+            Subiekt_Password.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Password);
 
-            Baselinker_ApiKey.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+            Baselinker_ApiKey.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
 
-            Config_EmailServer.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailServer);
-            Config_EmailPort.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPort);
-            Config_EmailLogin.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
-            Config_EmailPassword.Text = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
+            Config_EmailServer.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailServer);
+            Config_EmailPort.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPort);
+            Config_EmailLogin.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
+            Config_EmailPassword.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
 
-            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
             {
                 Subiekt_CashRegisterEnabled.IsChecked = true;
             }
 
-            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterEnabled) == "1")
             {
                 Subiekt_PrinterEnabled.IsChecked = true;
             }
 
-            if (SharedRegistryManager.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1")
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailSendAuto) == "1")
             {
                 Config_EmailSendAuto.IsChecked = true;
             }
 
 
-            var defaultPrinter = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
+            var defaultPrinter = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
             if (defaultPrinter != null && defaultPrinter.Length > 3)
             {
                 Subiekt_PrinterName.Items.Add(defaultPrinter);
@@ -184,7 +184,7 @@ namespace BaselinkerSubiektConnector
                 }
             }
 
-            var defaultValue = SharedRegistryManager.GetValue(registryKey);
+            var defaultValue = ConfigRepository.GetValue(registryKey);
             if (!string.IsNullOrEmpty(defaultValue) && defaultValue.Length > 1)
             {
                 comboBox.SelectedItem = defaultValue;
@@ -193,7 +193,7 @@ namespace BaselinkerSubiektConnector
 
         private void UpdateComboBox(System.Windows.Controls.ComboBox comboBox, string registryKey)
         {
-            string value = SharedRegistryManager.GetValue(registryKey);
+            string value = ConfigRepository.GetValue(registryKey);
 
             if (value != null && value.Length > 0)
             {
@@ -224,12 +224,12 @@ namespace BaselinkerSubiektConnector
         {
             var dane = new DaneDoUruchomieniaSfery()
                 {
-                    Serwer = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Host),
-                    Baza = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
-                    LoginSql = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Login),
-                    HasloSql = SharedRegistryManager.GetValue(RegistryConfigurationKeys.MSSQL_Password),
-                    LoginNexo = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Login),
-                    HasloNexo = SharedRegistryManager.GetValue(RegistryConfigurationKeys.Subiekt_Password),
+                    Serwer = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host),
+                    Baza = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                    LoginSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                    HasloSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password),
+                    LoginNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login),
+                    HasloNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Password),
                     Produkt = ProductId.Subiekt,
             };
                 return dane;
@@ -264,10 +264,10 @@ namespace BaselinkerSubiektConnector
 
         private void SaveConfiguration_Click(object sender, RoutedEventArgs e)
         {
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Host, MSSQL_IP.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Host, MSSQL_IP.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
 
 
             Record BaselinkerWarehouseSelected = SQLiteService.ReadRecord(
@@ -278,55 +278,55 @@ namespace BaselinkerSubiektConnector
 
             if (BaselinkerWarehouseSelected != null)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, BaselinkerWarehouseSelected.value);
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, BaselinkerWarehouseSelected.key);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, BaselinkerWarehouseSelected.value);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, BaselinkerWarehouseSelected.key);
             }
 
             if (Subiekt_DefaultWarehouse.Text.Length > 0)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Default_Warehouse, Subiekt_DefaultWarehouse.Text);
             }
 
             if (Subiekt_CashRegisterName.Text.Length > 0)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName, Subiekt_CashRegisterName.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_CashRegisterName, Subiekt_CashRegisterName.Text);
             }
 
             if (Subiekt_DefaultBranch.Text.Length > 0)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Default_Branch, Subiekt_DefaultBranch.Text);
             }
 
             if (Subiekt_PrinterName.Text.Length > 0)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_PrinterName, Subiekt_PrinterName.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_PrinterName, Subiekt_PrinterName.Text);
             }
 
-            SharedRegistryManager.SetValue(
+            ConfigRepository.SetValue(
                 RegistryConfigurationKeys.Subiekt_PrinterEnabled,
                 Subiekt_PrinterEnabled.IsChecked == true ? "1" : "0"
                 );
 
-            SharedRegistryManager.SetValue(
+            ConfigRepository.SetValue(
                 RegistryConfigurationKeys.Subiekt_CashRegisterEnabled,
                 Subiekt_CashRegisterEnabled.IsChecked == true ? "1" : "0"
                 );
 
-            SharedRegistryManager.SetValue(
+            ConfigRepository.SetValue(
                 RegistryConfigurationKeys.Config_EmailSendAuto,
                 Config_EmailSendAuto.IsChecked == true ? "1" : "0"
                 );
 
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
 
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
 
 
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
-            SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
 
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -365,10 +365,10 @@ namespace BaselinkerSubiektConnector
         {
             if (Config_EmailLogin.Text.Length > 3 && Config_EmailPassword.Text.Length > 3 && Config_EmailPort.Text.Length >= 2 && Config_EmailServer.Text.Length > 3)
             {
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
-                SharedRegistryManager.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailServer, Config_EmailServer.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
 
                 var msgProperties = new WpfMessageBoxProperties()
                 {

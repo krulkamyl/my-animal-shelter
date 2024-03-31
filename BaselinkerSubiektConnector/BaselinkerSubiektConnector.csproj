@@ -279,7 +279,6 @@
     <Compile Include="PostepViewModel.cs" />
     <Compile Include="PropertyChangedNotifier.cs" />
     <Compile Include="RegistryConfigurationKeys.cs" />
-    <Compile Include="RegistryManager.cs" />
     <Compile Include="Repositories\DeliveryAssortmentRepository.cs" />
     <Compile Include="Repositories\SQLite\ConfigRepository.cs" />
     <Compile Include="Repositories\SQLite\SubiektBranches.cs" />

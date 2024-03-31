@@ -123,6 +123,7 @@ namespace BaselinkerSubiektConnector
             LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
             LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
             LoadItemsAndSetDefault(Baselinker_StorageName, SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(), RegistryConfigurationKeys.Baselinker_StorageName);
+
             UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
 
             MSSQL_IP.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host);
@@ -138,6 +139,29 @@ namespace BaselinkerSubiektConnector
             Config_EmailPort.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPort);
             Config_EmailLogin.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
             Config_EmailPassword.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
+
+
+            Config_EmailReporting.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting);
+
+            Config_CompanyName.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName);
+            Config_CompanyNip.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip);
+            Config_CompanyAddress.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress);
+            Config_CompanyZipCode.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyZipCode);
+            Config_CompanyCity.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyCity);
+            Config_CompanyEmailAddress.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress);
+            Config_CompanyPhone.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone);
+
+            string emailTemplate = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template);
+
+            if (emailTemplate != null && emailTemplate.Length > 50)
+            {
+                EmailTemplate.Text = emailTemplate;
+            }
+            else
+            {
+                EmailTemplate.Text = EmailService.GetEmailTemplate();
+            }
+
 
             if (ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_CashRegisterEnabled) == "1")
             {
@@ -328,6 +352,16 @@ namespace BaselinkerSubiektConnector
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
 
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailReporting, Config_EmailReporting.Text);
+
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyName, Config_CompanyName.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyNip, Config_CompanyNip.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyAddress, Config_CompanyAddress.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyZipCode, Config_CompanyZipCode.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyCity, Config_CompanyCity.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress, Config_CompanyEmailAddress.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyPhone, Config_CompanyPhone.Text);
+
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
 
@@ -359,6 +393,20 @@ namespace BaselinkerSubiektConnector
                 MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
 
+        }
+
+        private void EmailTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Email_Template, EmailTemplate.Text);
+
+                MessageBox.Show("Zapisano szablon e-mail", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
 
         private void TestEmail_Click(object sender, RoutedEventArgs e)

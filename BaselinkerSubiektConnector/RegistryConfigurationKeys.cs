@@ -35,5 +35,20 @@
         public const string Config_EmailLogin = "CONFIG_EMAIL_LOGIN";
         public const string Config_EmailPassword = "CONFIG_EMAIL_PASSWORD";
 
+        public const string Config_EmailReporting = "CONFIG_EMAIL_REPORTING";
+
+        public const string Email_Template = "EMAIL_TEMPLATE";
+
+        // Company
+        public const string Config_CompanyName = "CONFIG_COMPANY_NAME";
+        public const string Config_CompanyNip = "CONFIG_COMPANY_NIP";
+        public const string Config_CompanyAddress = "CONFIG_COMPANY_ADDRESS";
+        public const string Config_CompanyZipCode = "CONFIG_COMPANY_ZIP_CODE";
+        public const string Config_CompanyCity = "CONFIG_COMPANY_CITY";
+        public const string Config_CompanyEmailAddress = "CONFIG_COMPANY_EMAIL_ADDRESS";
+        public const string Config_CompanyPhone = "CONFIG_COMPANY_PHONE";
+
+
+
     }
 }

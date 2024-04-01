@@ -4,7 +4,6 @@ using BaselinkerSubiektConnector.Support;
 using System.Collections.Generic;
 using System.Net.Mail;
 using BaselinkerSubiektConnector.Repositories.SQLite;
-using System.Text.RegularExpressions;
 
 namespace BaselinkerSubiektConnector.Services.EmailService
 {
@@ -46,6 +45,7 @@ namespace BaselinkerSubiektConnector.Services.EmailService
                     }
                     mail.To.Add(recipient);
                     mail.Subject = subject;
+                    mail.IsBodyHtml = true;
 
                     var message = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template);
                     if (message == null)
@@ -54,21 +54,25 @@ namespace BaselinkerSubiektConnector.Services.EmailService
                     }
 
                     var replacements = new (string, string)[]
-                        {
-                                    ("[TRESC_WIADOMOSCI]", body.Replace("\n", "<br>")),
-                                    ("[FIRMA_NAZWA]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName)),
-                                    ("[FIRMA_NIP]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip)),
-                                    ("[FIRMA_ADRES]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress)),
-                                    ("[FIRMA_KOD_POCZTOWY]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyZipCode)),
-                                    ("[FIRMA_MIEJSCOWOSC]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyCity)),
-                                    ("[FIRMA_TELEFON]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress)),
-                                    ("[FIRMA_EMAIL]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone)),
-                        };
-
+                    {
+                        ("[TRESC_WIADOMOSCI]", body.Replace("\n", "<br>")),
+                        ("[FIRMA_NAZWA]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName)),
+                        ("[FIRMA_NIP]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip)),
+                        ("[FIRMA_ADRES]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress)),
+                        ("[FIRMA_KOD_POCZTOWY]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyZipCode)),
+                        ("[FIRMA_MIEJSCOWOSC]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyCity)),
+                        ("[FIRMA_TELEFON]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress)),
+                        ("[FIRMA_EMAIL]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone)),
+                    };
 
                     foreach (var (oldValue, newValue) in replacements)
                     {
-                        message = Regex.Replace(message, oldValue, newValue);
+                        int index = message.IndexOf(oldValue, StringComparison.OrdinalIgnoreCase);
+                        while (index != -1)
+                        {
+                            message = message.Substring(0, index) + newValue + message.Substring(index + oldValue.Length);
+                            index = message.IndexOf(oldValue, index + newValue.Length, StringComparison.OrdinalIgnoreCase);
+                        }
                     }
 
 

@@ -8,20 +8,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Forms;
 using System.Windows.Media;
 using System.Windows.Threading;
 using WpfMessageBoxLibrary;
 using MessageBox = System.Windows.MessageBox;
 using Timer = System.Threading.Timer;
 using Helpers = BaselinkerSubiektConnector.Support.Helpers;
-using DialogResult = System.Windows.Forms.DialogResult;
 using System.IO;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Support;
-using BaselinkerSubiektConnector.Objects.SQLite;
-using System.Windows.Controls.Primitives;
 
 namespace BaselinkerSubiektConnector
 {

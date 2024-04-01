@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
+﻿
 namespace BaselinkerSubiektConnector.Objects.SQLite
 {
     public class SQLiteBaselinkerWarehouseObject

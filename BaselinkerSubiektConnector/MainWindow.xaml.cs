@@ -18,6 +18,7 @@ using System.IO;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Support;
+using BaselinkerSubiektConnector.Validators;
 
 namespace BaselinkerSubiektConnector
 {
@@ -262,6 +263,15 @@ namespace BaselinkerSubiektConnector
 
         private void PolaczButton_Click(object sender, RoutedEventArgs e)
         {
+            try
+            {
+                sendDataToValidate();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Wystąpił błąd walidacyjny", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             if (httpService.IsEnabled)
             {
                 httpService.Stop();
@@ -282,8 +292,40 @@ namespace BaselinkerSubiektConnector
             }
         }
 
+        private void sendDataToValidate()
+        {
+            ConfigValidatorModel model = new ConfigValidatorModel
+            {
+                MssqlDatabaseName = MSSQL_Name.Text,
+                BaselinkerWarehouse = Baselinker_StorageName.Text,
+                SubiektWarehouse = Subiekt_DefaultWarehouse.Text,
+                SubiektBranch = Subiekt_DefaultBranch.Text,
+                PrinterEnabled = (bool)Subiekt_PrinterEnabled.IsChecked,
+                PrinterName = Subiekt_PrinterName.Text,
+                CashRegisterEnabled = (bool)Subiekt_CashRegisterEnabled.IsChecked,
+                CashRegisterName = Subiekt_CashRegisterName.Text,
+                SendEmailEnabled = (bool)Config_EmailSendAuto.IsChecked,
+                EmailLogin = Config_EmailLogin.Text,
+                EmailPassword = Config_EmailPassword.Text,
+                EmailReporting = Config_EmailReporting.Text,
+                CompanyName = Config_CompanyName.Text,
+                CompanyNip = Config_CompanyNip.Text,
+                CompanyEmail = Config_CompanyEmailAddress.Text
+            };
+            ConfigValidator.Validate(model);
+        }
+
         private void SaveConfiguration_Click(object sender, RoutedEventArgs e)
         {
+
+            try
+            {
+                sendDataToValidate();
+            } catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Wystąpił błąd walidacyjny", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Host, MSSQL_IP.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Login, MSSQL_User.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_Password, MSSQL_Password.Text);

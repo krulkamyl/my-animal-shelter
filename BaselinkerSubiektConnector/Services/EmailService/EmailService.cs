@@ -4,6 +4,7 @@ using BaselinkerSubiektConnector.Support;
 using System.Collections.Generic;
 using System.Net.Mail;
 using BaselinkerSubiektConnector.Repositories.SQLite;
+using System.Text.RegularExpressions;
 
 namespace BaselinkerSubiektConnector.Services.EmailService
 {
@@ -53,9 +54,11 @@ namespace BaselinkerSubiektConnector.Services.EmailService
                         message = GetEmailTemplate();
                     }
 
+                    string bodyMessage = Regex.Replace(body, "\n", "<br />");
+
                     var replacements = new (string, string)[]
                     {
-                        ("[TRESC_WIADOMOSCI]", body.Replace("\n", "<br>")),
+                        ("[TRESC_WIADOMOSCI]", bodyMessage),
                         ("[FIRMA_NAZWA]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName)),
                         ("[FIRMA_NIP]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip)),
                         ("[FIRMA_ADRES]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress)),

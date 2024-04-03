@@ -188,5 +188,42 @@ namespace BaselinkerSubiektConnector.Adapters
             return cashRegisters;
         }
 
+        public int GetWarehouseAssortmentQuantity(string dbName, int assortmentId, string warehouseSymbol)
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = $@"SELECT sm.IloscDostepna
+                                FROM {dbName}.ModelDanychContainer.StanyMagazynowe sm
+                                INNER JOIN {dbName}.ModelDanychContainer.Magazyny m
+                                ON m.Id = sm.Magazyn_Id
+                                WHERE sm.Asortyment_Id = @AssortmentId
+                                AND m.Symbol = @Symbol;";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@AssortmentId", assortmentId.ToString());
+                    command.Parameters.AddWithValue("@Symbol", warehouseSymbol);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        int qty = Convert.ToInt32(reader["IloscDostepna"]);
+                        return qty;
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log("Error: " + ex.Message);
+            }
+
+            return 0;
+        }
+
     }
 }

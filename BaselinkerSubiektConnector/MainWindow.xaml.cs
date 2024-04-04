@@ -19,6 +19,8 @@ using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Support;
 using BaselinkerSubiektConnector.Validators;
+using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
+using BaselinkerSubiektConnector.Composites;
 
 namespace BaselinkerSubiektConnector
 {
@@ -570,6 +572,60 @@ namespace BaselinkerSubiektConnector
                 HttpServiceEnabledIcon.Fill = Brushes.Red;
                 ButtonEnableDisableApp.Content = "Włącz";
             }
+        }
+
+
+        private async void AssortmentsBaselinkerSyncButton_ClickAsync(object sender, RoutedEventArgs e)
+        {
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId) == null)
+            {
+                MessageBox.Show("Wystąpił błąd: \n nie wybrano domyślnego magazynu w Baselinker", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(
+                    ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey)
+                );
+
+                assortments_BaselinkerSyncProgressText.Text = "Pobieranie inwentarza";
+
+                assortmentsBaselinkerSyncButton.IsEnabled = false;
+                assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Visible;
+                assortments_BaselinkerSyncProgressText.Visibility = Visibility.Visible;
+
+                InventoryResponse inventories = await baselinkerAdapter.GetInventoriesAsync();
+
+
+                if (inventories.status == "SUCCESS")
+                {
+                    var inventoriesList = inventories.inventories;
+
+                    foreach (Inventory inventory in inventoriesList)
+                    {
+                        if (inventory.is_default)
+                        {
+                            assortments_BaselinkerSyncProgressText.Text = "Pobrano inwentarz \""+inventory.name+"\". Wysyłanie zlecenia o pobranie produktów.";
+
+                            BaselinkerSQLiteProductSyncComposite baselinkerSQLiteProductSyncComposite = new BaselinkerSQLiteProductSyncComposite();
+                            baselinkerSQLiteProductSyncComposite.Sync(assortments_BaselinkerSyncProgressText, inventory.inventory_id, assortments_BaselinkerSyncProgressBar);
+
+                        }
+                    }
+                }
+                else
+                {
+                    assortmentsBaselinkerSyncButton.IsEnabled = false;
+                    assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Hidden;
+                    assortments_BaselinkerSyncProgressText.Visibility = Visibility.Hidden;
+                    throw new Exception(inventories.error_message);
+                }
+            } catch (Exception ex)
+            {
+                MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+
         }
     }
 }

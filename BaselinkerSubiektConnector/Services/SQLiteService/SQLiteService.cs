@@ -37,9 +37,12 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
 
                     command.CommandText = @"CREATE TABLE IF NOT EXISTS assortments (
                                             id INTEGER PRIMARY KEY AUTOINCREMENT,
-                                            baselinker_external_id TEXT,
+                                            baselinker_id TEXT,
+                                            baselinker_name TEXT,
                                             ean_code TEXT,
-                                            insert_symbol TEXT
+                                            subiekt_id TEXT,
+                                            subiekt_symbol TEXT,
+                                            subiekt_name TEXT
                                         );";
                     command.ExecuteNonQuery();
 

@@ -10,9 +10,11 @@
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
-        <Style x:Key="DataGridCellStyle" TargetType="DataGridCell">
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+
+        <Style x:Key="DataGridCellStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
         </Style>
+
     </Window.Resources>
 
     <Grid>
@@ -384,21 +386,33 @@
             <TabItem Header="Asortyment">
                 <TabControl>
                     <TabItem Header="Lista">
-                        <DataGrid x:Name="AssortmentsTable" Grid.Row="0" AutoGenerateColumns="False">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Identyfikator Baselinker" Binding="{Binding BaselinkerId}" 
-                            Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                                <DataGridTextColumn Header="Nazwa Baselinker" Binding="{Binding BaselinkerName}" 
-                            Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                                <DataGridTextColumn Header="Kod kreskowy" Binding="{Binding Barcode}" 
-                            Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                                <DataGridTextColumn Header="Subiekt Symbol" Binding="{Binding SubiektSymbol}" 
-                            Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                                <DataGridTextColumn Header="Subiekt Nazwa" Binding="{Binding SubiektName}" 
-                            Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="30"/>
+                                <RowDefinition Height="500"/>
+                            </Grid.RowDefinitions>
+
+                            <Button Content="Odśwież" Click="RefreshButton_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="100"/>
+
+                            <DataGrid x:Name="AssortmentsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
+                VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="AssortmentsTable_PreviewMouseWheel">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="Identyfikator Baselinker" Binding="{Binding BaselinkerId}" 
+                                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                                    <DataGridTextColumn Header="Nazwa Baselinker" Binding="{Binding BaselinkerName}" 
+                                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                                    <DataGridTextColumn Header="Kod kreskowy" Binding="{Binding Barcode}" 
+                                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                                    <DataGridTextColumn Header="Subiekt Symbol" Binding="{Binding SubiektSymbol}" 
+                                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                                    <DataGridTextColumn Header="Subiekt Nazwa" Binding="{Binding SubiektName}" 
+                                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
                     </TabItem>
+
+
                     <TabItem Header="Dodaj do Baselinker">
 
                     </TabItem>

@@ -85,7 +85,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
 
         public static List<Record> ReadRecords(string tableName)
         {
-            string queryString = $"SELECT * FROM {tableName}";
+            string queryString = $"SELECT * FROM {tableName};";
 
             List<Record> records = new List<Record>();
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -250,14 +250,18 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         }
     }
 
-    class Record
+    public class Record
     {
         public int id { get; set; }
         public string key { get; set; }
         public string value { get; set; }
-        public string baselinker_external_id { get; set; }
+        public string baselinker_id { get; set; }
+        public string baselinker_name { get; set; }
         public string ean_code { get; set; }
         public string insert_symbol { get; set; }
+        public string subiekt_id { get; set; }
+        public string subiekt_symbol { get; set; }
+        public string subiekt_name { get; set; }
 
         public Dictionary<string, object> AdditionalProperties { get; } = new Dictionary<string, object>();
     }

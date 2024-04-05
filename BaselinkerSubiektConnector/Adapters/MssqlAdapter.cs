@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Data;
 using BaselinkerSubiektConnector.Support;
+using BaselinkerSubiektConnector.Services.SQLiteService;
 
 namespace BaselinkerSubiektConnector.Adapters
 {
@@ -86,6 +87,49 @@ namespace BaselinkerSubiektConnector.Adapters
             }
 
             return products;
+        }
+
+
+        public Services.SQLiteService.Record GetRecordFromEan(string dbName, string ean)
+        {
+            Record product = new Record();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = $@"SELECT a.Id, a.Symbol, a.Nazwa
+                                FROM {dbName}.ModelDanychContainer.KodyKreskowe kk
+                                INNER JOIN {dbName}.ModelDanychContainer.JednostkiMiarAsortymentow jma
+                                ON jma.Id = kk.JednostkaMiaryAsortymentu_Id
+                                INNER JOIN {dbName}.ModelDanychContainer.Asortymenty a
+                                ON a.Id = jma.Asortyment_Id
+                                WHERE kk.Kod = @EAN";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@EAN", ean);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        product.subiekt_id = reader["Id"].ToString();
+                        product.subiekt_name = reader["Nazwa"].ToString();
+                        product.subiekt_symbol = reader["Symbol"].ToString();
+
+                        return product;
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log("Error: " + ex.Message);
+            }
+
+            return product;
         }
 
         public List<string> GetWarehouses(string dbName)

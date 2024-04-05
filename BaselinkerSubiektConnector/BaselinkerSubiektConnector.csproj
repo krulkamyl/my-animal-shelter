@@ -268,8 +268,10 @@
     <Compile Include="Objects\SQLite\SQLiteSubiektBranchObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektCashRegisterObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteBaselinkerWarehouseObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteAssortmentObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektWarehouseObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repositories\SQLite\AssortmentRepository.cs" />
     <Compile Include="Validators\ConfigValidator.cs" />
   </ItemGroup>
   <ItemGroup>

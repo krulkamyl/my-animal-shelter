@@ -21,6 +21,11 @@ using BaselinkerSubiektConnector.Support;
 using BaselinkerSubiektConnector.Validators;
 using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Composites;
+using System.Threading.Tasks;
+using System.Globalization;
+using System.Windows.Data;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace BaselinkerSubiektConnector
 {
@@ -31,6 +36,11 @@ namespace BaselinkerSubiektConnector
         private HttpService httpService;
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
+        private List<AssortmentTableItem> allRecords;
+        private int itemsPerPage = 100; 
+        private int currentPage = 1; 
+        private double prevVerticalOffset;
+
 
         public MainWindowViewModel ViewModel { get; }
 
@@ -63,6 +73,7 @@ namespace BaselinkerSubiektConnector
  
             Closing += MainWindow_Closing;
 
+            LoadAssortmentsPage();
         }
 
         private void CheckAppDataFolderExists()
@@ -92,6 +103,7 @@ namespace BaselinkerSubiektConnector
                 Console.WriteLine(ex.StackTrace);
                 MessageBox.Show(ex.Message, "Błąd SQLite!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+
         }
 
 
@@ -574,6 +586,88 @@ namespace BaselinkerSubiektConnector
             }
         }
 
+        private void RefreshButton_Click(object sender, EventArgs e)
+        {
+            currentPage = 1;
+            allRecords = null;
+            AssortmentsTable.Items.Clear(); 
+            LoadAssortmentsPage();
+
+            ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(0);
+            }
+        }
+
+        private void LoadAssortmentsPage()
+        {
+            if (allRecords == null)
+            {
+                allRecords = SQLiteService.ReadRecords(SQLiteDatabaseNames.GetAssortmentsDatabaseName())
+                                          .Select(record => new AssortmentTableItem
+                                          {
+                                              BaselinkerId = record.baselinker_id,
+                                              BaselinkerName = record.baselinker_name,
+                                              Barcode = record.ean_code,
+                                              SubiektName = record.subiekt_name ?? "---",
+                                              SubiektSymbol = record.subiekt_symbol ?? "---"
+                                          }).ToList();
+            }
+
+            int startIndex = (currentPage - 1) * itemsPerPage;
+            int endIndex = Math.Min(startIndex + itemsPerPage, allRecords.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                AssortmentsTable.Items.Add(allRecords[i]);
+            }
+            ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(prevVerticalOffset);
+            }
+            currentPage++;
+        }
+
+        private void AssortmentsTable_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
+            if (scrollViewer != null)
+            {
+                if (e.Delta < 0)
+                {
+                    // Sprawdź, czy użytkownik dojechał do końca istniejących danych
+                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+                    {
+                        // Zachowaj aktualne położenie pionowego przesunięcia
+                        prevVerticalOffset = scrollViewer.VerticalOffset;
+                        // Wczytaj nowe dane
+                        LoadAssortmentsPage();
+                    }
+                }
+            }
+        }
+
+
+        private ScrollViewer GetScrollViewer(DependencyObject depObj)
+        {
+            if (depObj is ScrollViewer)
+            {
+                return depObj as ScrollViewer;
+            }
+
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
+                ScrollViewer scrollViewer = GetScrollViewer(child);
+                if (scrollViewer != null)
+                {
+                    return scrollViewer;
+                }
+            }
+            return null;
+        }
 
         private async void AssortmentsBaselinkerSyncButton_ClickAsync(object sender, RoutedEventArgs e)
         {
@@ -609,16 +703,24 @@ namespace BaselinkerSubiektConnector
                             assortments_BaselinkerSyncProgressText.Text = "Pobrano inwentarz \""+inventory.name+"\". Wysyłanie zlecenia o pobranie produktów.";
 
                             BaselinkerSQLiteProductSyncComposite baselinkerSQLiteProductSyncComposite = new BaselinkerSQLiteProductSyncComposite();
-                            baselinkerSQLiteProductSyncComposite.Sync(assortments_BaselinkerSyncProgressText, inventory.inventory_id, assortments_BaselinkerSyncProgressBar);
 
+                            assortments_BaselinkerSyncProgressText.Text = "Proszę czekać. Trwa wykonywanie importu.";
+
+                            await Task.Run(async () =>
+                            {
+                                await baselinkerSQLiteProductSyncComposite.Sync(inventory.inventory_id);
+                            });
+
+
+                            assortmentsBaselinkerSyncButton.IsEnabled = false;
+                            assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Hidden;
+                            assortments_BaselinkerSyncProgressText.Visibility = Visibility.Hidden;
+                            MessageBox.Show("Synchronizacja zakończona.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
                     }
                 }
                 else
                 {
-                    assortmentsBaselinkerSyncButton.IsEnabled = false;
-                    assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Hidden;
-                    assortments_BaselinkerSyncProgressText.Visibility = Visibility.Hidden;
                     throw new Exception(inventories.error_message);
                 }
             } catch (Exception ex)
@@ -627,5 +729,14 @@ namespace BaselinkerSubiektConnector
             }
 
         }
+    }
+
+    public class AssortmentTableItem
+    {
+        public string BaselinkerId { get; set; }
+        public string BaselinkerName { get; set; }
+        public string Barcode { get; set; }
+        public string SubiektSymbol { get; set; }
+        public string SubiektName { get; set; }
     }
 }

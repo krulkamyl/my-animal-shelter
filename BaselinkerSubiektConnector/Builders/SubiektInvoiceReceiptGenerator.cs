@@ -125,6 +125,7 @@ namespace BaselinkerSubiektConnector.Builders
 
         private void SavePrintInvoiceAndSendEmail(DokumentDS receiptInvoiceObj)
         {
+            string documentTypeHumanable = "fakturę sprzedaży VAT";
             IWydruki wydruki = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IWydruki>();
             IDokumentySprzedazy dokumentySprzedazy = this.mainWindowViewModel.UchwytDoSfery.PodajObiektTypu<IDokumentySprzedazy>();
             DokumentDS dokumentSprzedazy = dokumentySprzedazy.Dane.Wszystkie().Where(ds => ds.Id == receiptInvoiceObj.Id).FirstOrDefault();
@@ -134,6 +135,7 @@ namespace BaselinkerSubiektConnector.Builders
                 InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku typWzorca = InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku.FakturaSprzedazy;
                 if (this.documentType == "FD")
                 {
+                    documentTypeHumanable = "fakturę detaliczną";
                     typWzorca = InsERT.Moria.Wydruki.Enums.TypWzorcaWydruku.FakturaDetaliczna;
                 }
                 using (IWydruk printDoc = wydruki.Utworz(typWzorca))
@@ -176,7 +178,7 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             EmailService emailService = new EmailService();
                             string subject = "Faktura elektroniczna nr." + receiptInvoiceObj.NumerWewnetrzny.PelnaSygnatura;
-                            string body = "Szanowni Państwo!\n\n W załączniku przesyłamy Fakturę VAT o numerze " + receiptInvoiceObj.NumerWewnetrzny.PelnaSygnatura;
+                            string body = "Szanowni Państwo!\n\n W załączniku przesyłamy "+ documentTypeHumanable + " o numerze " + receiptInvoiceObj.NumerWewnetrzny.PelnaSygnatura;
 
 
                             List<string> attachments = new List<string>();

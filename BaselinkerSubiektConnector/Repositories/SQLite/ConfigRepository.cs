@@ -1,6 +1,7 @@
 ﻿using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
+using System;
 
 namespace BaselinkerSubiektConnector.Repositories.SQLite
 {
@@ -32,12 +33,11 @@ namespace BaselinkerSubiektConnector.Repositories.SQLite
                 );
             if (record != null)
             {
-
                 SQLiteConfigObject newRecord = new SQLiteConfigObject
                 {
                     id = record.id,
                     key = record.key,
-                    value = record.value
+                    value = value
                 };
 
 

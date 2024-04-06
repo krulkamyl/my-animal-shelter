@@ -37,7 +37,7 @@ namespace BaselinkerSubiektConnector
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
         private List<AssortmentTableItem> allRecords;
-        private int itemsPerPage = 100; 
+        private int itemsPerPage = 100;
         private int currentPage = 1; 
         private double prevVerticalOffset;
 

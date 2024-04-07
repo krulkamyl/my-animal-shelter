@@ -507,7 +507,10 @@ namespace BaselinkerSubiektConnector
                 Subiekt_DefaultWarehouse.Items.Clear();
                 Subiekt_DefaultBranch.Items.Clear();
                 Subiekt_CashRegisterName.Items.Clear();
-                mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
+                if (mssqlAdapter == null)
+                {
+                    mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
+                }
                 
                 SubiektWarehouses.UpdateExistingData(mssqlAdapter.GetWarehouses(MSSQL_Name.Text));
                 SubiektBranches.UpdateExistingData(mssqlAdapter.GetBranches(MSSQL_Name.Text));
@@ -668,6 +671,58 @@ namespace BaselinkerSubiektConnector
             }
             return null;
         }
+
+        private void SearchMissingProductInBaselinker_Click(object sender, RoutedEventArgs e)
+        {
+            if (mssqlAdapter == null)
+            {
+                mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
+            }
+
+            GetMissingInBaselinkerSubiektProducts getMissingInBaselinkerSubiektProducts = new GetMissingInBaselinkerSubiektProducts();
+            List<Record> missingProducts = getMissingInBaselinkerSubiektProducts.Sync(allRecords, mssqlAdapter);
+            if (missingProducts.Count > 0)
+            {
+                MissingBaselinkerProducts.Items.Clear();
+
+                MissingBaselinkerProducts.Visibility = Visibility.Visible;
+                var missingAssortmentTableItems = missingProducts
+                                          .Select(record => new AssortmentTableItem
+                                          {
+                                              Barcode = record.ean_code,
+                                              SubiektName = record.subiekt_name ?? "---",
+                                              SubiektSymbol = record.subiekt_symbol ?? "---"
+                                          }).ToList();
+
+                foreach (var missingAssortmentTableItem in missingAssortmentTableItems)
+                {
+                    MissingBaselinkerProducts.Items.Add(missingAssortmentTableItem);
+                }
+            }
+            else
+            {
+                MessageBox.Show("Nie znaleziono brakujących produktów w Baselinker.", "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void AddMissingProductToBaselinker_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                var item = button.DataContext as AssortmentTableItem;
+                if (item != null)
+                {
+                    var addToBaselinkerWindow = new AddToBaselinker();
+                    addToBaselinkerWindow.AddBaselinkerHeader.Text = "Dodawanie produktu: " + item.SubiektSymbol;
+                    addToBaselinkerWindow.ProductNameText.Text = item.SubiektName;
+                    addToBaselinkerWindow.SKUText.Text = item.SubiektSymbol;
+                    addToBaselinkerWindow.EANText.Text = item.Barcode;
+                    addToBaselinkerWindow.ShowDialog();
+                }
+            }
+        }
+
 
         private async void AssortmentsBaselinkerSyncButton_ClickAsync(object sender, RoutedEventArgs e)
         {

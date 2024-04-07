@@ -132,6 +132,56 @@ namespace BaselinkerSubiektConnector.Adapters
             return product;
         }
 
+        public List<Services.SQLiteService.Record> GetAllAssortmentsFromWarehouse(string dbName, string warehouse)
+        {
+            List<Services.SQLiteService.Record> products = new List<Services.SQLiteService.Record>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    string query = $@"SELECT kk.Kod, a.Id, a.Symbol, a.Nazwa
+                                     FROM Nexo_Demo_1.ModelDanychContainer.KodyKreskowe kk
+                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.JednostkiMiarAsortymentow jma
+	                                    ON jma.Id = kk.JednostkaMiaryAsortymentu_Id
+                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.StanyMagazynowe sm
+	                                    ON sm.Asortyment_Id = jma.Asortyment_Id
+                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.Asortymenty a
+	                                    ON a.Id = sm.Asortyment_Id
+                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.Magazyny m
+	                                    ON m.Id = sm.Magazyn_Id
+                                     WHERE 
+	                                    sm.IloscDostepna > 0
+	                                    AND m.Symbol = @WAREHOUSE;";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@WAREHOUSE", warehouse);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        Services.SQLiteService.Record product = new Services.SQLiteService.Record();
+                        product.subiekt_id = reader["Id"].ToString();
+                        product.subiekt_name = reader["Nazwa"].ToString();
+                        product.subiekt_symbol = reader["Symbol"].ToString();
+                        product.ean_code = reader["Kod"].ToString();
+
+                        products.Add(product);
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log("Error: " + ex.Message);
+            }
+
+            return products;
+        }
+
         public List<string> GetWarehouses(string dbName)
         {
             List<string> warehouses = new List<string>();

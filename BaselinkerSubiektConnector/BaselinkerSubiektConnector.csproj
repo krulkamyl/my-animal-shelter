@@ -255,8 +255,12 @@
   <ItemGroup>
     <Compile Include="Adapters\BaselinkerAdapter.cs" />
     <Compile Include="Adapters\MssqlAdapter.cs" />
+    <Compile Include="AddToBaselinker.xaml.cs">
+      <DependentUpon>AddToBaselinker.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Builders\Emails\EmaiReportError.cs" />
     <Compile Include="Builders\SubiektInvoiceReceiptGenerator.cs" />
+    <Compile Include="Composites\GetMissingInBaselinkerSubiektProducts.cs" />
     <Compile Include="Composites\BaselinkerSQLiteProductSyncComposite.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryProductListResponse.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryResponse.cs" />
@@ -298,6 +302,10 @@
     <Compile Include="Support\Helpers.cs" />
     <Compile Include="Support\SQLiteDatabaseNames.cs" />
     <Compile Include="Uchwyty.cs" />
+    <Page Include="AddToBaselinker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

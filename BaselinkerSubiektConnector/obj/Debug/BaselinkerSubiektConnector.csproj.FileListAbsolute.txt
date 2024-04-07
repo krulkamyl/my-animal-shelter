@@ -528,3 +528,5 @@ C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\SQLitePCLRaw.batteries_v2.dll
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin\Debug\SQLitePCLRaw.provider.dynamic_cdecl.dll
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\BaselinkerSubiektConnector_Content.g.cs
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\AddToBaselinker.baml
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\AddToBaselinker.g.cs

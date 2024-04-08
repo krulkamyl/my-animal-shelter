@@ -438,15 +438,28 @@
                         </Grid>
                     </TabItem>
                     <TabItem Header="Pobieranie danych">
+
                         <Grid>
-                            <Border BorderBrush="#007bff" BorderThickness="1" Background="#f8f9fa" CornerRadius="5" Margin="20">
-                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="200"/>
+                            </Grid.RowDefinitions>
+
+                            <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="0"  Background="#f8f9fa" CornerRadius="5" Margin="20">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
+                                    <TextBlock Text="Aktualizacja magazynów, kategorii, grup cenowych i katalogów" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Funkcjonalność odświeża dane z platformy Baselinker magazynów, kategorii, grup cenowych i katalogów. Zalecane jest wykonywanie raz na jakiś czas." TextWrapping="Wrap" Margin="0,0,0,20"/>
+                                    <Button Content="Synchronizuj dane Baselinker" x:Name="assortmentsBaselinkerRefreshDataButton"  Click="AssortmentsBaselinkerRefreshDataButton_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
+
+                                </StackPanel>
+                            </Border>
+                            
+                            <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="1" Background="#f8f9fa" CornerRadius="5" Margin="20">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
                                     <TextBlock Text="Aktualizacja asortymentu w Baselinker" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
                                     <TextBlock Text="Aby rozpocząć pracę z synchronizacją magazynów wymagane jest pobranie asortymentu z Baselinker" TextWrapping="Wrap" Margin="0,0,0,20"/>
-                                    <Button Content="Aktualizuj z Baselinker" x:Name="assortmentsBaselinkerSyncButton"  Click="AssortmentsBaselinkerSyncButton_ClickAsync" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
-                                    <ProgressBar x:Name="assortments_BaselinkerSyncProgressBar" Value="0" Height="20" Grid.Row="1" HorizontalAlignment="Stretch" Margin="5,10" Visibility="Collapsed"/>
+                                    <Button Content="Aktualizuj/pobierz z Baselinker" x:Name="assortmentsBaselinkerSyncButton"  Click="AssortmentsBaselinkerSyncButton_ClickAsync" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
                                     <TextBlock x:Name="assortments_BaselinkerSyncProgressText" Text="Trwa aktualizacja..." Grid.Row="1" HorizontalAlignment="Center" Margin="5,0" Visibility="Collapsed"/>
-
                                 </StackPanel>
                             </Border>
                         </Grid>

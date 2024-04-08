@@ -124,6 +124,59 @@ namespace BaselinkerSubiektConnector.Adapters
 
         }
 
+        public async Task<InventoryManufactureResponse> GetInventoryManufactutersAsync()
+        {
+            var parameters = new Dictionary<string, object>();
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getInventoryManufacturers" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<InventoryManufactureResponse>(responseBody);
+
+        }
+
+        public async Task<InventoryPriceGroup> GetInventoryPriceGroupsAsync()
+        {
+            var parameters = new Dictionary<string, object>();
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getInventoryPriceGroups" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<InventoryPriceGroup>(responseBody);
+
+        }
+
+        public async Task<CategoryResponse> GetCategoriesAsync(string storage_id = null)
+        {
+            var parameters = new Dictionary<string, object>
+            {
+                { "storage_id", storage_id },
+            };
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getCategories" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<CategoryResponse>(responseBody);
+        }
+
         public async Task<InventoryProductListResponse> GetInventoryProductsListAsync(int inventory_id, int page = 1)
         {
             var parameters = new Dictionary<string, object>

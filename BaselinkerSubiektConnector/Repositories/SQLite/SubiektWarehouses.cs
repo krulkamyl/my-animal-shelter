@@ -15,7 +15,7 @@ namespace BaselinkerSubiektConnector.Repositories.SQLite
 
             foreach (string warehouse in warehouses)
             {
-                SQLiteSubiektWarehouseObject record = new SQLiteSubiektWarehouseObject
+                SQLiteBaselinkerObject record = new SQLiteBaselinkerObject
                 {
                     key = warehouse,
                 };

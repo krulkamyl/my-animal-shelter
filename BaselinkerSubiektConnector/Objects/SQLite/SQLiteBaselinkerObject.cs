@@ -2,7 +2,7 @@
 
 namespace BaselinkerSubiektConnector.Objects.SQLite
 {
-    public class SQLiteSubiektWarehouseObject
+    public class SQLiteBaselinkerObject
     {
         public int? id { get; set; }
         public string key { get; set; }

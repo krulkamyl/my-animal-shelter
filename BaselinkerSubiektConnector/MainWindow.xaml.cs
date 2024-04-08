@@ -26,6 +26,7 @@ using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Input;
+using BaselinkerSubiektConnector.Builders.Baselinker;
 
 namespace BaselinkerSubiektConnector
 {
@@ -329,7 +330,7 @@ namespace BaselinkerSubiektConnector
             ConfigValidator.Validate(model);
         }
 
-        private void SaveConfiguration_Click(object sender, RoutedEventArgs e)
+        private async void SaveConfiguration_Click(object sender, RoutedEventArgs e)
         {
 
             try
@@ -413,6 +414,12 @@ namespace BaselinkerSubiektConnector
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyCity, Config_CompanyCity.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress, Config_CompanyEmailAddress.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_CompanyPhone, Config_CompanyPhone.Text);
+
+            _ = await FetchBaselinkerData.GetDataAsync(
+                Baselinker_ApiKey.Text,
+                null,
+                true
+            );
 
             MessageBox.Show("Możesz spróbować połączyć się ze Sferą", "Konfiguracja zapisana pomyślnie!", MessageBoxButton.OK, MessageBoxImage.Information);
         }
@@ -543,29 +550,21 @@ namespace BaselinkerSubiektConnector
         {
             try
             {
-                BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(Baselinker_ApiKey.Text);
+                _ = await FetchBaselinkerData.GetDataAsync(
+                    Baselinker_ApiKey.Text
+                );
 
-                var storagesList = await baselinkerAdapter.GetStoragesListAsync();
+                List<Record> records = SQLiteService.ReadRecords(
+                    SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName()
+                    );
 
-                if (storagesList.status == "SUCCESS")
+
+                foreach (Record item in records )
                 {
-                    Baselinker_StorageName.IsEnabled = true;
-                    Baselinker_StorageName.Items.Clear();
-                    storages = storagesList.storages;
-
-                    BaselinkerWarehouses.UpdateExistingData(storagesList.storages);
-
-                    foreach ( var storage in storagesList.storages )
-                    {
-                        Baselinker_StorageName.Items.Add(storage.name);
-                    }
-
-                    MessageBox.Show("Udało się nawiązać połączenie z BaseLinker. Wybierz magazyn.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
+                    Baselinker_StorageName.Items.Add(item.key);
                 }
-                else
-                {
-                    throw new Exception(storagesList.error_message);
-                }
+
+                MessageBox.Show("Pobrano dane z Baselinker. Możesz wybrać magazyn.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -723,6 +722,20 @@ namespace BaselinkerSubiektConnector
             }
         }
 
+        private void AssortmentsBaselinkerRefreshDataButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId) == null)
+            {
+                MessageBox.Show("Wystąpił błąd: \n nie wybrano domyślnego magazynu w Baselinker", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            _ = FetchBaselinkerData.GetDataAsync(ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey));
+
+            MessageBox.Show("Synchronizacja zakończona.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+
 
         private async void AssortmentsBaselinkerSyncButton_ClickAsync(object sender, RoutedEventArgs e)
         {
@@ -741,7 +754,6 @@ namespace BaselinkerSubiektConnector
                 assortments_BaselinkerSyncProgressText.Text = "Pobieranie inwentarza";
 
                 assortmentsBaselinkerSyncButton.IsEnabled = false;
-                assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Visible;
                 assortments_BaselinkerSyncProgressText.Visibility = Visibility.Visible;
 
                 InventoryResponse inventories = await baselinkerAdapter.GetInventoriesAsync();
@@ -768,7 +780,6 @@ namespace BaselinkerSubiektConnector
 
 
                             assortmentsBaselinkerSyncButton.IsEnabled = false;
-                            assortments_BaselinkerSyncProgressBar.Visibility = Visibility.Hidden;
                             assortments_BaselinkerSyncProgressText.Visibility = Visibility.Hidden;
                             MessageBox.Show("Synchronizacja zakończona.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
                         }

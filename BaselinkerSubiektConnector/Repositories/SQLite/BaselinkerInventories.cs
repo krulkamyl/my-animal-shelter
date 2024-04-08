@@ -1,4 +1,4 @@
-﻿using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
+﻿using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
@@ -6,24 +6,24 @@ using System.Collections.Generic;
 
 namespace BaselinkerSubiektConnector.Repositories.SQLite
 {
-    public class BaselinkerWarehouses
+    public class BaselinkerIntentories
     {
-        public static void UpdateExistingData(List<BaselinkerStoragesResponseStorage> warehouses)
+        public static void UpdateExistingData(List<Inventory> inventories)
         {
             SQLiteService.DeleteRecords(
-                SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName()
+                SQLiteDatabaseNames.GetBaselinkerInventoriesDatabaseName()
             );
 
-            foreach (var warehouse in warehouses)
+            foreach (Inventory inventory in inventories)
             {
                 SQLiteBaselinkerObject record = new SQLiteBaselinkerObject
                 {
-                    value = warehouse.storage_id,
-                    key = warehouse.name,
+                    value = inventory.inventory_id.ToString(),
+                    key = inventory.name,
                 };
 
                 SQLiteService.CreateRecord(
-                    SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(),
+                    SQLiteDatabaseNames.GetBaselinkerInventoriesDatabaseName(),
                     record
                 );
             }

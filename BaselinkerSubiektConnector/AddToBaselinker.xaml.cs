@@ -1,16 +1,9 @@
-﻿using System;
+﻿using BaselinkerSubiektConnector.Repositories.SQLite;
+using BaselinkerSubiektConnector.Services.SQLiteService;
+using BaselinkerSubiektConnector.Support;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 
 namespace BaselinkerSubiektConnector
 {
@@ -19,6 +12,12 @@ namespace BaselinkerSubiektConnector
         public AddToBaselinker()
         {
             InitializeComponent();
+
+            LoadItemsAndSetDefault(CatalogSelect, SQLiteDatabaseNames.GetBaselinkerInventoriesDatabaseName());
+            LoadItemsAndSetDefault(ManufacturerSelect, SQLiteDatabaseNames.GetBaselinkerInventoryManufacturersName());
+            LoadItemsAndSetDefault(ManufacturerSelect, SQLiteDatabaseNames.GetBaselinkerInventoryManufacturersName());
+            LoadItemsAndSetDefault(PriceGroupSelect, SQLiteDatabaseNames.GetBaselinkerInventoryPriceGroupsName());
+            LoadItemsAndSetDefault(CategorySelect, SQLiteDatabaseNames.GetBaselinkerCategoriesDatabaseName());
         }
 
 
@@ -36,6 +35,7 @@ namespace BaselinkerSubiektConnector
             string price = PriceText.Text;
             string manufacturer = ManufacturerSelect.Text;
             string category = CategorySelect.Text;
+            string priceGroup = PriceGroupSelect.Text;
             string productName = ProductNameText.Text;
             string description = DescriptionText.Text;
 
@@ -45,5 +45,27 @@ namespace BaselinkerSubiektConnector
             this.Close();
         }
 
+        private void LoadItemsAndSetDefault(System.Windows.Controls.ComboBox comboBox, string databaseName, string registryKey = null)
+        {
+            List<Record> records = SQLiteService.ReadRecords(databaseName);
+
+            if (records.Count > 0)
+            {
+                comboBox.Items.Clear();
+                foreach (Record record in records)
+                {
+                    comboBox.Items.Add(record.key);
+                }
+            }
+
+            if (registryKey != null)
+            {
+                var defaultValue = ConfigRepository.GetValue(registryKey);
+                if (!string.IsNullOrEmpty(defaultValue) && defaultValue.Length > 1)
+                {
+                    comboBox.SelectedItem = defaultValue;
+                }
+            }
+        }
     }
 }

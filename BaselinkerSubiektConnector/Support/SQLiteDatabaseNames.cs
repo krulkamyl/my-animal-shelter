@@ -20,6 +20,26 @@ namespace BaselinkerSubiektConnector.Support
             return "baselinker_warehouses";
         }
 
+        public static string GetBaselinkerInventoriesDatabaseName()
+        {
+            return "baselinker_inventories";
+        }
+
+        public static string GetBaselinkerCategoriesDatabaseName()
+        {
+            return "baselinker_categories";
+        }
+
+        public static string GetBaselinkerInventoryManufacturersName()
+        {
+            return "baselinker_inventory_manufactuters";
+        }
+
+        public static string GetBaselinkerInventoryPriceGroupsName()
+        {
+            return "baselinker_inventory_price_groups";
+        }
+
         public static string GetSubiektWarehousesDatabaseName()
         {
             return "subiekt_warehouses";

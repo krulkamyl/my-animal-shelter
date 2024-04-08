@@ -1,7 +1,7 @@
 ﻿<Window x:Class="BaselinkerSubiektConnector.AddToBaselinker"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Formularz dodania produktu do Baselinker" Height="600" Width="600">
+        Title="Formularz dodania produktu do Baselinker" Height="630" Width="600">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -28,6 +28,7 @@
                 <TextBlock FontWeight="Bold" Text="Długość (cm)" Margin="0 10 0 0"/>
                 <TextBlock FontWeight="Bold" Text="Cena (zł)" Margin="0 12 0 0"/>
                 <TextBlock FontWeight="Bold" Text="Producent" Margin="0 12 0 0"/>
+                <TextBlock FontWeight="Bold" Text="Grupa cenowa" Margin="0 12 0 0"/>
                 <TextBlock FontWeight="Bold" Text="Kategoria" Margin="0 12 0 0"/>
                 <TextBlock FontWeight="Bold" Text="Katalog" Margin="0 12 0 0"/>
                 <TextBlock FontWeight="Bold" Text="Opis produktu" Margin="0 30 0 0"/>
@@ -44,6 +45,7 @@
                 <TextBox x:Name="LengthText" Margin="0 0 0 5"/>
                 <TextBox x:Name="PriceText" Margin="0 0 0 5"/>
                 <ComboBox x:Name="ManufacturerSelect" Margin="0 0 0 5"/>
+                <ComboBox x:Name="PriceGroupSelect" Margin="0 0 0 5"/>
                 <ComboBox x:Name="CategorySelect" Margin="0 0 0 5"/>
                 <ComboBox x:Name="CatalogSelect" Margin="0 0 0 5"/>
                 <TextBox x:Name="DescriptionText" Margin="0 0 0 5" TextWrapping="Wrap" AcceptsReturn="True" Height="100"/>

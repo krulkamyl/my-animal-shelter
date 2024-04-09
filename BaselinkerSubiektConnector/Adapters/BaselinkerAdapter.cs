@@ -90,6 +90,22 @@ namespace BaselinkerSubiektConnector.Adapters
             return JsonConvert.DeserializeObject<BaselinkerOrderResponse>(responseBody);
         }
 
+
+        public async Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject)
+        {
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "addProduct" },
+                { "parameters", JsonConvert.SerializeObject(addBaselinkerObject) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<AddProductResponse>(responseBody);
+        }
+
         public async Task<BaselinkerStoragesResponse> GetStoragesListAsync()
         {
             var parameters = new Dictionary<string, object>();

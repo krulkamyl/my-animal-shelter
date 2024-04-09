@@ -639,12 +639,9 @@ namespace BaselinkerSubiektConnector
             {
                 if (e.Delta < 0)
                 {
-                    // Sprawdź, czy użytkownik dojechał do końca istniejących danych
                     if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
                     {
-                        // Zachowaj aktualne położenie pionowego przesunięcia
                         prevVerticalOffset = scrollViewer.VerticalOffset;
-                        // Wczytaj nowe dane
                         LoadAssortmentsPage();
                     }
                 }
@@ -690,7 +687,11 @@ namespace BaselinkerSubiektConnector
                                           {
                                               Barcode = record.ean_code,
                                               SubiektName = record.subiekt_name ?? "---",
-                                              SubiektSymbol = record.subiekt_symbol ?? "---"
+                                              SubiektSymbol = record.subiekt_symbol ?? "---",
+                                              SubiektId = record.subiekt_id,
+                                              SubiektDescription = record.subiekt_description,
+                                              SubiektPrice = record.subiekt_price,
+                                              SubiektQty = record.subiekt_qty,
                                           }).ToList();
 
                 foreach (var missingAssortmentTableItem in missingAssortmentTableItems)
@@ -712,11 +713,7 @@ namespace BaselinkerSubiektConnector
                 var item = button.DataContext as AssortmentTableItem;
                 if (item != null)
                 {
-                    var addToBaselinkerWindow = new AddToBaselinker();
-                    addToBaselinkerWindow.AddBaselinkerHeader.Text = "Dodawanie produktu: " + item.SubiektSymbol;
-                    addToBaselinkerWindow.ProductNameText.Text = item.SubiektName;
-                    addToBaselinkerWindow.SKUText.Text = item.SubiektSymbol;
-                    addToBaselinkerWindow.EANText.Text = item.Barcode;
+                    var addToBaselinkerWindow = new AddToBaselinker(item);
                     addToBaselinkerWindow.ShowDialog();
                 }
             }
@@ -803,6 +800,10 @@ namespace BaselinkerSubiektConnector
         public string BaselinkerName { get; set; }
         public string Barcode { get; set; }
         public string SubiektSymbol { get; set; }
+        public string SubiektId { get; set; }
         public string SubiektName { get; set; }
+        public string SubiektPrice { get; set; }
+        public string SubiektQty { get; set; }
+        public string SubiektDescription { get; set; }
     }
 }

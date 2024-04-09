@@ -142,7 +142,7 @@ namespace BaselinkerSubiektConnector.Adapters
                 {
                     connection.Open();
 
-                    string query = $@"SELECT kk.Kod, a.Id, a.Symbol, a.Nazwa
+                    string query = $@"SELECT kk.Kod, a.Id, a.Symbol, a.Nazwa, sm.IloscDostepna, pc.CenaBrutto, a.Opis
                                      FROM Nexo_Demo_1.ModelDanychContainer.KodyKreskowe kk
                                      LEFT JOIN Nexo_Demo_1.ModelDanychContainer.JednostkiMiarAsortymentow jma
 	                                    ON jma.Id = kk.JednostkaMiaryAsortymentu_Id
@@ -152,6 +152,8 @@ namespace BaselinkerSubiektConnector.Adapters
 	                                    ON a.Id = sm.Asortyment_Id
                                      LEFT JOIN Nexo_Demo_1.ModelDanychContainer.Magazyny m
 	                                    ON m.Id = sm.Magazyn_Id
+                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.PozycjeCennika pc
+	                                    ON a.Id = pc.Asortyment_Id
                                      WHERE 
 	                                    sm.IloscDostepna > 0
 	                                    AND m.Symbol = @WAREHOUSE;";
@@ -167,7 +169,9 @@ namespace BaselinkerSubiektConnector.Adapters
                         product.subiekt_name = reader["Nazwa"].ToString();
                         product.subiekt_symbol = reader["Symbol"].ToString();
                         product.ean_code = reader["Kod"].ToString();
-
+                        product.subiekt_qty = reader["IloscDostepna"].ToString();
+                        product.subiekt_price = reader["CenaBrutto"].ToString();
+                        product.subiekt_description = reader["Opis"].ToString();
                         products.Add(product);
                     }
 

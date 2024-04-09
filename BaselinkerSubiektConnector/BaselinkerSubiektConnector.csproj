@@ -268,6 +268,7 @@
     <Compile Include="Objects\Baselinker\Inventory\InventoryManufacturers.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryResponse.cs" />
     <Compile Include="Objects\Baselinker\Orders\BaselinkerOrderResponse.cs" />
+    <Compile Include="Objects\Baselinker\Products\AddProductResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\CategoryResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductDataResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductsListResponse.cs" />

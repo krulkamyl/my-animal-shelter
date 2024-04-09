@@ -262,6 +262,11 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         public string subiekt_id { get; set; }
         public string subiekt_symbol { get; set; }
         public string subiekt_name { get; set; }
+        public string subiekt_price { get; set; }
+        public string subiekt_qty { get; set; }
+        public string subiekt_description { get; set; }
+
+
 
         public Dictionary<string, object> AdditionalProperties { get; } = new Dictionary<string, object>();
     }

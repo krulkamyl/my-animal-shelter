@@ -48,6 +48,11 @@ namespace BaselinkerSubiektConnector.Services.EmailService
                     mail.Subject = subject;
                     mail.IsBodyHtml = true;
 
+                    if (recipient != ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting))
+                    {
+                        mail.Bcc.Add(ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting));
+                    }
+
                     var message = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template);
                     if (message == null)
                     {

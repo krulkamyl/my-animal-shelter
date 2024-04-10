@@ -1,4 +1,5 @@
-﻿using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
+﻿using BaselinkerSubiektConnector.Composites;
+using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
@@ -104,6 +105,17 @@ namespace BaselinkerSubiektConnector.Adapters
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<AddProductResponse>(responseBody);
+        }
+
+        public async Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory data)
+        {
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
+
+            var response = await _client.PostAsync(_endpoint, content);
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<UpdateInventoryProductsStockResponse>(responseBody);
         }
 
         public async Task<BaselinkerStoragesResponse> GetStoragesListAsync()

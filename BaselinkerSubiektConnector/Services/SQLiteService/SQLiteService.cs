@@ -1,4 +1,5 @@
-﻿using BaselinkerSubiektConnector.Support;
+﻿using BaselinkerSubiektConnector.Repositories.SQLite;
+using BaselinkerSubiektConnector.Support;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
@@ -132,6 +133,58 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
             }
             return records;
         }
+
+        public static List<Record> GetAssortmentConnectedWithSubiekt()
+        {
+            string tableName = SQLiteDatabaseNames.GetAssortmentsDatabaseName();
+            string queryString = $"SELECT * FROM {tableName} WHERE subiekt_id IS NOT NULL;";
+
+            List<Record> records = new List<Record>();
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(queryString, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Record record = new Record();
+                            record.id = Convert.ToInt32(reader["id"]);
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                string columnName = reader.GetName(i);
+                                if (columnName != "id")
+                                {
+                                    if (reader.IsDBNull(i))
+                                    {
+                                        typeof(Record).GetProperty(columnName)?.SetValue(record, null);
+                                    }
+                                    else
+                                    {
+                                        if (typeof(Record).GetProperty(columnName) != null)
+                                        {
+                                            typeof(Record).GetProperty(columnName).SetValue(record, reader[columnName]);
+                                        }
+                                        else
+                                        {
+                                            record.AdditionalProperties[columnName] = reader[columnName];
+                                        }
+                                    }
+                                }
+                            }
+                            records.Add(record);
+                        }
+                        Console.WriteLine();
+                    }
+                }
+
+                connection.Close();
+            }
+            return records;
+        }
+
 
         public static Record ReadRecord(string tableName, string column, string value)
         {

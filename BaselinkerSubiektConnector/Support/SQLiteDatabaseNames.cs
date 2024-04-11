@@ -15,14 +15,20 @@ namespace BaselinkerSubiektConnector.Support
         }
 
 
-        public static string GetBaselinkerWarehousesDatabaseName()
+        public static string GetBaselinkerStoragesDatabaseName()
         {
-            return "baselinker_warehouses";
+            return "baselinker_storages";
         }
 
         public static string GetBaselinkerInventoriesDatabaseName()
         {
             return "baselinker_inventories";
+        }
+
+
+        public static string GetBaselinkerInventoryWarehousesDatabaseName()
+        {
+            return "baselinker_inventory_warehouses";
         }
 
         public static string GetBaselinkerCategoriesDatabaseName()
@@ -48,6 +54,11 @@ namespace BaselinkerSubiektConnector.Support
         public static string GetSubiektBranchesDatabaseName()
         {
             return "subiekt_branches";
+        }
+
+        public static string GetSubiektLoginsDatabaseName()
+        {
+            return "subiekt_logins";
         }
 
         public static string GetSubiektCashRegistersDatabaseName()

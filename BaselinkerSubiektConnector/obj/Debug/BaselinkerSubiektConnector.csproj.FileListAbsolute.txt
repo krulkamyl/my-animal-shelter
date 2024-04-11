@@ -530,3 +530,5 @@ C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\bin
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\BaselinkerSubiektConnector_Content.g.cs
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\AddToBaselinker.baml
 C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\AddToBaselinker.g.cs
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\ProcessDialog.g.cs
+C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\obj\Debug\ProcessDialog.baml

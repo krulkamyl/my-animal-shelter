@@ -11,7 +11,7 @@ namespace BaselinkerSubiektConnector.Composites
 {
     public class BaselinkerSyncInventoryQtyService
     {
-        public static void Sync()
+        public static bool Sync()
         {
             MSSQLAdapter mSSQLAdapter = new MSSQLAdapter(
                 ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host),
@@ -29,7 +29,7 @@ namespace BaselinkerSubiektConnector.Composites
             inventory.inventory_id = subiektInventory.value;
             inventory.products = new Dictionary<string, Dictionary<string, int>>();
 
-            string warehouseKey = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId);
+            string warehouseKey = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_InventoryWarehouseId);
             int productCount = 0;
 
             foreach (Record item in assortments)
@@ -44,8 +44,7 @@ namespace BaselinkerSubiektConnector.Composites
                 inventory.products.Add(item.baselinker_id, new Dictionary<string, int>() { { warehouseKey, quantity } });
 
                 productCount++; 
-
-                if (productCount >= 990)
+                if (productCount >= 995)
                 {
                     SendRequest(inventory); 
                     inventory.products.Clear();
@@ -57,6 +56,7 @@ namespace BaselinkerSubiektConnector.Composites
             {
                 SendRequest(inventory); 
             }
+            return true;
         }
 
         public static void SendRequest(SyncInventory inventory)
@@ -66,7 +66,7 @@ namespace BaselinkerSubiektConnector.Composites
                     ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId)
                 );
             string json = JsonConvert.SerializeObject(inventory);
-            // _ = baselinkerAdapter.UpdateInventoryProductsStock(inventory);
+            _ = baselinkerAdapter.UpdateInventoryProductsStock(inventory);
             baselinkerAdapter = null;
             Console.WriteLine(json);
 

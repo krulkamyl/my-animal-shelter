@@ -268,6 +268,7 @@
     <Compile Include="Objects\Baselinker\Inventory\InventoryProductListResponse.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryManufacturers.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryResponse.cs" />
+    <Compile Include="Objects\Baselinker\Inventory\InventoryWarehouseResponse.cs" />
     <Compile Include="Objects\Baselinker\Orders\BaselinkerOrderResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\UpdateInventoryProductsStockResponse.cs" />
     <Compile Include="Objects\Baselinker\Products\AddProductResponse.cs" />
@@ -276,16 +277,22 @@
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductsListResponse.cs" />
     <Compile Include="Objects\Baselinker\Storages\BaselinkerStoragesResponse.cs" />
     <Compile Include="Objects\SQLite\SQLiteConfigObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteSubiektLoginObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektBranchObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektCashRegisterObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteAssortmentObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteBaselinkerObject.cs" />
+    <Compile Include="ProcessDialog.xaml.cs">
+      <DependentUpon>ProcessDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Repositories\SQLite\AssortmentRepository.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerCategories.cs" />
+    <Compile Include="Repositories\SQLite\BaselinkerInventoryWarehouses.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerInventoryPriceGroups.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerInventoryManufacturers.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerInventories.cs" />
+    <Compile Include="Repositories\SQLite\SubiektLogins.cs" />
     <Compile Include="Validators\ConfigValidator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -304,7 +311,7 @@
     <Compile Include="Repositories\SQLite\ConfigRepository.cs" />
     <Compile Include="Repositories\SQLite\SubiektBranches.cs" />
     <Compile Include="Repositories\SQLite\SubiektCashRegisters.cs" />
-    <Compile Include="Repositories\SQLite\BaselinkerWarehouses.cs" />
+    <Compile Include="Repositories\SQLite\BaselinkerStorages.cs" />
     <Compile Include="Repositories\SQLite\SubiektWarehouses.cs" />
     <Compile Include="Services\EmailService\EmailService.cs" />
     <Compile Include="Services\HttpService\HttpService.cs" />
@@ -328,6 +335,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="ProcessDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\Resources.Designer.cs">

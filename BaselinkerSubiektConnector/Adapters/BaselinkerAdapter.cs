@@ -107,15 +107,39 @@ namespace BaselinkerSubiektConnector.Adapters
             return JsonConvert.DeserializeObject<AddProductResponse>(responseBody);
         }
 
-        public async Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory data)
+        public async Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory syncInventory)
         {
-            var json = JsonConvert.SerializeObject(data);
-            var content = new StringContent(json, System.Text.Encoding.UTF8, "application/json");
 
-            var response = await _client.PostAsync(_endpoint, content);
+            var data = new Dictionary<string, string>
+            {
+                { "method", "updateInventoryProductsStock" },
+                { "parameters", JsonConvert.SerializeObject(syncInventory) }
+            };
+
+
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(responseBody);
             return JsonConvert.DeserializeObject<UpdateInventoryProductsStockResponse>(responseBody);
+        }
+
+        public async Task<InventoryWarehouseResponse> GetInventoryWarehousesAsync()
+        {
+            var parameters = new Dictionary<string, object>();
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getInventoryWarehouses" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<InventoryWarehouseResponse>(responseBody);
+
         }
 
         public async Task<BaselinkerStoragesResponse> GetStoragesListAsync()
@@ -134,6 +158,7 @@ namespace BaselinkerSubiektConnector.Adapters
             return JsonConvert.DeserializeObject<BaselinkerStoragesResponse>(responseBody);
 
         }
+
 
         public async Task<InventoryResponse> GetInventoriesAsync()
         {

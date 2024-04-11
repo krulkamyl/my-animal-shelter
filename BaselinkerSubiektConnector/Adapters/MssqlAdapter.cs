@@ -253,6 +253,39 @@ namespace BaselinkerSubiektConnector.Adapters
             return warehouses;
         }
 
+        public List<string> GetLogins(string dbName)
+        {
+            List<string> logins = new List<string>();
+
+            try
+            {
+                using (SqlConnection connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+
+                    string query = $@"SELECT Login
+                                FROM {dbName}.ModelDanychContainer.Uzytkownicy";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+
+                    SqlDataReader reader = command.ExecuteReader();
+                    while (reader.Read())
+                    {
+                        logins.Add(reader["Login"].ToString());
+                    }
+
+                    reader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                Helpers.Log("Error: " + ex.Message);
+            }
+
+            return logins;
+        }
+
         public List<string> GetCashRegisters(string dbName)
         {
             List<string> cashRegisters = new List<string>();

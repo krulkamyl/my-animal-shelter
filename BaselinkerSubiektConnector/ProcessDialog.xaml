@@ -1,0 +1,13 @@
+﻿<Window x:Class="BaselinkerSubiektConnector.ProcessDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:BaselinkerSubiektConnector"
+        mc:Ignorable="d"
+        Title="Trwa synchronizacja" Height="150" Width="300">
+    <Grid>
+        <ProgressBar x:Name="progressBar" HorizontalAlignment="Center" VerticalAlignment="Center" Width="250" Height="20" IsIndeterminate="True"/>
+        <TextBlock x:Name="statusTextBlock" HorizontalAlignment="Center" VerticalAlignment="Center" Text="Trwa synchronizacja. Proszę czekać."/>
+    </Grid>
+</Window>

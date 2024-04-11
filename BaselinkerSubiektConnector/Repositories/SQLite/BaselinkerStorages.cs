@@ -6,12 +6,12 @@ using System.Collections.Generic;
 
 namespace BaselinkerSubiektConnector.Repositories.SQLite
 {
-    public class BaselinkerWarehouses
+    public class BaselinkerStorages
     {
         public static void UpdateExistingData(List<BaselinkerStoragesResponseStorage> warehouses)
         {
             SQLiteService.DeleteRecords(
-                SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName()
+                SQLiteDatabaseNames.GetBaselinkerStoragesDatabaseName()
             );
 
             foreach (var warehouse in warehouses)
@@ -23,7 +23,7 @@ namespace BaselinkerSubiektConnector.Repositories.SQLite
                 };
 
                 SQLiteService.CreateRecord(
-                    SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(),
+                    SQLiteDatabaseNames.GetBaselinkerStoragesDatabaseName(),
                     record
                 );
             }

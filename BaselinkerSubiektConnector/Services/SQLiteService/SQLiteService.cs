@@ -47,7 +47,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                         );";
                     command.ExecuteNonQuery();
 
-                    foreach (var databaseTable in new[] { "baselinker_warehouses", "baselinker_inventories", "baselinker_categories", "baselinker_inventory_price_groups", "baselinker_inventory_manufactuters", "subiekt_warehouses", "subiekt_branches", "subiekt_cashregisters" })
+                    foreach (var databaseTable in new[] { "baselinker_storages", "baselinker_inventory_warehouses", "baselinker_inventories", "baselinker_categories", "baselinker_inventory_price_groups", "baselinker_inventory_manufactuters", "subiekt_warehouses", "subiekt_branches", "subiekt_cashregisters", "subiekt_logins" })
                     {
                         command.CommandText = $"CREATE TABLE IF NOT EXISTS {databaseTable} (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, value TEXT);";
                         command.ExecuteNonQuery();
@@ -201,7 +201,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                     {
                         if (reader.Read())
                         {
-                            Console.WriteLine(reader.ToString());
                             Record record = new Record();
                             record.id = Convert.ToInt32(reader["id"]);
                             foreach (var property in typeof(Record).GetProperties().Where(p => p.Name != "id"))

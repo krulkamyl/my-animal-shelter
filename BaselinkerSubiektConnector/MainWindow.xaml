@@ -115,7 +115,7 @@
         </StackPanel>
 
         <TabControl Grid.Row="1">
-            <TabItem Header="Konfiguracja danych Subiekt/Baselinker">
+            <TabItem Header="Konfiguracja programu">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -174,21 +174,43 @@
 
                                 <TextBlock Text="Dane logowania Subiekt" FontWeight="Bold" Grid.Row="11" Margin="5"/>
                                 <TextBlock Text="Użytkownik:" Grid.Row="12" Margin="5"/>
-                                <TextBox x:Name="Subiekt_User" Grid.Row="13" Margin="5"/>
+                                <ComboBox x:Name="Subiekt_Login" Grid.Row="13" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
                                 <TextBlock Text="Hasło:" Grid.Row="14" Margin="5"/>
                                 <TextBox x:Name="Subiekt_Password" Grid.Row="15" Margin="5"/>
 
                                 <TextBlock Text="Konfiguracja Baselinker" FontWeight="Bold" Grid.Row="16" Margin="5"/>
-                                <TextBox x:Name="Baselinker_ApiKey" Grid.Row="17" Margin="5"/>
 
-                                <Grid Grid.Row="18" Margin="5">
+
+                                <Grid Grid.Row="17" Margin="5">
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
                                         <ColumnDefinition Width="*" />
                                         <ColumnDefinition Width="Auto" />
                                     </Grid.ColumnDefinitions>
-                                    <ComboBox x:Name="Baselinker_StorageName" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
 
-                                    <Button Grid.Column="1" Content="Pobierz magazyny" Click="BaselinkerGetStorage_Click" MinWidth="100"/>
+                                    <TextBlock Text="Klucz API" FontWeight="Bold" Grid.Column="0" MinWidth="110"/>
+                                    <TextBox x:Name="Baselinker_ApiKey" Grid.Column="1" Margin="0 0 5 0"/>
+                                    <Button Grid.Column="2" Content="Pobierz magazyny/katalogi" Click="BaselinkerGetStorage_Click" MinWidth="100"/>
+                                </Grid>
+
+                                <Grid Grid.Row="18" Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Domyślny katalog" FontWeight="Bold" MinWidth="120"/>
+                                    <ComboBox x:Name="Baselinker_StorageName"  Grid.Column="1" HorizontalAlignment="Stretch" Margin="0 0 5 0"/>
+
+                                </Grid>
+
+                                <Grid Grid.Row="19" Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="Domyślny magazyn" FontWeight="Bold" MinWidth="120"/>
+                                    <ComboBox x:Name="Baselinker_InventoryWarehouseName" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0 0 5 0" />
+
                                 </Grid>
                             </Grid>
 
@@ -357,27 +379,9 @@
                         <Button Content="Sprawdź konfigurację i zapisz" Click="SaveConfiguration_Click" Grid.Row="2" Margin="10" Padding="10"/>
                     </Grid>
                 </Grid>
-                
-                
-                
-                
-            </TabItem>
 
 
-            <TabItem Header="Edycja szablonu e-mail">
-                <Grid>
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto" />
-                    </Grid.RowDefinitions>
-
-                    <Grid Grid.Row="0">
-                        <TextBox x:Name="EmailTemplate" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Margin="0" Height="450"/>
-                    </Grid>
-
-                    <Button Content="Zapisz szablon" Click="EmailTemplate_Click" Grid.Row="1" Margin="10" Padding="10"/>
-                </Grid>
 
             </TabItem>
 
@@ -385,7 +389,7 @@
 
             <TabItem Header="Asortyment">
                 <TabControl>
-                    <TabItem Header="Lista">
+                    <TabItem Header="Lista asortymentów">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30"/>
@@ -411,7 +415,7 @@
                             </DataGrid>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Dodaj do Baselinker">
+                    <TabItem Header="Brakujące w Baselinker">
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="30"/>
@@ -437,7 +441,26 @@
 
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Pobieranie danych">
+                    <TabItem Header="Synchronizacja stanu magazynowego">
+
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="200"/>
+                            </Grid.RowDefinitions>
+
+                            <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="0"  Background="#f8f9fa" CornerRadius="5" Margin="20">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
+                                    <TextBlock Text="Synchronizacja jednorazowa" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Aktualizuj bieżący stan magazynowy poprzez jednorazową synchronizację z różnymi źródłami danych. Zalecana opcja do pierwszej pełnej synchronizacji lub dużych zmianach w magazynie." TextWrapping="Wrap" Margin="0,0,0,20"/>
+                                    <Button Content="Synchronizuj teraz" x:Name="SyncInventoriesProductsStock"  Click="SyncInventoriesProductsStock_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
+
+                                </StackPanel>
+                            </Border>
+
+                        </Grid>
+                    </TabItem>
+                    <TabItem Header="Aktualizacja danych">
 
                         <Grid>
                             <Grid.RowDefinitions>
@@ -448,29 +471,47 @@
                             <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="0"  Background="#f8f9fa" CornerRadius="5" Margin="20">
                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
                                     <TextBlock Text="Aktualizacja magazynów, kategorii, grup cenowych i katalogów" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                                    <TextBlock Text="Funkcjonalność odświeża dane z platformy Baselinker magazynów, kategorii, grup cenowych i katalogów. Zalecane jest wykonywanie raz na jakiś czas." TextWrapping="Wrap" Margin="0,0,0,20"/>
-                                    <Button Content="Synchronizuj dane Baselinker" x:Name="assortmentsBaselinkerRefreshDataButton"  Click="AssortmentsBaselinkerRefreshDataButton_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
+                                    <TextBlock Text="Funkcjonalność odświeża dane dostępnych w Baselinker katalogów, hurtowni, magazynów, kategorii, grup cenowych. Zalecane jest wykonywanie raz na jakiś czas." TextWrapping="Wrap" Margin="0,0,0,20"/>
+                                    <Button Content="Aktualizuj dane z Baselinker" x:Name="assortmentsBaselinkerRefreshDataButton"  Click="AssortmentsBaselinkerRefreshDataButton_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
 
                                 </StackPanel>
                             </Border>
-                            
+
                             <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="1" Background="#f8f9fa" CornerRadius="5" Margin="20">
                                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
-                                    <TextBlock Text="Aktualizacja asortymentu w Baselinker" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
-                                    <TextBlock Text="Aby rozpocząć pracę z synchronizacją magazynów wymagane jest pobranie asortymentu z Baselinker" TextWrapping="Wrap" Margin="0,0,0,20"/>
+                                    <TextBlock Text="Aktualizacja asortymentu z Baselinker" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Aby rozpocząć pracę z synchronizacją stanów magazynowych wymagane jest pobranie asortymentu z Baselinker" TextWrapping="Wrap" Margin="0,0,0,20"/>
                                     <Button Content="Aktualizuj/pobierz z Baselinker" x:Name="assortmentsBaselinkerSyncButton"  Click="AssortmentsBaselinkerSyncButton_ClickAsync" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
                                     <TextBlock x:Name="assortments_BaselinkerSyncProgressText" Text="Trwa aktualizacja..." Grid.Row="1" HorizontalAlignment="Center" Margin="5,0" Visibility="Collapsed"/>
                                 </StackPanel>
                             </Border>
                         </Grid>
                     </TabItem>
-                    <TabItem Header="Synchronizacja stanów magazynowych">
-                    </TabItem>
                 </TabControl>
             </TabItem>
 
+
+            <TabItem Header="Edycja szablonu e-mail">
+                <Grid>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <TextBox x:Name="EmailTemplate" TextWrapping="Wrap" AcceptsReturn="True" VerticalScrollBarVisibility="Visible" Margin="0" Height="450"/>
+                    </Grid>
+
+                    <Button Content="Zapisz szablon" Click="EmailTemplate_Click" Grid.Row="1" Margin="10" Padding="10"/>
+                </Grid>
+
+            </TabItem>
+
+
+
             <TabItem Header="Logi">
-                
+
             </TabItem>
 
             <TabItem Header="O programie">

@@ -3,7 +3,6 @@ using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Repositories.SQLite;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace BaselinkerSubiektConnector.Builders.Baselinker
@@ -34,7 +33,7 @@ namespace BaselinkerSubiektConnector.Builders.Baselinker
 
 
             BaselinkerStoragesResponse storagesList = await baselinkerAdapter.GetStoragesListAsync();
-            BaselinkerWarehouses.UpdateExistingData(storagesList.storages);
+            BaselinkerStorages.UpdateExistingData(storagesList.storages);
 
             InventoryResponse inventoryResponse = await baselinkerAdapter.GetInventoriesAsync();
             BaselinkerIntentories.UpdateExistingData(inventoryResponse.inventories);
@@ -44,6 +43,9 @@ namespace BaselinkerSubiektConnector.Builders.Baselinker
 
             InventoryPriceGroup inventoryPriceGroup = await baselinkerAdapter.GetInventoryPriceGroupsAsync();
             BaselinkerInventoryPriceGroups.UpdateExistingData(inventoryPriceGroup.price_groups);
+
+            InventoryWarehouseResponse inventoryWarehouse = await baselinkerAdapter.GetInventoryWarehousesAsync();
+            BaselinkerInventoryWarehouses.UpdateExistingData(inventoryWarehouse.warehouses);
 
             return true;
         }

@@ -134,7 +134,9 @@ namespace BaselinkerSubiektConnector
                 RegistryConfigurationKeys.Subiekt_Default_Warehouse);
             LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
             LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
-            LoadItemsAndSetDefault(Baselinker_StorageName, SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(), RegistryConfigurationKeys.Baselinker_StorageName);
+            LoadItemsAndSetDefault(Baselinker_StorageName, SQLiteDatabaseNames.GetBaselinkerStoragesDatabaseName(), RegistryConfigurationKeys.Baselinker_StorageName);
+            LoadItemsAndSetDefault(Baselinker_InventoryWarehouseName, SQLiteDatabaseNames.GetBaselinkerInventoryWarehousesDatabaseName(), RegistryConfigurationKeys.Baselinker_InventoryWarehouseName);
+            LoadItemsAndSetDefault(Subiekt_Login, SQLiteDatabaseNames.GetSubiektLoginsDatabaseName(), RegistryConfigurationKeys.Subiekt_Login);
 
             UpdateComboBox(MSSQL_Name, RegistryConfigurationKeys.MSSQL_DB_NAME);
 
@@ -142,7 +144,7 @@ namespace BaselinkerSubiektConnector
             MSSQL_User.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login);
             MSSQL_Password.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password);
 
-            Subiekt_User.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login);
+
             Subiekt_Password.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Password);
 
             Baselinker_ApiKey.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
@@ -312,7 +314,8 @@ namespace BaselinkerSubiektConnector
             ConfigValidatorModel model = new ConfigValidatorModel
             {
                 MssqlDatabaseName = MSSQL_Name.Text,
-                BaselinkerWarehouse = Baselinker_StorageName.Text,
+                BaselinkerStorage = Baselinker_StorageName.Text,
+                BaselinkerInventoryWarehouse = Baselinker_InventoryWarehouseName.Text,
                 SubiektWarehouse = Subiekt_DefaultWarehouse.Text,
                 SubiektBranch = Subiekt_DefaultBranch.Text,
                 PrinterEnabled = (bool)Subiekt_PrinterEnabled.IsChecked,
@@ -347,17 +350,32 @@ namespace BaselinkerSubiektConnector
             ConfigRepository.SetValue(RegistryConfigurationKeys.MSSQL_DB_NAME, MSSQL_Name.Text);
 
 
-            Record BaselinkerWarehouseSelected = SQLiteService.ReadRecord(
-                SQLiteDatabaseNames.GetBaselinkerWarehousesDatabaseName(),
+            Record bastelinkerStorageSelected = SQLiteService.ReadRecord(
+                SQLiteDatabaseNames.GetBaselinkerStoragesDatabaseName(),
                 "key",
                 Baselinker_StorageName.Text
             );
 
-            if (BaselinkerWarehouseSelected != null)
+            if (bastelinkerStorageSelected != null)
             {
-                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, BaselinkerWarehouseSelected.value);
-                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, BaselinkerWarehouseSelected.key);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageId, bastelinkerStorageSelected.value);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_StorageName, bastelinkerStorageSelected.key);
             }
+
+
+            Record baselinkerInventoryWarehouseSelected = SQLiteService.ReadRecord(
+                SQLiteDatabaseNames.GetBaselinkerInventoryWarehousesDatabaseName(),
+                "key",
+                Baselinker_InventoryWarehouseName.Text
+            );
+
+
+            if (baselinkerInventoryWarehouseSelected != null)
+            {
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_InventoryWarehouseId, baselinkerInventoryWarehouseSelected.value);
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_InventoryWarehouseName, baselinkerInventoryWarehouseSelected.key);
+            }
+
 
             if (Subiekt_DefaultWarehouse.Text.Length > 0)
             {
@@ -379,6 +397,11 @@ namespace BaselinkerSubiektConnector
                 ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_PrinterName, Subiekt_PrinterName.Text);
             }
 
+            if (Subiekt_PrinterName.Text.Length > 0)
+            {
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_Login.Text);
+            }
+
             ConfigRepository.SetValue(
                 RegistryConfigurationKeys.Subiekt_PrinterEnabled,
                 Subiekt_PrinterEnabled.IsChecked == true ? "1" : "0"
@@ -394,7 +417,6 @@ namespace BaselinkerSubiektConnector
                 Config_EmailSendAuto.IsChecked == true ? "1" : "0"
                 );
 
-            ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_User.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);
 
             ConfigRepository.SetValue(RegistryConfigurationKeys.Baselinker_ApiKey, Baselinker_ApiKey.Text);
@@ -522,9 +544,13 @@ namespace BaselinkerSubiektConnector
                 SubiektWarehouses.UpdateExistingData(mssqlAdapter.GetWarehouses(MSSQL_Name.Text));
                 SubiektBranches.UpdateExistingData(mssqlAdapter.GetBranches(MSSQL_Name.Text));
                 SubiektCashRegisters.UpdateExistingData(mssqlAdapter.GetCashRegisters(MSSQL_Name.Text));
+
+                SubiektLogins.UpdateExistingData(mssqlAdapter.GetLogins(MSSQL_Name.Text));
+
                 LoadItemsAndSetDefault(Subiekt_DefaultWarehouse, SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Warehouse);
                 LoadItemsAndSetDefault(Subiekt_DefaultBranch, SQLiteDatabaseNames.GetSubiektBranchesDatabaseName(), RegistryConfigurationKeys.Subiekt_Default_Branch);
                 LoadItemsAndSetDefault(Subiekt_CashRegisterName, SQLiteDatabaseNames.GetSubiektCashRegistersDatabaseName(), RegistryConfigurationKeys.Subiekt_CashRegisterName);
+                LoadItemsAndSetDefault(Subiekt_Login, SQLiteDatabaseNames.GetSubiektLoginsDatabaseName(), RegistryConfigurationKeys.Subiekt_Login);
 
                 if (Subiekt_DefaultWarehouse.Items.Count > 0)
                 {
@@ -555,13 +581,26 @@ namespace BaselinkerSubiektConnector
                 );
 
                 List<Record> records = SQLiteService.ReadRecords(
-                    SQLiteDatabaseNames.GetSubiektWarehousesDatabaseName()
+                    SQLiteDatabaseNames.GetBaselinkerStoragesDatabaseName()
                     );
 
+                Baselinker_StorageName.Items.Clear();
 
                 foreach (Record item in records )
                 {
                     Baselinker_StorageName.Items.Add(item.key);
+                }
+
+                List<Record> recordsWarehouses = SQLiteService.ReadRecords(
+                    SQLiteDatabaseNames.GetBaselinkerInventoryWarehousesDatabaseName()
+                    );
+
+
+                Baselinker_InventoryWarehouseName.Items.Clear();
+
+                foreach (Record item in recordsWarehouses)
+                {
+                    Baselinker_InventoryWarehouseName.Items.Add(item.key);
                 }
 
                 MessageBox.Show("Pobrano dane z Baselinker. Możesz wybrać magazyn.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
@@ -792,7 +831,23 @@ namespace BaselinkerSubiektConnector
             }
 
         }
+        private async void SyncInventoriesProductsStock_Click(object sender, RoutedEventArgs e)
+        {
+            var progressDialog = new ProcessDialog("Trwa synchronizacja. Proszę czekać...");
+            progressDialog.Show();
+
+               await Task.Run(() =>
+    {
+        BaselinkerSyncInventoryQtyService.Sync();
+    });
+
+            progressDialog.Close();
+
+            MessageBox.Show("Synchronizacja zakończona", "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
     }
+
+
 
     public class AssortmentTableItem
     {

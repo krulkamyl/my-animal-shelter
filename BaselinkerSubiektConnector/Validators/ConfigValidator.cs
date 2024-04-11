@@ -10,7 +10,11 @@ namespace BaselinkerSubiektConnector.Validators
             {
                 throw new Exception("Wybrano niepoprawną bazę danych Subiekta. Powinna ona posiadać przedrostek \"Nexo_\"");
             }
-            if (model.BaselinkerWarehouse == null || (model.BaselinkerWarehouse != null && model.BaselinkerWarehouse.Length < 4))
+            if (model.BaselinkerStorage == null || (model.BaselinkerStorage != null && model.BaselinkerStorage.Length < 4))
+            {
+                throw new Exception("Wybrano niepoprawny katalog produktów baselinker Baselinker.");
+            }
+            if (model.BaselinkerInventoryWarehouse == null || (model.BaselinkerInventoryWarehouse != null && model.BaselinkerInventoryWarehouse.Length < 4))
             {
                 throw new Exception("Wybrano niepoprawny magazyn Baselinker.");
             }
@@ -67,7 +71,8 @@ namespace BaselinkerSubiektConnector.Validators
     public class ConfigValidatorModel
     {
         public string MssqlDatabaseName { get; set; }
-        public string BaselinkerWarehouse { get; set; }
+        public string BaselinkerInventoryWarehouse { get; set; }
+        public string BaselinkerStorage { get; set; }
         public string SubiektWarehouse { get; set; }
         public string SubiektBranch { get; set; }
         public bool PrinterEnabled { get; set; }

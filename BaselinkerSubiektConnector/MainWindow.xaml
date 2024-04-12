@@ -446,7 +446,7 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="200"/>
-                                <RowDefinition Height="200"/>
+                                <RowDefinition Height="220"/>
                             </Grid.RowDefinitions>
 
                             <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="0"  Background="#f8f9fa" CornerRadius="5" Margin="20">
@@ -455,6 +455,20 @@
                                     <TextBlock Text="Aktualizuj bieżący stan magazynowy poprzez jednorazową synchronizację z różnymi źródłami danych. Zalecana opcja do pierwszej pełnej synchronizacji lub dużych zmianach w magazynie." TextWrapping="Wrap" Margin="0,0,0,20"/>
                                     <Button Content="Synchronizuj teraz" x:Name="SyncInventoriesProductsStock"  Click="SyncInventoriesProductsStock_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold"/>
 
+                                </StackPanel>
+                            </Border>
+
+                            <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="1" Background="#f8f9fa" CornerRadius="5" Margin="20">
+                                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20" Width="500">
+                                    <TextBlock Text="Harmonogram synchronizacji" FontWeight="Bold" FontSize="16" Margin="0,0,0,10"/>
+                                    <TextBlock Text="Aktualizuj bieżący stan magazynowy poprzez harmonogramową synchronizację z różnymi źródłami danych." TextWrapping="Wrap" Margin="0,0,0,10"/>
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                        <TextBlock Text="Interwał synchronizacji (w minutach): " VerticalAlignment="Center"/>
+                                        <ComboBox x:Name="IntervalSyncComboBox" SelectionChanged="IntervalSyncComboBox_SelectionChanged" Width="100" VerticalAlignment="Center">
+                                            <ComboBoxItem Content="0"/>
+                                        </ComboBox>
+                                    </StackPanel>
+                                    <Button Content="Uruchom serwis" x:Name="StartStopServiceSyncButton" Click="StartStopServiceSyncButton_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold" IsEnabled="False"/>
                                 </StackPanel>
                             </Border>
 

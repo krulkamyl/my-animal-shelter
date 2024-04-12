@@ -22,6 +22,9 @@
         public const string Subiekt_CashRegisterEnabled = "SUBIEKT_CASH_REGISTER_ENABLED";
         public const string Subiekt_CashRegisterName = "SUBIEKT_CASH_REGISTER_NAME";
 
+
+        public const string SyncServiceIntervalTime = "SYNC_SERVICE_INTERVAL_TIME";
+
         // Baselinker
         public const string Baselinker_ApiKey = "BASELINKER_APIKEY";
         public const string Baselinker_StorageId = "BASELINKER_STORAGE_ID";

@@ -41,6 +41,7 @@ namespace BaselinkerSubiektConnector
         private int itemsPerPage = 100;
         private int currentPage = 1; 
         private double prevVerticalOffset;
+        private bool isServiceRunning = false;
 
 
         public MainWindowViewModel ViewModel { get; }
@@ -165,6 +166,21 @@ namespace BaselinkerSubiektConnector
             Config_CompanyEmailAddress.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress);
             Config_CompanyPhone.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone);
 
+            string intervalTime = ConfigRepository.GetValue(RegistryConfigurationKeys.SyncServiceIntervalTime);
+
+            string[] intervalValues = { "15", "30", "60", "120", "180" };
+
+            IntervalSyncComboBox.Items.Clear();
+
+            foreach (string value in intervalValues)
+            {
+                IntervalSyncComboBox.Items.Add(value);
+            }
+
+            if (intervalTime != null && IntervalSyncComboBox.Items.Contains(intervalTime))
+            {
+                IntervalSyncComboBox.SelectedItem = intervalTime;
+            }
             string emailTemplate = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template);
 
             if (emailTemplate != null && emailTemplate.Length > 50)
@@ -837,13 +853,66 @@ namespace BaselinkerSubiektConnector
             progressDialog.Show();
 
                await Task.Run(() =>
-    {
-        BaselinkerSyncInventoryQtyService.Sync();
-    });
+                    {
+                        BaselinkerSyncInventoryQtyService.Sync();
+                    });
 
             progressDialog.Close();
 
             MessageBox.Show("Synchronizacja zakończona", "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+        }
+
+
+        private async void StartStopServiceSyncButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (isServiceRunning)
+            {
+                isServiceRunning = false;
+                StartStopServiceSyncButton.Content = "Uruchom serwis";
+            }
+            else
+            {
+                isServiceRunning = true;
+                StartStopServiceSyncButton.Content = "Zatrzymaj serwis";
+                await RunBackgroundServiceAsync();
+            }
+        }
+
+        private async Task RunBackgroundServiceAsync()
+        {
+            while (isServiceRunning)
+            {
+                ComboBoxItem selectedItem = (ComboBoxItem)IntervalSyncComboBox.SelectedItem;
+                string intervalString = selectedItem.Content.ToString();
+
+                if (double.TryParse(intervalString, out double interval))
+                {
+
+                    Console.WriteLine("Serwis działa...");
+                    await Task.Run(() =>
+                    {
+                        BaselinkerSyncInventoryQtyService.Sync();
+                    });
+                    await Task.Delay(TimeSpan.FromMinutes(interval));
+                }
+                else
+                {
+                    MessageBox.Show("Błąd konwersji interwału.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                }
+            }
+        }
+
+
+        private void IntervalSyncComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+            if (IntervalSyncComboBox.SelectedItem != null)
+            {
+                string intervalString = IntervalSyncComboBox.SelectedItem.ToString();
+                ConfigRepository.SetValue(RegistryConfigurationKeys.SyncServiceIntervalTime, intervalString);
+                StartStopServiceSyncButton.IsEnabled = true;
+            }
         }
     }
 

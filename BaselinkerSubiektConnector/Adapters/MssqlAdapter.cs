@@ -143,16 +143,16 @@ namespace BaselinkerSubiektConnector.Adapters
                     connection.Open();
 
                     string query = $@"SELECT kk.Kod, a.Id, a.Symbol, a.Nazwa, sm.IloscDostepna, pc.CenaBrutto, a.Opis
-                                     FROM Nexo_Demo_1.ModelDanychContainer.KodyKreskowe kk
-                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.JednostkiMiarAsortymentow jma
+                                     FROM {dbName}.ModelDanychContainer.KodyKreskowe kk
+                                     LEFT JOIN {dbName}.ModelDanychContainer.JednostkiMiarAsortymentow jma
 	                                    ON jma.Id = kk.JednostkaMiaryAsortymentu_Id
-                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.StanyMagazynowe sm
+                                     LEFT JOIN {dbName}.ModelDanychContainer.StanyMagazynowe sm
 	                                    ON sm.Asortyment_Id = jma.Asortyment_Id
-                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.Asortymenty a
+                                     LEFT JOIN {dbName}.ModelDanychContainer.Asortymenty a
 	                                    ON a.Id = sm.Asortyment_Id
-                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.Magazyny m
+                                     LEFT JOIN {dbName}.ModelDanychContainer.Magazyny m
 	                                    ON m.Id = sm.Magazyn_Id
-                                     LEFT JOIN Nexo_Demo_1.ModelDanychContainer.PozycjeCennika pc
+                                     LEFT JOIN {dbName}.ModelDanychContainer.PozycjeCennika pc
 	                                    ON a.Id = pc.Asortyment_Id
                                      WHERE 
 	                                    sm.IloscDostepna > 0

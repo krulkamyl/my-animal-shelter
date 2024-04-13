@@ -1,4 +1,5 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
+using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
@@ -59,16 +60,21 @@ namespace BaselinkerSubiektConnector.Composites
             return true;
         }
 
-        public static void SendRequest(SyncInventory inventory)
+        public async static void SendRequest(SyncInventory inventory)
         {
             BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(
                     ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey),
                     ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_StorageId)
                 );
-            string json = JsonConvert.SerializeObject(inventory);
-            _ = baselinkerAdapter.UpdateInventoryProductsStock(inventory);
+            string json = JsonConvert.SerializeObject(inventory); 
+            UpdateInventoryProductsStockResponse inventoryProductsStockResponse = await baselinkerAdapter.UpdateInventoryProductsStock(inventory);
+
+            if (inventoryProductsStockResponse.status != "SUCCESS")
+            {
+                Helpers.Log("Błąd synchronizacji stanów magazynowych: "+ json);
+            }
             baselinkerAdapter = null;
-            Console.WriteLine(json);
+
 
         }
     }

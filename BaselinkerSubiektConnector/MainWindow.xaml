@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"        
-        Title="Baselinker to Subiekt Connector by cichy.cloud" Height="800" Width="1200">
+        Title="NexoLinker" Height="800" Width="1200">
 
     <Window.Resources>
 
@@ -398,6 +398,7 @@
 
                             <Button Content="Odśwież" Click="RefreshButton_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="100"/>
 
+                            <TextBlock x:Name="AssortmentsTableProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych brakujących produktów. Upewnij się, że masz zsynchronizowane dane w zakładce 'Aktualizacja danych'."></TextBlock>
                             <DataGrid x:Name="AssortmentsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
                 VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="AssortmentsTable_PreviewMouseWheel">
                                 <DataGrid.Columns>
@@ -423,6 +424,7 @@
                             </Grid.RowDefinitions>
 
                             <Button Content="Wyszukaj asortymentów" Click="SearchMissingProductInBaselinker_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="180"/>
+                            <TextBlock x:Name="MissingBaselinkerProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych brakujących w Baselinker produktów."></TextBlock>
                             <DataGrid x:Name="MissingBaselinkerProducts" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
           VirtualizingStackPanel.IsVirtualizing="True" Visibility="Hidden">
                                 <DataGrid.Columns>

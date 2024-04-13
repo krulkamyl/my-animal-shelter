@@ -18,19 +18,19 @@ namespace BaselinkerSubiektConnector.Validators
             {
                 throw new Exception("Wybrano niepoprawny magazyn Baselinker.");
             }
-            if (model.SubiektWarehouse == null || (model.SubiektWarehouse != null && model.SubiektWarehouse.Length < 3))
+            if (model.SubiektWarehouse == null || (model.SubiektWarehouse != null && model.SubiektWarehouse.Length < 2))
             {
                 throw new Exception("Wybrano niepoprawny magazyn w Subiekt.");
             }
-            if (model.SubiektBranch == null || (model.SubiektBranch != null && model.SubiektBranch.Length < 3))
+            if (model.SubiektBranch == null || (model.SubiektBranch != null && model.SubiektBranch.Length < 2))
             {
                 throw new Exception("Wybrano niepoprawny oddział w Subiekt.");
             }
-            if (model.PrinterEnabled && (model.PrinterName == null || (model.PrinterName != null && model.PrinterName.Length < 4)))
+            if (model.PrinterEnabled && (model.PrinterName == null || (model.PrinterName != null && model.PrinterName.Length < 2)))
             {
                 throw new Exception("Zaznaczono wydruk automatyczny faktur, a nie wybrano drukarki.");
             }
-            if (model.CashRegisterEnabled && (model.CashRegisterName== null || (model.CashRegisterName != null && model.CashRegisterName.Length < 3)))
+            if (model.CashRegisterEnabled && (model.CashRegisterName== null || (model.CashRegisterName != null && model.CashRegisterName.Length < 2)))
             {
                 throw new Exception("Zaznaczono wydruk automatyczny paragonów, a nie wybrano kasy fiskalnej.");
             }

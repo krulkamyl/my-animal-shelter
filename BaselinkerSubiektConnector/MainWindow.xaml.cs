@@ -42,7 +42,7 @@ namespace BaselinkerSubiektConnector
         private int currentPage = 1; 
         private double prevVerticalOffset;
         private bool isServiceRunning = false;
-
+        private AddToBaselinker addToBaselinkerWindow;
 
         public MainWindowViewModel ViewModel { get; }
 
@@ -76,6 +76,7 @@ namespace BaselinkerSubiektConnector
             Closing += MainWindow_Closing;
 
             LoadAssortmentsPage();
+            SearchMissingProductInBaselinkerSync();
         }
 
         private void CheckAppDataFolderExists()
@@ -413,7 +414,7 @@ namespace BaselinkerSubiektConnector
                 ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_PrinterName, Subiekt_PrinterName.Text);
             }
 
-            if (Subiekt_PrinterName.Text.Length > 0)
+            if (Subiekt_Login.Text.Length > 0)
             {
                 ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Login, Subiekt_Login.Text);
             }
@@ -672,6 +673,13 @@ namespace BaselinkerSubiektConnector
                                           }).ToList();
             }
 
+            if (allRecords.Count == 0)
+            {
+                AssortmentsTable.Visibility = Visibility.Hidden;
+                AssortmentsTableProductsNotFound.Visibility = Visibility.Visible;
+                return;
+            }
+
             int startIndex = (currentPage - 1) * itemsPerPage;
             int endIndex = Math.Min(startIndex + itemsPerPage, allRecords.Count);
 
@@ -725,6 +733,11 @@ namespace BaselinkerSubiektConnector
 
         private void SearchMissingProductInBaselinker_Click(object sender, RoutedEventArgs e)
         {
+            SearchMissingProductInBaselinkerSync();
+        }
+
+        private void SearchMissingProductInBaselinkerSync()
+        {
             if (mssqlAdapter == null)
             {
                 mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
@@ -737,6 +750,7 @@ namespace BaselinkerSubiektConnector
                 MissingBaselinkerProducts.Items.Clear();
 
                 MissingBaselinkerProducts.Visibility = Visibility.Visible;
+                MissingBaselinkerProductsNotFound.Visibility = Visibility.Hidden;
                 var missingAssortmentTableItems = missingProducts
                                           .Select(record => new AssortmentTableItem
                                           {
@@ -756,7 +770,8 @@ namespace BaselinkerSubiektConnector
             }
             else
             {
-                MessageBox.Show("Nie znaleziono brakujących produktów w Baselinker.", "Informacja", MessageBoxButton.OK, MessageBoxImage.Information);
+                MissingBaselinkerProductsNotFound.Visibility = Visibility.Visible;
+                MissingBaselinkerProducts.Visibility = Visibility.Hidden;
             }
         }
 
@@ -768,10 +783,26 @@ namespace BaselinkerSubiektConnector
                 var item = button.DataContext as AssortmentTableItem;
                 if (item != null)
                 {
-                    var addToBaselinkerWindow = new AddToBaselinker(item);
+                    addToBaselinkerWindow = new AddToBaselinker(item);
+                    addToBaselinkerWindow.Closed += AddToBaselinkerWindow_Closed;
                     addToBaselinkerWindow.ShowDialog();
                 }
             }
+        }
+
+        private void AddToBaselinkerWindow_Closed(object sender, EventArgs e)
+        {
+            currentPage = 1;
+            allRecords = null;
+            AssortmentsTable.Items.Clear();
+            LoadAssortmentsPage();
+
+            ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(0);
+            }
+            SearchMissingProductInBaselinkerSync();
         }
 
         private void AssortmentsBaselinkerRefreshDataButton_Click(object sender, RoutedEventArgs e)
@@ -799,6 +830,9 @@ namespace BaselinkerSubiektConnector
 
             try
             {
+                var progressDialog = new ProcessDialog("Importowanie asortymentu. Proszę czekać...");
+                progressDialog.Show();
+
                 BaselinkerAdapter baselinkerAdapter = new BaselinkerAdapter(
                     ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey)
                 );
@@ -810,7 +844,6 @@ namespace BaselinkerSubiektConnector
 
                 InventoryResponse inventories = await baselinkerAdapter.GetInventoriesAsync();
 
-
                 if (inventories.status == "SUCCESS")
                 {
                     var inventoriesList = inventories.inventories;
@@ -819,19 +852,15 @@ namespace BaselinkerSubiektConnector
                     {
                         if (inventory.is_default)
                         {
-                            assortments_BaselinkerSyncProgressText.Text = "Pobrano inwentarz \""+inventory.name+"\". Wysyłanie zlecenia o pobranie produktów.";
+                            assortments_BaselinkerSyncProgressText.Text = "Pobrano inwentarz \"" + inventory.name + "\". Wysyłanie zlecenia o pobranie produktów.";
 
                             BaselinkerSQLiteProductSyncComposite baselinkerSQLiteProductSyncComposite = new BaselinkerSQLiteProductSyncComposite();
 
                             assortments_BaselinkerSyncProgressText.Text = "Proszę czekać. Trwa wykonywanie importu.";
 
-                            await Task.Run(async () =>
-                            {
-                                await baselinkerSQLiteProductSyncComposite.Sync(inventory.inventory_id);
-                            });
+                            await baselinkerSQLiteProductSyncComposite.Sync(inventory.inventory_id);
 
-
-                            assortmentsBaselinkerSyncButton.IsEnabled = false;
+                            assortmentsBaselinkerSyncButton.IsEnabled = true;
                             assortments_BaselinkerSyncProgressText.Visibility = Visibility.Hidden;
                             MessageBox.Show("Synchronizacja zakończona.", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
                         }
@@ -841,12 +870,18 @@ namespace BaselinkerSubiektConnector
                 {
                     throw new Exception(inventories.error_message);
                 }
-            } catch (Exception ex)
+
+                progressDialog.Close();
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show("Wystąpił błąd: \n" + ex.Message, "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-
         }
+
+
+
+
         private async void SyncInventoriesProductsStock_Click(object sender, RoutedEventArgs e)
         {
             var progressDialog = new ProcessDialog("Trwa synchronizacja. Proszę czekać...");

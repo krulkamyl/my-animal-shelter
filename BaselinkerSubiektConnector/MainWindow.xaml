@@ -4,7 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"        
-        Title="NexoLinker" Height="800" Width="1200">
+        Title="NexoLink" Height="800" Width="1200">
 
     <Window.Resources>
 
@@ -527,11 +527,33 @@
 
 
             <TabItem Header="Logi">
+                <Grid Height="600">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <TextBox Name="logTextBox" IsReadOnly="True" TextWrapping="Wrap"/>
+                    </ScrollViewer>
+                    <TextBlock Name="noLogsTextBlock" Text="Nie znaleziono żadnych logów" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Collapsed"/>
+                </Grid>
 
             </TabItem>
 
             <TabItem Header="O programie">
-                <TextBlock Text="Created by cichy.codes :) " Grid.Row="0" Margin="5"/>
+                <Grid Background="White">
+                   <Image Source="Assets/nexolink.jpg" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" Width="200" Height="200"/>
+
+                    <TextBlock FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,400,0,0">
+                    <Run Text="Wsparcie techniczne: "/>
+                    <Hyperlink NavigateUri="mailto:pomoc@nexolink.pl" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="pomoc@nexolink.pl"/>
+                    </Hyperlink>
+                    </TextBlock>
+
+                   <TextBlock FontSize="24" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,370,0,0">
+                    <Run Text="Adres URL: "/>
+                    <Hyperlink NavigateUri="https://nexolink.pl" RequestNavigate="Hyperlink_RequestNavigate">
+                        <Run Text="https://nexolink.pl"/>
+                    </Hyperlink>
+                    </TextBlock>
+                </Grid>
 
             </TabItem>
         </TabControl>

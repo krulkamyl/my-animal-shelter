@@ -27,22 +27,28 @@ using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BaselinkerSubiektConnector.Builders.Baselinker;
+using System.Text;
+using System.Windows.Documents;
+using System.Windows.Navigation;
+using System.Diagnostics;
 
 namespace BaselinkerSubiektConnector
 {
     public partial class MainWindow : Window
     {
         private MSSQLAdapter mssqlAdapter;
-        private List<BaselinkerStoragesResponseStorage> storages; 
+        private List<BaselinkerStoragesResponseStorage> storages;
         private HttpService httpService;
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
         private List<AssortmentTableItem> allRecords;
         private int itemsPerPage = 100;
-        private int currentPage = 1; 
+        private int currentPage = 1;
         private double prevVerticalOffset;
         private bool isServiceRunning = false;
-        private AddToBaselinker addToBaselinkerWindow;
+        private AddToBaselinker addToBaselinkerWindow; 
+        private const int MaxLogLines = 400; 
+        private string logFilePath = Path.Combine(Helpers.GetApplicationPath(), "Logs.txt");
 
         public MainWindowViewModel ViewModel { get; }
 
@@ -72,11 +78,15 @@ namespace BaselinkerSubiektConnector
 
             checkSferaIsEnabled = new Timer(CheckSferaIsEnabledMethod, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
- 
+
             Closing += MainWindow_Closing;
 
             LoadAssortmentsPage();
             SearchMissingProductInBaselinkerSync();
+
+
+            ReadLogFromFile();
+            WatchLogFileChanges();
         }
 
         private void CheckAppDataFolderExists()
@@ -278,17 +288,17 @@ namespace BaselinkerSubiektConnector
         internal static DaneDoUruchomieniaSfery PodajDaneDoUruchomienia(DanePolaczenia danePolaczenia)
         {
             var dane = new DaneDoUruchomieniaSfery()
-                {
-                    Serwer = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host),
-                    Baza = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
-                    LoginSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login),
-                    HasloSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password),
-                    LoginNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login),
-                    HasloNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Password),
-                    Produkt = ProductId.Subiekt,
+            {
+                Serwer = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Host),
+                Baza = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME),
+                LoginSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Login),
+                HasloSql = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_Password),
+                LoginNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login),
+                HasloNexo = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Password),
+                Produkt = ProductId.Subiekt,
             };
-                return dane;
-            }
+            return dane;
+        }
 
         private void HandleException(Exception e)
         {
@@ -356,7 +366,8 @@ namespace BaselinkerSubiektConnector
             try
             {
                 sendDataToValidate();
-            } catch (Exception ex)
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message, "Wystąpił błąd walidacyjny", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -473,7 +484,7 @@ namespace BaselinkerSubiektConnector
                 mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
                 List<string> databaseNames = mssqlAdapter.GetNexoDatabaseNames();
 
-                if (databaseNames.Count > 0 )
+                if (databaseNames.Count > 0)
                 {
                     MSSQL_Name.IsEnabled = true;
                 }
@@ -537,7 +548,7 @@ namespace BaselinkerSubiektConnector
                     emailService.SendEmail(msgProperties.TextBoxText, "Testowa wiadomosć e-mail", "Jeżeli otrzymałeś/aś tę wiadomość e-mail, to znaczy, że wysyłanie e-maili działa!");
                     MessageBox.Show("Wiadomość została wysłana. Sprawdź swój adres e-mail.", "Sukces!", MessageBoxButton.OK, MessageBoxImage.Information);
                 }
-               
+
             }
             else
             {
@@ -557,7 +568,7 @@ namespace BaselinkerSubiektConnector
                 {
                     mssqlAdapter = new MSSQLAdapter(MSSQL_IP.Text, MSSQL_User.Text, MSSQL_Password.Text);
                 }
-                
+
                 SubiektWarehouses.UpdateExistingData(mssqlAdapter.GetWarehouses(MSSQL_Name.Text));
                 SubiektBranches.UpdateExistingData(mssqlAdapter.GetBranches(MSSQL_Name.Text));
                 SubiektCashRegisters.UpdateExistingData(mssqlAdapter.GetCashRegisters(MSSQL_Name.Text));
@@ -603,7 +614,7 @@ namespace BaselinkerSubiektConnector
 
                 Baselinker_StorageName.Items.Clear();
 
-                foreach (Record item in records )
+                foreach (Record item in records)
                 {
                     Baselinker_StorageName.Items.Add(item.key);
                 }
@@ -648,7 +659,7 @@ namespace BaselinkerSubiektConnector
         {
             currentPage = 1;
             allRecords = null;
-            AssortmentsTable.Items.Clear(); 
+            AssortmentsTable.Items.Clear();
             LoadAssortmentsPage();
 
             ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
@@ -887,10 +898,10 @@ namespace BaselinkerSubiektConnector
             var progressDialog = new ProcessDialog("Trwa synchronizacja. Proszę czekać...");
             progressDialog.Show();
 
-               await Task.Run(() =>
-                    {
-                        BaselinkerSyncInventoryQtyService.Sync();
-                    });
+            await Task.Run(() =>
+                 {
+                     BaselinkerSyncInventoryQtyService.Sync();
+                 });
 
             progressDialog.Close();
 
@@ -949,9 +960,67 @@ namespace BaselinkerSubiektConnector
                 StartStopServiceSyncButton.IsEnabled = true;
             }
         }
+        private void WatchLogFileChanges()
+        {
+            FileSystemWatcher watcher = new FileSystemWatcher();
+            watcher.Path = Path.GetDirectoryName(logFilePath);
+            watcher.Filter = Path.GetFileName(logFilePath);
+            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Changed += OnLogFileChanged;
+            watcher.EnableRaisingEvents = true;
+        }
+
+        private void OnLogFileChanged(object sender, FileSystemEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ReadLogFromFile();
+            });
+        }
+
+        private void ReadLogFromFile()
+        {
+            try
+            {
+                if (!File.Exists(logFilePath) || new FileInfo(logFilePath).Length == 0)
+                {
+                    noLogsTextBlock.Visibility = Visibility.Visible;
+                    logTextBox.Text = "";
+                    return;
+                }
+
+                noLogsTextBlock.Visibility = Visibility.Collapsed;
+
+                string[] allLines = File.ReadAllLines(logFilePath, Encoding.UTF8);
+                int startIndex = Math.Max(0, allLines.Length - MaxLogLines);
+
+                StringBuilder stringBuilder = new StringBuilder();
+
+                for (int i = allLines.Length - 1; i >= startIndex; i--)
+                {
+                    stringBuilder.AppendLine(allLines[i]);
+                }
+
+                logTextBox.Text = stringBuilder.ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Wystąpił błąd podczas odczytu pliku logów: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
+        private void Hyperlink_RequestNavigate(object sender, RoutedEventArgs e)
+        {
+            var hyperlink = sender as Hyperlink;
+            if (hyperlink != null)
+            {
+                string navigateUri = hyperlink.NavigateUri.AbsoluteUri;
+                Process.Start(new ProcessStartInfo(navigateUri));
+                e.Handled = true;
+            }
+        }
     }
-
-
 
     public class AssortmentTableItem
     {

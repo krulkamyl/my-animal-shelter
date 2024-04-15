@@ -53,7 +53,7 @@
         public const string Config_CompanyEmailAddress = "CONFIG_COMPANY_EMAIL_ADDRESS";
         public const string Config_CompanyPhone = "CONFIG_COMPANY_PHONE";
 
-
+        public const string AutoRun_IntervalSyncQtyWarehouse = "AUTO_RUN_INTERVAL_SYNC_QTY_WAREHOUSE";
 
     }
 }

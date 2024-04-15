@@ -448,7 +448,7 @@
                         <Grid>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="200"/>
-                                <RowDefinition Height="220"/>
+                                <RowDefinition Height="250"/>
                             </Grid.RowDefinitions>
 
                             <Border BorderBrush="#007bff" BorderThickness="1" Grid.Row="0"  Background="#f8f9fa" CornerRadius="5" Margin="20">
@@ -470,6 +470,8 @@
                                             <ComboBoxItem Content="0"/>
                                         </ComboBox>
                                     </StackPanel>
+                                    <CheckBox x:Name="AutoSyncCheckbox" Content="Uruchamiaj synchronizację automatycznie po uruchomieniu aplikacji" Checked="AutoSyncChecked" Unchecked="AutoSyncUnchecked" Margin="0,0,0,10"/>
+
                                     <Button Content="Uruchom serwis" x:Name="StartStopServiceSyncButton" Click="StartStopServiceSyncButton_Click" HorizontalAlignment="Center" Padding="10,5" Width="300" Background="#007bff" Foreground="White" FontWeight="Bold" IsEnabled="False"/>
                                 </StackPanel>
                             </Border>

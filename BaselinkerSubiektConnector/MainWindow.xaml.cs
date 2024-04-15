@@ -219,6 +219,13 @@ namespace BaselinkerSubiektConnector
                 Config_EmailSendAuto.IsChecked = true;
             }
 
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.AutoRun_IntervalSyncQtyWarehouse) == "1")
+            {
+                AutoSyncCheckbox.IsChecked = true;
+                StartStopServiceSyncButton_Click(this, new RoutedEventArgs());
+
+            }
+
 
             var defaultPrinter = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_PrinterName);
             if (defaultPrinter != null && defaultPrinter.Length > 3)
@@ -891,7 +898,29 @@ namespace BaselinkerSubiektConnector
         }
 
 
+        private void AutoSyncChecked(object sender, RoutedEventArgs e)
+        {
+            ConfigRepository.SetValue(RegistryConfigurationKeys.AutoRun_IntervalSyncQtyWarehouse, "1");
 
+            if (IntervalSyncComboBox.SelectedItem != null)
+            {
+                string intervalString = IntervalSyncComboBox.SelectedItem.ToString();
+
+                ConfigRepository.SetValue(RegistryConfigurationKeys.AutoRun_IntervalSyncQtyWarehouse, "1");
+                ConfigRepository.SetValue(RegistryConfigurationKeys.SyncServiceIntervalTime, intervalString);
+            }
+            else
+            {
+                AutoSyncCheckbox.IsChecked = false;
+                MessageBox.Show("Nie wybrano interwału pracy", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            }
+        }
+
+        private void AutoSyncUnchecked(object sender, RoutedEventArgs e)
+        {
+            ConfigRepository.SetValue(RegistryConfigurationKeys.AutoRun_IntervalSyncQtyWarehouse, "0");
+        }
 
         private async void SyncInventoriesProductsStock_Click(object sender, RoutedEventArgs e)
         {
@@ -928,8 +957,7 @@ namespace BaselinkerSubiektConnector
         {
             while (isServiceRunning)
             {
-                ComboBoxItem selectedItem = (ComboBoxItem)IntervalSyncComboBox.SelectedItem;
-                string intervalString = selectedItem.Content.ToString();
+                string intervalString = ConfigRepository.GetValue(RegistryConfigurationKeys.SyncServiceIntervalTime);
 
                 if (double.TryParse(intervalString, out double interval))
                 {

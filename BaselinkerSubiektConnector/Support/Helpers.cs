@@ -19,7 +19,6 @@ namespace BaselinkerSubiektConnector.Support
             if (match.Success)
             {
                 string number = match.Groups[1].Value;
-                Helpers.Log("[Baselinker GetOrderId] Order ID: " + number);
                 return number;
             }
             else
@@ -44,7 +43,7 @@ namespace BaselinkerSubiektConnector.Support
         {
             string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-            return appDataFolder + "\\cichy.cloud\\Subiekt Baselinker Connector\\";
+            return appDataFolder + "\\cichy.cloud\\NexoLink\\";
         }
 
         public static List<string> GetPrinters()

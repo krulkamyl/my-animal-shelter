@@ -100,8 +100,11 @@ namespace BaselinkerSubiektConnector.Builders
                     var receiptInvoiceObj = sdi.Dane.Wszystkie().Where(pdm => pdm.Id == receiptInvoice).FirstOrDefault();
                     if (receiptInvoiceObj != null)
                     {
-                        // TODO: update order checkbox
-                        //this.UpdateOrder(receiptInvoiceObj);
+
+                        if (ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_AddCommentDocNumber) == "1")
+                        {
+                            this.UpdateOrder(receiptInvoiceObj);
+                        }
 
 
                         if (this.documentType == "FS" || this.documentType == "FD")

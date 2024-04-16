@@ -31,6 +31,7 @@
         public const string Baselinker_StorageName = "BASELINKER_STORAGE_Name";
         public const string Baselinker_InventoryWarehouseId = "BASELINKER_INVENTORY_WAREHOUSE_ID";
         public const string Baselinker_InventoryWarehouseName = "BASELINKER_INVENTORY_WAREHOUSE_NAME";
+        public const string Baselinker_AddCommentDocNumber = "BASELINKER_ADD_COMMENT_DOC_NUMBER";
 
         // Email
 

@@ -14,13 +14,13 @@
   </ParametryInstalacji>-->
   <Pakiet>
     <!-- source manifest -->
-    <Package Identity="BaselinkerSubiektConnector-49.0.1.7256" DisplayName="" VersionDisplayName="" MinimumServerVersion="">
+    <Package Identity="NexoLink-49.0.1.7256" DisplayName="" VersionDisplayName="" MinimumServerVersion="">
       <Contents>
-        <File Name="BaselinkerSubiektConnector.exe"/>
+        <File Name="NexoLink.exe"/>
       </Contents>
       <LaunchScenarios>
-        <LaunchScenario Name="BaselinkerSubiektConnector" CanUpdate="false">
-          <LaunchAction ExePath="BaselinkerSubiektConnector.exe" CommandLineArguments="/UruchomionePrzezInsLauncher" RedirectedInput="!LauncherMessageFormatB!" RedirectedInputEncoding="utf-8" />
+        <LaunchScenario Name="NexoLink" CanUpdate="true">
+          <LaunchAction ExePath="NexoLink.exe" CommandLineArguments="/UruchomionePrzezInsLauncher" RedirectedInput="!LauncherMessageFormatB!" RedirectedInputEncoding="utf-8" />
         </LaunchScenario>
       </LaunchScenarios>
       <DeployActions />
@@ -32,21 +32,20 @@
     <!-- end of source manifest -->
   </Pakiet>
   <Instalator>
-    <Tytul>Instalator rozwiązania własnego dla nexo</Tytul>
-    <TekstPowitalny>Witamy w instalatorze rozwiązania własnego dla nexo.</TekstPowitalny>
-    <!-- dane autora rozwiązania własnego -->
+    <Tytul>Instalator NexoLink</Tytul>
+    <TekstPowitalny>Witamy w instalatorze oprogramowania NexoLink</TekstPowitalny>
     <DostawcaInfo>Copyright © 2024 cichy.cloud</DostawcaInfo>
-    <UtworzSkrotNaPulpicie>false</UtworzSkrotNaPulpicie>
+    <UtworzSkrotNaPulpicie>true</UtworzSkrotNaPulpicie>
     <UtworzSkrotWMenuStart>false</UtworzSkrotWMenuStart>
-    <WymaganyRestart>false</WymaganyRestart>
+    <WymaganyRestart>true</WymaganyRestart>
     <KiP2>false</KiP2>
-    <PlikLogo></PlikLogo>
+    <PlikLogo>C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\Assets\nexolink.jpg</PlikLogo>
     <PlikLicencji></PlikLicencji>
-    <PlikWynikowy>BaselinkerSubiektConnector-49.0.1.7256.exe</PlikWynikowy>
-    <!--<Skroty>
-      <Skrot NazwaScenariusza="BaselinkerSubiektConnector" Opis="BaselinkerSubiektConnector">
-        <PlikIkony>..\..\ikona.ico</PlikIkony>
+    <PlikWynikowy>NexoLink-49.0.1.7256.exe</PlikWynikowy>
+    <Skroty>
+      <Skrot NazwaScenariusza="NexoLink" Opis="Oprogramowanie do wsparcia synchronizacji Baselinker z Subiekt Nexo">
+        <PlikIkony>C:\Users\Cichy\Documents\GitHub\my-animal-shelter\BaselinkerSubiektConnector\Assets\nexo-linker-logo.ico</PlikIkony>
       </Skrot>
-    </Skroty>-->
+    </Skroty>
   </Instalator>
 </Konfiguracja>

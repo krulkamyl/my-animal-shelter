@@ -1,5 +1,4 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
-using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Services.EmailService;
 using BaselinkerSubiektConnector.Services.HttpService;
 using InsERT.Moria.Sfera;
@@ -22,14 +21,11 @@ using BaselinkerSubiektConnector.Validators;
 using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Composites;
 using System.Threading.Tasks;
-using System.Globalization;
-using System.Windows.Data;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BaselinkerSubiektConnector.Builders.Baselinker;
 using System.Text;
 using System.Windows.Documents;
-using System.Windows.Navigation;
 using System.Diagnostics;
 
 namespace BaselinkerSubiektConnector
@@ -37,7 +33,6 @@ namespace BaselinkerSubiektConnector
     public partial class MainWindow : Window
     {
         private MSSQLAdapter mssqlAdapter;
-        private List<BaselinkerStoragesResponseStorage> storages;
         private HttpService httpService;
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
@@ -219,11 +214,16 @@ namespace BaselinkerSubiektConnector
                 Config_EmailSendAuto.IsChecked = true;
             }
 
+
+            if (ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_AddCommentDocNumber) == "1")
+            {
+                Baselinker_AddCommentDocNumber.IsChecked = true;
+            }
+
             if (ConfigRepository.GetValue(RegistryConfigurationKeys.AutoRun_IntervalSyncQtyWarehouse) == "1")
             {
                 AutoSyncCheckbox.IsChecked = true;
                 StartStopServiceSyncButton_Click(this, new RoutedEventArgs());
-
             }
 
 
@@ -450,6 +450,12 @@ namespace BaselinkerSubiektConnector
             ConfigRepository.SetValue(
                 RegistryConfigurationKeys.Config_EmailSendAuto,
                 Config_EmailSendAuto.IsChecked == true ? "1" : "0"
+                );
+
+
+            ConfigRepository.SetValue(
+                RegistryConfigurationKeys.Baselinker_AddCommentDocNumber,
+                Baselinker_AddCommentDocNumber.IsChecked == true ? "1" : "0"
                 );
 
             ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Password, Subiekt_Password.Text);

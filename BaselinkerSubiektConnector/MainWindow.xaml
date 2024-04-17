@@ -403,7 +403,15 @@
 
                             <TextBlock x:Name="AssortmentsTableProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych brakujących produktów. Upewnij się, że masz zsynchronizowane dane w zakładce 'Aktualizacja danych'."></TextBlock>
                             <DataGrid x:Name="AssortmentsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
-                VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="AssortmentsTable_PreviewMouseWheel">
+                                VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="AssortmentsTable_PreviewMouseWheel"
+                                PreviewMouseRightButtonDown="AssortmentsTable_PreviewMouseRightButtonDown"
+                                SelectionUnit="Cell">
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Kopiuj" Click="AssortmentsCopyMenuItem_Click" />
+
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Identyfikator Baselinker" Binding="{Binding BaselinkerId}" 
                                 Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
@@ -429,7 +437,8 @@
                             <Button Content="Wyszukaj asortymentów" Click="SearchMissingProductInBaselinker_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="180"/>
                             <TextBlock x:Name="MissingBaselinkerProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych brakujących w Baselinker produktów."></TextBlock>
                             <DataGrid x:Name="MissingBaselinkerProducts" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
-          VirtualizingStackPanel.IsVirtualizing="True" Visibility="Hidden">
+          VirtualizingStackPanel.IsVirtualizing="True" Visibility="Hidden" SelectionUnit="Cell"
+          PreviewMouseRightButtonDown="MissingBaselinkerProducts_PreviewMouseRightButtonDown">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn Header="Kod kreskowy" Binding="{Binding Barcode}" Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
                                     <DataGridTextColumn Header="Symbol asortymentu" Binding="{Binding SubiektSymbol}" Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
@@ -442,7 +451,14 @@
                                         </DataGridTemplateColumn.CellTemplate>
                                     </DataGridTemplateColumn>
                                 </DataGrid.Columns>
+                                <DataGrid.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Kopiuj" Click="MissingBaselinkerProductsCopyMenuItem_Click" />
+
+                                    </ContextMenu>
+                                </DataGrid.ContextMenu>
                             </DataGrid>
+
 
                         </Grid>
                     </TabItem>

@@ -27,6 +27,8 @@ using BaselinkerSubiektConnector.Builders.Baselinker;
 using System.Text;
 using System.Windows.Documents;
 using System.Diagnostics;
+using System.Data;
+using System.Windows.Controls.Primitives;
 
 namespace BaselinkerSubiektConnector
 {
@@ -735,6 +737,131 @@ namespace BaselinkerSubiektConnector
             }
         }
 
+        private void AssortmentsTable_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid != null)
+            {
+                DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+                while ((dep != null) && !(dep is DataGridCell))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+
+                if (dep is DataGridCell)
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Visible;
+                    dataGrid.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+
+        private void AssortmentsCopyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null)
+            {
+                DataGrid dataGrid = AssortmentsTable;
+                if (dataGrid != null)
+                {
+                    DataGridCell cell = GetSelectedCell(dataGrid);
+
+                    if (cell != null && cell.Content is TextBlock)
+                    {
+                        TextBlock textBlock = cell.Content as TextBlock;
+                        string cellContent = textBlock.Text;
+                        Clipboard.SetText(cellContent);
+                    }
+                }
+            }
+        }
+
+        private void MissingBaselinkerProductsCopyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null)
+            {
+                DataGrid dataGrid = MissingBaselinkerProducts;
+                if (dataGrid != null)
+                {
+                    DataGridCell cell = GetSelectedCell(dataGrid);
+
+                    if (cell != null && cell.Content is TextBlock)
+                    {
+                        TextBlock textBlock = cell.Content as TextBlock;
+                        string cellContent = textBlock.Text;
+                        Clipboard.SetText(cellContent);
+                    }
+                }
+            }
+        }
+
+
+
+
+        private DataGridCell GetSelectedCell(DataGrid dataGrid)
+        {
+            if (dataGrid == null || dataGrid.SelectedCells.Count == 0)
+                return null;
+
+            DataGridCellInfo cellInfo = dataGrid.SelectedCells[0];
+            if (cellInfo == null)
+                return null;
+
+            DataGridCell cell = null;
+            try
+            {
+                cell = (DataGridCell)cellInfo.Column.GetCellContent(cellInfo.Item).Parent;
+            }
+            catch
+            {
+                cell = null;
+            }
+
+            return cell;
+        }
+
+        private T FindParent<T>(DependencyObject child) where T : DependencyObject
+        {
+            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
+
+            if (parentObject == null)
+                return null;
+
+            T parent = parentObject as T;
+            if (parent != null)
+            {
+                return parent;
+            }
+            else
+            {
+                return FindParent<T>(parentObject);
+            }
+        }
+
+        private childItem GetVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
+        {
+            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            {
+                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
+                if (child != null && child is childItem)
+                    return (childItem)child;
+                else
+                {
+                    childItem childOfChild = GetVisualChild<childItem>(child);
+                    if (childOfChild != null)
+                        return childOfChild;
+                }
+            }
+            return null;
+        }
+
 
         private ScrollViewer GetScrollViewer(DependencyObject depObj)
         {
@@ -810,6 +937,30 @@ namespace BaselinkerSubiektConnector
                     addToBaselinkerWindow = new AddToBaselinker(item);
                     addToBaselinkerWindow.Closed += AddToBaselinkerWindow_Closed;
                     addToBaselinkerWindow.ShowDialog();
+                }
+            }
+        }
+
+        private void MissingBaselinkerProducts_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid != null)
+            {
+                DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+                while ((dep != null) && !(dep is DataGridCell))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+
+                if (dep is DataGridCell)
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Visible;
+                    dataGrid.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Collapsed;
                 }
             }
         }

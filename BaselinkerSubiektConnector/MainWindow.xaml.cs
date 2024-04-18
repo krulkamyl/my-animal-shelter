@@ -40,8 +40,10 @@ namespace BaselinkerSubiektConnector
         private DispatcherTimer timer;
         private static Timer checkSferaIsEnabled;
         private List<AssortmentTableItem> allRecords;
+        private List<SalesDocumentItem> allRecordsSalesDocs;
         private int itemsPerPage = 100;
         private int currentPage = 1;
+        private int currentPageSalesDocs = 1;
         private double prevVerticalOffset;
         private bool isServiceRunning = false;
         private AddToBaselinker addToBaselinkerWindow; 
@@ -304,22 +306,6 @@ namespace BaselinkerSubiektConnector
                 scrollViewer.ScrollToVerticalOffset(prevVerticalOffset);
             }
             currentPage++;
-        }
-
-        private void AssortmentsTable_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
-        {
-            ScrollViewer scrollViewer = GetScrollViewer(AssortmentsTable);
-            if (scrollViewer != null)
-            {
-                if (e.Delta < 0)
-                {
-                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-                    {
-                        prevVerticalOffset = scrollViewer.VerticalOffset;
-                        LoadAssortmentsPage();
-                    }
-                }
-            }
         }
 
         private void AssortmentsTable_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
@@ -806,6 +792,106 @@ namespace BaselinkerSubiektConnector
                 e.Handled = true;
             }
         }
+
+        private void AssortmentsTable_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
+            if (scrollViewer != null)
+            {
+                if (e.Delta < 0)
+                {
+                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+                    {
+                        prevVerticalOffset = scrollViewer.VerticalOffset;
+                        LoadAssortmentsPage();
+                    }
+                }
+            }
+        }
+
+        // SELLER DOCS
+        private void RefreshSellerDocsButton_Click(object sender, EventArgs e)
+        {
+            currentPageSalesDocs = 1;
+            allRecordsSalesDocs = null;
+            DocsTable.Items.Clear();
+            
+            // TODO: below to sales docs
+            //LoadAssortmentsPage();
+
+            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(0);
+            }
+        }
+
+        private void DocsTableProductsNotFound_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
+            if (scrollViewer != null)
+            {
+                if (e.Delta < 0)
+                {
+                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
+                    {
+                        prevVerticalOffset = scrollViewer.VerticalOffset;
+
+                        // TODO: below to sales docs
+                        //LoadAssortmentsPage();
+                    }
+                }
+            }
+        }
+
+
+        private void DocsTableProductsNotFound_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            DataGrid dataGrid = sender as DataGrid;
+            if (dataGrid != null)
+            {
+                DependencyObject dep = (DependencyObject)e.OriginalSource;
+
+                while ((dep != null) && !(dep is DataGridCell))
+                {
+                    dep = VisualTreeHelper.GetParent(dep);
+                }
+
+                if (dep is DataGridCell)
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Visible;
+                    dataGrid.ContextMenu.IsOpen = true;
+                }
+                else
+                {
+                    dataGrid.ContextMenu.Visibility = Visibility.Collapsed;
+                }
+            }
+        }
+
+        private void DocsCopyMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem menuItem = sender as MenuItem;
+            if (menuItem != null)
+            {
+                DataGrid dataGrid = DocsTable;
+                if (dataGrid != null)
+                {
+                    DataGridCell cell = GetSelectedCell(dataGrid);
+
+                    if (cell != null && cell.Content is TextBlock)
+                    {
+                        TextBlock textBlock = cell.Content as TextBlock;
+                        string cellContent = textBlock.Text;
+                        Clipboard.SetText(cellContent);
+                    }
+                }
+            }
+        }
+
+        // END SELLER DOCS
+
+
     }
 
     public class AssortmentTableItem
@@ -819,5 +905,16 @@ namespace BaselinkerSubiektConnector
         public string SubiektPrice { get; set; }
         public string SubiektQty { get; set; }
         public string SubiektDescription { get; set; }
+    }
+
+    public class SalesDocumentItem
+    {
+        public int Status { get; set; }
+        public string SubiektDocNumber { get; set; }
+        public string CreatedAt { get; set; }
+        public string BaselinkerId { get; set; }
+        public string BaselinkerData { get; set; }
+        public string Errors { get; set; }
+        public string DocType { get; set; }
     }
 }

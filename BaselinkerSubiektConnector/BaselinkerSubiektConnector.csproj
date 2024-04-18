@@ -333,6 +333,9 @@
     <Compile Include="Composites\BaselinkerSyncInventoryQtyService.cs" />
     <Compile Include="Composites\GetMissingInBaselinkerSubiektProducts.cs" />
     <Compile Include="Composites\BaselinkerSQLiteProductSyncComposite.cs" />
+    <Compile Include="ConfigurationControl.xaml.cs">
+      <DependentUpon>ConfigurationControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Objects\Baselinker\Inventory\InventoryPriceGroup.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryProductListResponse.cs" />
     <Compile Include="Objects\Baselinker\Inventory\InventoryManufacturers.cs" />
@@ -389,6 +392,10 @@
     <Compile Include="Support\SQLiteDatabaseNames.cs" />
     <Compile Include="Uchwyty.cs" />
     <Page Include="AddToBaselinker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ConfigurationControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

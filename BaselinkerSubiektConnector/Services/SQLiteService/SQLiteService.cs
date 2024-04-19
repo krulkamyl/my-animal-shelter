@@ -47,6 +47,19 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                         );";
                     command.ExecuteNonQuery();
 
+
+                    command.CommandText = @"CREATE TABLE IF NOT EXISTS sales_docs (
+                                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                                            baselinker_id TEXT,
+                                            type TEXT,
+                                            subiekt_doc_number TEXT,
+                                            baselinker_data TEXT,
+                                            errors TEXT,
+                                            status INTEGER DEFAULT 0,
+                                            created_at DATETIME DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+                                        );";
+                    command.ExecuteNonQuery();
+
                     foreach (var databaseTable in new[] { "baselinker_storages", "baselinker_inventory_warehouses", "baselinker_inventories", "baselinker_categories", "baselinker_inventory_price_groups", "baselinker_inventory_manufactuters", "subiekt_warehouses", "subiekt_branches", "subiekt_cashregisters", "subiekt_logins" })
                     {
                         command.CommandText = $"CREATE TABLE IF NOT EXISTS {databaseTable} (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, value TEXT);";
@@ -317,6 +330,12 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         public string subiekt_price { get; set; }
         public string subiekt_qty { get; set; }
         public string subiekt_description { get; set; }
+        public string type { get; set; }
+        public string subiekt_doc_number { get; set; }
+        public string baselinker_data { get; set; }
+        public string errors { get; set; }
+        public string status { get; set; }
+        public string created_at { get; set; }
 
 
 

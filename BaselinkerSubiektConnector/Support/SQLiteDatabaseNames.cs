@@ -25,6 +25,11 @@ namespace BaselinkerSubiektConnector.Support
             return "baselinker_inventories";
         }
 
+        public static string GetSellerDocsDatabaseName()
+        {
+            return "seller_docs";
+        }
+
 
         public static string GetBaselinkerInventoryWarehousesDatabaseName()
         {

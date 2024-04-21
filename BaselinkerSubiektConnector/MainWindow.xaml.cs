@@ -9,7 +9,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
-using WpfMessageBoxLibrary;
 using MessageBox = System.Windows.MessageBox;
 using Timer = System.Threading.Timer;
 using Helpers = BaselinkerSubiektConnector.Support.Helpers;
@@ -28,7 +27,6 @@ using System.Text;
 using System.Windows.Documents;
 using System.Diagnostics;
 using System.Data;
-using System.Windows.Controls.Primitives;
 using NexoLink;
 
 namespace BaselinkerSubiektConnector

@@ -349,6 +349,7 @@
     <Compile Include="Objects\Baselinker\Products\BaselinkerProductsListResponse.cs" />
     <Compile Include="Objects\Baselinker\Storages\BaselinkerStoragesResponse.cs" />
     <Compile Include="Objects\SQLite\SQLiteConfigObject.cs" />
+    <Compile Include="Objects\SQLite\SQLiteSaleDocsObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektLoginObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektBranchObject.cs" />
     <Compile Include="Objects\SQLite\SQLiteSubiektCashRegisterObject.cs" />
@@ -364,6 +365,7 @@
     <Compile Include="Repositories\SQLite\BaselinkerInventoryPriceGroups.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerInventoryManufacturers.cs" />
     <Compile Include="Repositories\SQLite\BaselinkerInventories.cs" />
+    <Compile Include="Repositories\SQLite\SalesDocsRepository.cs" />
     <Compile Include="Repositories\SQLite\SubiektLogins.cs" />
     <Compile Include="Validators\ConfigValidator.cs" />
   </ItemGroup>

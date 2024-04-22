@@ -1,5 +1,4 @@
-﻿using BaselinkerSubiektConnector.Repositories.SQLite;
-using BaselinkerSubiektConnector.Support;
+﻿using BaselinkerSubiektConnector.Support;
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;

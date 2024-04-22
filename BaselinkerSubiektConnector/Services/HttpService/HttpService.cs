@@ -5,6 +5,7 @@ using System.Net.NetworkInformation;
 using System.Windows;
 using BaselinkerSubiektConnector.Support;
 using BaselinkerSubiektConnector.Builders;
+using System.Threading.Tasks;
 
 namespace BaselinkerSubiektConnector.Services.HttpService
 {
@@ -128,7 +129,7 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                                 int orderId = int.Parse(Helpers.GetOrderId(request.QueryString[key]));
                                 if (orderId > 0)
                                 {
-                                   new SubiektInvoiceReceiptBuilder(orderId, mainWindowViewModel);
+                                    Task.Run(() => new SubiektInvoiceReceiptBuilder(orderId, mainWindowViewModel));
                                 }
                             }
                         }
@@ -138,13 +139,13 @@ namespace BaselinkerSubiektConnector.Services.HttpService
                     output.Close();
                 }
             }
-            catch (ThreadAbortException)
+            catch (ThreadAbortException ex)
             {
-                // Ignoruj, gdy wątek jest zatrzymywany
+                Helpers.Log($"[HttpService] Błąd wątku: {ex.Message}");
             }
             catch (Exception ex)
             {
-                Helpers.Log($"Błąd serwera: {ex.Message}");
+                Helpers.Log($"[HttpService] Błąd serwera: {ex.Message}");
             }
         }
     }

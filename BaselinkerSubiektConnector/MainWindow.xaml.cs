@@ -28,6 +28,7 @@ using System.Windows.Documents;
 using System.Diagnostics;
 using System.Data;
 using NexoLink;
+using System.Security.Principal;
 
 namespace BaselinkerSubiektConnector
 {
@@ -226,16 +227,41 @@ namespace BaselinkerSubiektConnector
             {
                 if (!ViewModel.CzySferaJestUruchomiona)
                 {
-                    DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
-                    Helpers.EnsureExportFolderExists();
-                    Helpers.StartLog();
+                    if (IsAdministrator())
+                    {
+                        DaneDoUruchomieniaSfery daneDoUruchomieniaSfery;
+                        Helpers.EnsureExportFolderExists();
+                        Helpers.StartLog();
 
-                    var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
-                    daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
+                        var danePolaczenia = OdbierzDanePolaczeniaZInsLauncher();
+                        daneDoUruchomieniaSfery = PodajDaneDoUruchomienia(danePolaczenia);
 
-                    ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
+                        ViewModel.PolaczZeSfera(daneDoUruchomieniaSfery);
+                    } else
+                    {
+                        ProcessStartInfo startInfo = new ProcessStartInfo();
+                        startInfo.FileName = Process.GetCurrentProcess().MainModule.FileName;
+                        startInfo.Verb = "runas";
+                        try
+                        {
+                            Process.Start(startInfo);
+                        }
+                        catch (System.ComponentModel.Win32Exception)
+                        {
+                            MessageBox.Show("Nie można uruchomić aplikacji jako administrator. Wymagany on jest do działania nasłuchu danych z Baselinker.", "Brak uprawnień", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+
+                        Environment.Exit(0);
+                    }
                 }
             }
+        }
+
+        static bool IsAdministrator()
+        {
+            WindowsIdentity identity = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(identity);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
         }
 
 

@@ -23,6 +23,7 @@ using InsERT.Moria.Urzadzenia;
 using InsERT.Moria.Urzadzenia.Core;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Builders.Emails;
+using BaselinkerSubiektConnector.Objects.SQLite;
 
 namespace BaselinkerSubiektConnector.Builders
 {
@@ -32,9 +33,12 @@ namespace BaselinkerSubiektConnector.Builders
         private BaselinkerAdapter blAdapter;
         public MainWindowViewModel mainWindowViewModel;
         private BaselinkerOrderResponse blOrderResponse;
+        private string blOrderResponseString;
         private Podmiot customer;
         private MSSQLAdapter mssqlAdapter;
         private string documentType;
+        private string baselinkerId;
+        public string subiektNumberSalesDoc;
 
         public SubiektInvoiceReceiptBuilder(int baselinkerOrderId, MainWindowViewModel mainWindowViewModel)
         {
@@ -55,8 +59,9 @@ namespace BaselinkerSubiektConnector.Builders
 
                 this.blAdapter = new BaselinkerAdapter(blApiKey, storageId);
                 InitializeOrderResponseAsync().Wait();
-                Helpers.Log(JsonConvert.SerializeObject(this.blOrderResponse));
 
+                blOrderResponseString = JsonConvert.SerializeObject(this.blOrderResponse);
+                baselinkerId = blOrderResponse.orders[0].order_id.ToString();
                 if (this.blOrderResponse.orders[0].extra_field_1 == "#ZAIMPORTOWANE#")
                 {
                     throw new Exception("Zamówienie zostało już zaimporowane do Subiekta: " + this.blOrderResponse.orders[0].extra_field_2);
@@ -115,6 +120,8 @@ namespace BaselinkerSubiektConnector.Builders
                         {
                             this.PrintFiscalReceipt(receiptInvoiceObj);
                         }
+
+                        InsertRecord(null, 1);
                     }
                 }
             }
@@ -219,6 +226,23 @@ namespace BaselinkerSubiektConnector.Builders
         private async Task InitializeOrderResponseAsync()
         {
             this.blOrderResponse = await blAdapter.GetOrderAsync(baselinkerOrderId);
+        }
+
+        private void InsertRecord(
+            string errors,
+            int status = 1
+            )
+        {
+            SQLiteSalesDocObject sQLiteSalesDocObject = new SQLiteSalesDocObject();
+            sQLiteSalesDocObject.baselinker_id = baselinkerId;
+            sQLiteSalesDocObject.type = documentType;
+            sQLiteSalesDocObject.subiekt_doc_number = subiektNumberSalesDoc;
+            sQLiteSalesDocObject.baselinker_data = blOrderResponseString;
+            sQLiteSalesDocObject.errors = errors;
+            sQLiteSalesDocObject.status = status;
+            sQLiteSalesDocObject.created_at = DateTime.Now.ToString();
+
+            SalesDocsRepository.CreateRecord(sQLiteSalesDocObject);
         }
 
         private Task UpdateOrder(DokumentDS receiptInvoice)
@@ -396,6 +420,7 @@ namespace BaselinkerSubiektConnector.Builders
 
         private int createReceipt()
         {
+            this.documentType = "PA";
             try
             {
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
@@ -461,7 +486,7 @@ namespace BaselinkerSubiektConnector.Builders
                     receipt.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
                     if (receipt.Zapisz())
                     {
-                        this.documentType = "PA";
+                        subiektNumberSalesDoc = receipt.Dane.NumerWewnetrzny.PelnaSygnatura;
                         Helpers.Log($"Receipt number: {receipt.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return receipt.Dane.Id;
                     }
@@ -498,6 +523,7 @@ namespace BaselinkerSubiektConnector.Builders
 
         private int createInvoice()
         {
+            this.documentType = "FS";
             try
             {
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
@@ -559,7 +585,7 @@ namespace BaselinkerSubiektConnector.Builders
                     invoice.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
                     if (invoice.Zapisz())
                     {
-                        this.documentType = "FS";
+                        subiektNumberSalesDoc = invoice.Dane.NumerWewnetrzny.PelnaSygnatura;
                         Helpers.Log($"Invoice number: {invoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return invoice.Dane.Id;
                     }
@@ -581,6 +607,7 @@ namespace BaselinkerSubiektConnector.Builders
 
         private int createRetailInvoice()
         {
+            this.documentType = "FD";
             try
             {
                 BaselinkerOrderResponseOrder blResponseOrder = this.blOrderResponse.orders[0];
@@ -644,7 +671,7 @@ namespace BaselinkerSubiektConnector.Builders
                     Helpers.Log("save invoice");
                     if (retailInvoice.Zapisz())
                     {
-                        this.documentType = "FD";
+                        subiektNumberSalesDoc = retailInvoice.Dane.NumerWewnetrzny.PelnaSygnatura;
                         Helpers.Log($"Invoice number: {retailInvoice.Dane.NumerWewnetrzny.PelnaSygnatura}.");
                         return retailInvoice.Dane.Id;
                     }
@@ -666,6 +693,8 @@ namespace BaselinkerSubiektConnector.Builders
         }
         private void SendErrorMessage(string error)
         {
+            InsertRecord(error, 0);
+
             EmaiReportError.Build(
                 error,
                 blOrderResponse

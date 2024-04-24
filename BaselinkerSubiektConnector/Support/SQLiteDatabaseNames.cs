@@ -25,9 +25,9 @@ namespace BaselinkerSubiektConnector.Support
             return "baselinker_inventories";
         }
 
-        public static string GetSellerDocsDatabaseName()
+        public static string GetSalesDocsDatabaseTable()
         {
-            return "seller_docs";
+            return "sales_docs";
         }
 
 

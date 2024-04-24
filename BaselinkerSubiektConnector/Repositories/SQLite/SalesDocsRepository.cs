@@ -11,8 +11,16 @@ namespace BaselinkerSubiektConnector.Repositories.SQLite
         public static List<Record> GetAll()
         {
             return SQLiteService.ReadRecords(
-                SQLiteDatabaseNames.GetSellerDocsDatabaseName()
+                SQLiteDatabaseNames.GetSalesDocsDatabaseTable()
                 );
+        }
+
+        public static void CreateRecord(SQLiteSalesDocObject obj)
+        {
+            SQLiteService.CreateRecord(
+                SQLiteDatabaseNames.GetSalesDocsDatabaseTable(),
+                obj
+            );
         }
     }
 }

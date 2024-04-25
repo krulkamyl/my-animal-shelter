@@ -49,7 +49,7 @@ namespace BaselinkerSubiektConnector
         private const int MaxLogLines = 400;
         private ConfigurationControl configurationControl = null;
         private string logFilePath = Path.Combine(Helpers.GetApplicationPath(), "Logs.txt");
-
+        private System.Windows.Forms.NotifyIcon notifyIcon;
         public MainWindowViewModel ViewModel { get; }
 
         public MainWindow()
@@ -65,6 +65,27 @@ namespace BaselinkerSubiektConnector
             {
                 ExceptionHandler = HandleException
             };
+
+            string assetsFolderPath = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetExecutingAssembly().Location), "Assets");
+
+            Uri iconUri = new Uri("pack://application:,,,/nexo-linker-logo.ico");
+            Stream iconStream = Application.GetResourceStream(iconUri)?.Stream;
+
+            if (iconStream != null)
+            {
+                notifyIcon = new System.Windows.Forms.NotifyIcon();
+                notifyIcon.Icon = new System.Drawing.Icon(iconStream);
+                notifyIcon.Text = "NexoLink";
+            }
+
+            notifyIcon.MouseClick += NotifyIcon_MouseClick;
+
+            this.ResizeMode = ResizeMode.CanMinimize;
+
+            this.WindowStyle = WindowStyle.SingleBorderWindow;
+
+            this.StateChanged += MainWindow_StateChanged;
+
 
             configurationControl = new ConfigurationControl();
             DataContext = ViewModel;
@@ -89,6 +110,29 @@ namespace BaselinkerSubiektConnector
             ReadLogFromFile();
             WatchLogFileChanges();
 
+        }
+
+        private void MainWindow_StateChanged(object sender, EventArgs e)
+        {
+            if (this.WindowState == WindowState.Maximized)
+            {
+                this.WindowState = WindowState.Normal;
+            }
+            else if (this.WindowState == WindowState.Minimized)
+            {
+                this.Hide();
+                notifyIcon.Visible = true;
+            }
+        }
+
+        private void NotifyIcon_MouseClick(object sender, System.Windows.Forms.MouseEventArgs e)
+        {
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                this.Show();
+                this.WindowState = WindowState.Normal;
+                notifyIcon.Visible = false;
+            }
         }
 
         private void LoadConfig()

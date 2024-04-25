@@ -470,6 +470,9 @@
   <ItemGroup>
     <Resource Include="Assets\nexolink.jpg" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\icon.ico" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

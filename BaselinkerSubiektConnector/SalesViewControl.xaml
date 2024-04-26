@@ -1,0 +1,56 @@
+﻿<UserControl x:Class="NexoLink.SalesViewControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:NexoLink"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="1150">
+
+    <Control.Resources>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+
+
+        <Style x:Key="DataGridCellStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+    </Control.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="500"/>
+        </Grid.RowDefinitions>
+
+        <Button Content="Odśwież" Click="RefreshSellerDocsButton_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="100"/>
+
+        <TextBlock x:Name="DocsTableProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych utworzonych dokumentów przez program."></TextBlock>
+        <DataGrid x:Name="DocsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
+        VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="DocsTableProductsNotFound_PreviewMouseWheel"
+        PreviewMouseRightButtonDown="DocsTableProductsNotFound_PreviewMouseRightButtonDown"
+        SelectionUnit="Cell">
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Kopiuj" Click="DocsCopyMenuItem_Click" />
+
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" 
+                Width="70" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Numer dokumentu" Binding="{Binding SubiektDocNumber}" 
+                Width="130" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Typ dokumentu" Binding="{Binding DocType}" 
+                Width="120" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Błedy" Binding="{Binding Errors}" 
+                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Link do zamówienia" Binding="{Binding BaselinkerId}" 
+                Width="200" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Data utworzenia" Binding="{Binding CreatedAt}" 
+                Width="130" ElementStyle="{StaticResource DataGridCellStyle}"/>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

@@ -367,6 +367,9 @@
     <Compile Include="Repositories\SQLite\BaselinkerInventories.cs" />
     <Compile Include="Repositories\SQLite\SalesDocsRepository.cs" />
     <Compile Include="Repositories\SQLite\SubiektLogins.cs" />
+    <Compile Include="SalesViewControl.xaml.cs">
+      <DependentUpon>SalesViewControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Validators\ConfigValidator.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -414,6 +417,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="ProcessDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="SalesViewControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

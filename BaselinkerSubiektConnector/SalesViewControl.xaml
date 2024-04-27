@@ -37,9 +37,9 @@
 
                 </ContextMenu>
             </DataGrid.ContextMenu>
+
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Status" Binding="{Binding Status}" 
-                Width="70" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="70" />
                 <DataGridTextColumn Header="Numer dokumentu" Binding="{Binding SubiektDocNumber}" 
                 Width="130" ElementStyle="{StaticResource DataGridCellStyle}"/>
                 <DataGridTextColumn Header="Typ dokumentu" Binding="{Binding DocType}" 

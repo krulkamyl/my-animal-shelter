@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -55,7 +56,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                             baselinker_data TEXT,
                                             errors TEXT,
                                             status INTEGER DEFAULT 0,
-                                            created_at DATETIME DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))
+                                            created_at TEXT
                                         );";
                     command.ExecuteNonQuery();
 
@@ -98,7 +99,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
 
         public static List<Record> ReadRecords(string tableName)
         {
-            string queryString = $"SELECT * FROM {tableName};";
+            string queryString = $"SELECT * FROM {tableName} ORDER BY id DESC;";
 
             List<Record> records = new List<Record>();
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))
@@ -118,12 +119,19 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                 string columnName = reader.GetName(i);
                                 if (columnName != "id")
                                 {
+                                    if (columnName == "status")
+                                    {
+                                        record.status = Convert.ToInt32(reader["status"]);
+                                        continue;
+                                    }
+
                                     if (reader.IsDBNull(i))
                                     {
                                         typeof(Record).GetProperty(columnName)?.SetValue(record, null);
                                     }
                                     else
                                     {
+
                                         if (typeof(Record).GetProperty(columnName) != null)
                                         {
                                             typeof(Record).GetProperty(columnName).SetValue(record, reader[columnName]);
@@ -333,7 +341,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         public string subiekt_doc_number { get; set; }
         public string baselinker_data { get; set; }
         public string errors { get; set; }
-        public string status { get; set; }
+        public int status { get; set; }
         public string created_at { get; set; }
 
 

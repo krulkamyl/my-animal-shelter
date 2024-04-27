@@ -1,7 +1,12 @@
-﻿using System;
+﻿using BaselinkerSubiektConnector.Services.SQLiteService;
+using BaselinkerSubiektConnector.Support;
+using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -14,11 +19,11 @@ namespace NexoLink
         private int itemsPerPage = 100;
         private int currentPage = 1;
         private List<SalesDocumentItem> allRecordsSalesDocs;
-        private int currentPageSalesDocs = 1;
 
         public SalesViewControl()
         {
             InitializeComponent();
+            LoadPage();
         }
 
 
@@ -32,8 +37,7 @@ namespace NexoLink
                     if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
                     {
                         prevVerticalOffset = scrollViewer.VerticalOffset;
-                        // TODO: below to sales docs
-                        //LoadAssortmentsPage();
+                        LoadPage();
                     }
                 }
             }
@@ -41,12 +45,11 @@ namespace NexoLink
 
         private void RefreshSellerDocsButton_Click(object sender, EventArgs e)
         {
-            currentPageSalesDocs = 1;
+            currentPage = 1;
             allRecordsSalesDocs = null;
             DocsTable.Items.Clear();
 
-            // TODO: below to sales docs
-            //LoadAssortmentsPage();
+            LoadPage();
 
             ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
             if (scrollViewer != null)
@@ -66,8 +69,7 @@ namespace NexoLink
                     {
                         prevVerticalOffset = scrollViewer.VerticalOffset;
 
-                        // TODO: below to sales docs
-                        //LoadAssortmentsPage();
+                        LoadPage();
                     }
                 }
             }
@@ -192,11 +194,50 @@ namespace NexoLink
             }
             return null;
         }
+
+        private void LoadPage()
+        {
+            if (allRecordsSalesDocs == null)
+            {
+                allRecordsSalesDocs = SQLiteService.ReadRecords(SQLiteDatabaseNames.GetSalesDocsDatabaseTable())
+                    .Select(record => new SalesDocumentItem
+                    {
+                        Status = record.status.ToString() == "1" ? "OK" : "BŁĄD",
+                        SubiektDocNumber = record.subiekt_doc_number,
+                        BaselinkerId = record.baselinker_id,
+                        CreatedAt = record.created_at,
+                        Errors = record.errors,
+                        DocType = record.type
+                    }).ToList();
+            }
+
+            if (allRecordsSalesDocs.Count == 0)
+            {
+                DocsTable.Visibility = Visibility.Hidden;
+                DocsTable.Visibility = Visibility.Visible;
+                return;
+            }
+
+            int startIndex = (currentPage - 1) * itemsPerPage;
+            int endIndex = Math.Min(startIndex + itemsPerPage, allRecordsSalesDocs.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                DocsTable.Items.Add(allRecordsSalesDocs[i]);
+            }
+            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(prevVerticalOffset);
+            }
+            currentPage++;
+        }
+
     }
 
     public class SalesDocumentItem
     {
-        public int Status { get; set; }
+        public string Status { get; set; }
         public string SubiektDocNumber { get; set; }
         public string CreatedAt { get; set; }
         public string BaselinkerId { get; set; }

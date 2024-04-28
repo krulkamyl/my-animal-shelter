@@ -9,6 +9,8 @@
 
     <Control.Resources>
 
+        <local:UrlConverter x:Key="UrlConverter" />
+        <local:DocNumberPropertiesConverter  x:Key="DocNumberPropertiesConverter" />
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
 
 
@@ -28,29 +30,89 @@
 
         <TextBlock x:Name="DocsTableProductsNotFound" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych utworzonych dokumentów przez program."></TextBlock>
         <DataGrid x:Name="DocsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
-        VirtualizingStackPanel.IsVirtualizing="True" PreviewMouseWheel="DocsTableProductsNotFound_PreviewMouseWheel"
-        PreviewMouseRightButtonDown="DocsTableProductsNotFound_PreviewMouseRightButtonDown"
-        SelectionUnit="Cell">
+           VirtualizingStackPanel.IsVirtualizing="True"
+           PreviewMouseWheel="DocsTableProductsNotFound_PreviewMouseWheel"
+           SelectedCellsChanged="DocsTable_SelectedCellsChanged"
+           PreviewMouseRightButtonDown="DocsTableProductsNotFound_PreviewMouseRightButtonDown"
+           SelectionUnit="Cell">
             <DataGrid.ContextMenu>
                 <ContextMenu>
                     <MenuItem Header="Kopiuj" Click="DocsCopyMenuItem_Click" />
-
                 </ContextMenu>
             </DataGrid.ContextMenu>
 
+            <DataGrid.Resources>
+                <DataTemplate x:Key="StatusTemplate">
+                    <Ellipse Width="10" Height="10">
+                        <Ellipse.Style>
+                            <Style TargetType="Ellipse">
+                                <!-- Domyślny styl dla kółka -->
+                                <Setter Property="Fill" Value="Red" />
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Status}" Value="1">
+                                        <Setter Property="Fill" Value="Green" />
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Ellipse.Style>
+                    </Ellipse>
+                </DataTemplate>
+                <Style TargetType="Hyperlink">
+                    <Setter Property="Foreground" Value="Blue" />
+                    <Setter Property="TextDecorations" Value="Underline" />
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Foreground" Value="WhiteSmoke" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.Resources>
+
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="70" />
-                <DataGridTextColumn Header="Numer dokumentu" Binding="{Binding SubiektDocNumber}" 
-                Width="130" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Header="Typ dokumentu" Binding="{Binding DocType}" 
-                Width="120" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Header="Błedy" Binding="{Binding Errors}" 
-                Width="*" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Header="Link do zamówienia" Binding="{Binding BaselinkerId}" 
-                Width="200" ElementStyle="{StaticResource DataGridCellStyle}"/>
-                <DataGridTextColumn Header="Data utworzenia" Binding="{Binding CreatedAt}" 
-                Width="130" ElementStyle="{StaticResource DataGridCellStyle}"/>
+                <DataGridTemplateColumn Header="Status" Width="70">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <ContentPresenter ContentTemplate="{StaticResource StatusTemplate}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+
+                <DataGridTextColumn Header="Numer dokumentu" Binding="{Binding SubiektDocNumber}" Width="130">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="Foreground" Value="{Binding SubiektDocNumber, Converter={StaticResource DocNumberPropertiesConverter}, ConverterParameter=ForegroundColor}" />
+                            <Setter Property="TextDecorations" Value="{Binding SubiektDocNumber, Converter={StaticResource DocNumberPropertiesConverter}, ConverterParameter=TextDecorations}" />
+                            <EventSetter Event="MouseLeftButtonDown" Handler="SubiektDocNumber_Clicked" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+
+                <DataGridTextColumn Header="Typ dokumentu" Binding="{Binding DocType}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+                
+                <DataGridTextColumn Header="Błędy" Binding="{Binding Errors}" Width="*">
+                    <DataGridTextColumn.ElementStyle>
+                        <Style TargetType="{x:Type TextBlock}">
+                            <Setter Property="TextWrapping" Value="Wrap" />
+                            <Setter Property="ToolTip" Value="{Binding Errors}" />
+                        </Style>
+                    </DataGridTextColumn.ElementStyle>
+                </DataGridTextColumn>
+                
+                <DataGridTemplateColumn Header="Link do zamówienia" Width="200">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock HorizontalAlignment="Center">
+                        <Hyperlink NavigateUri="{Binding BaselinkerId, Converter={StaticResource UrlConverter}}" RequestNavigate="Hyperlink_RequestNavigate">
+                            <TextBlock Text="{Binding BaselinkerId}" />
+                        </Hyperlink>
+                    </TextBlock>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                
+                <DataGridTextColumn Header="Data utworzenia" Binding="{Binding CreatedAt}" Width="130" ElementStyle="{StaticResource DataGridCellStyle}" />
             </DataGrid.Columns>
         </DataGrid>
+
     </Grid>
 </UserControl>

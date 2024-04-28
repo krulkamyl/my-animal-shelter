@@ -2,13 +2,16 @@
 using BaselinkerSubiektConnector.Support;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Navigation;
 
 
 namespace NexoLink
@@ -202,11 +205,11 @@ namespace NexoLink
                 allRecordsSalesDocs = SQLiteService.ReadRecords(SQLiteDatabaseNames.GetSalesDocsDatabaseTable())
                     .Select(record => new SalesDocumentItem
                     {
-                        Status = record.status.ToString() == "1" ? "OK" : "BŁĄD",
-                        SubiektDocNumber = record.subiekt_doc_number,
-                        BaselinkerId = record.baselinker_id,
+                        Status = record.status.ToString(),
+                        SubiektDocNumber = record.subiekt_doc_number ?? "---",
+                        BaselinkerId = record.baselinker_id.Length > 3 ? "#"+record.baselinker_id : "",
                         CreatedAt = record.created_at,
-                        Errors = record.errors,
+                        Errors = record.errors ?? "---",
                         DocType = record.type
                     }).ToList();
             }
@@ -233,6 +236,49 @@ namespace NexoLink
             currentPage++;
         }
 
+        private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo(e.Uri.AbsoluteUri));
+            e.Handled = true;
+        }
+
+        private void DocsTable_SelectedCellsChanged(object sender, SelectedCellsChangedEventArgs e)
+        {
+            if (e.AddedCells.Count > 0)
+            {
+                DataGridCellInfo cellInfo = e.AddedCells[0];
+                if (cellInfo.Column != null && cellInfo.Column.DisplayIndex == 3)
+                {
+                    var errorText = cellInfo.Item.GetType().GetProperty("Errors").GetValue(cellInfo.Item, null)?.ToString();
+
+                    if (!string.IsNullOrEmpty(errorText) && errorText != "---")
+                    {
+                        Clipboard.SetText(errorText);
+                        MessageBox.Show("Tekst błędu skopiowany do schowka:\n\n" + errorText, "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+        }
+
+        private void SubiektDocNumber_Clicked(object sender, RoutedEventArgs e)
+        {
+            var textBlock = sender as TextBlock;
+            if (textBlock != null || textBlock.Text != "---")
+            {
+                var fileName = textBlock.Text.Replace("/", "_");
+                var filepath = Helpers.GetExportApplicationPath() + "\\" + fileName + ".pdf";
+                if (File.Exists(filepath))
+                {
+                    Process.Start(filepath);
+                }
+                else
+                {
+                    MessageBox.Show("Plik nie został odnaleziony.", "Błąd", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
+            }
+        }
+
+
     }
 
     public class SalesDocumentItem
@@ -244,5 +290,58 @@ namespace NexoLink
         public string BaselinkerData { get; set; }
         public string Errors { get; set; }
         public string DocType { get; set; }
+    }
+
+    public class UrlConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value != null && value.ToString().Length > 3)
+            {
+                return "https://panel-e.baselinker.com/orders.php#order:" + value.ToString();
+            }
+
+            return value;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DocNumberPropertiesConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            if (value != null && value.ToString() != "---")
+            {
+                return new DocNumberProperties
+                {
+                    IsHyperlink = true,
+                    ForegroundColor = Brushes.Blue,
+                    TextDecorations = TextDecorations.Underline
+                };
+            }
+
+            return new DocNumberProperties
+            {
+                IsHyperlink = false,
+                ForegroundColor = Brushes.Black,
+                TextDecorations = null
+            };
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+    public class DocNumberProperties
+    {
+        public bool IsHyperlink { get; set; }
+        public Brush ForegroundColor { get; set; }
+        public TextDecorationCollection TextDecorations { get; set; }
     }
 }

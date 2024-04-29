@@ -123,7 +123,7 @@
                         <control:SalesViewControl />
                     </TabItem>
                     <TabItem Header="Lista zamówień Baselinker">
-                        <TextBlock Visibility="Collapsed" Grid.Row="1" Text="A ta zakładka się tworzy :))"></TextBlock>
+                        <control:BaselinkerOrderList />
                     </TabItem>
                 </TabControl>
             </TabItem>

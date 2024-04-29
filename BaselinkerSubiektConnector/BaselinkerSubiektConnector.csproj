@@ -327,6 +327,9 @@
     <Compile Include="AddToBaselinker.xaml.cs">
       <DependentUpon>AddToBaselinker.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BaselinkerOrderList.xaml.cs">
+      <DependentUpon>BaselinkerOrderList.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Builders\Baselinker\FetchBaselinkerData.cs" />
     <Compile Include="Builders\Emails\EmaiReportError.cs" />
     <Compile Include="Builders\SubiektInvoiceReceiptGenerator.cs" />
@@ -397,6 +400,10 @@
     <Compile Include="Support\SQLiteDatabaseNames.cs" />
     <Compile Include="Uchwyty.cs" />
     <Page Include="AddToBaselinker.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BaselinkerOrderList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

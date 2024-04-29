@@ -40,12 +40,12 @@ namespace BaselinkerSubiektConnector
         private List<AssortmentTableItem> allRecords;
         private int itemsPerPage = 100;
         private int currentPage = 1;
-        private int currentPageSalesDocs = 1;
         private double prevVerticalOffset;
         private bool isServiceRunning = false;
         private AddToBaselinker addToBaselinkerWindow; 
         private const int MaxLogLines = 400;
         private ConfigurationControl configurationControl = null;
+        private BaselinkerOrderList baselinkerOrderList = null;
         private SalesViewControl salesViewControl = null;
         private string logFilePath = Path.Combine(Helpers.GetApplicationPath(), "Logs.txt");
         private System.Windows.Forms.NotifyIcon notifyIcon;
@@ -88,6 +88,7 @@ namespace BaselinkerSubiektConnector
 
             configurationControl = new ConfigurationControl();
             salesViewControl = new SalesViewControl();
+            baselinkerOrderList = new BaselinkerOrderList();
 
 
             DataContext = ViewModel;

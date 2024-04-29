@@ -1,0 +1,45 @@
+﻿<UserControl x:Class="NexoLink.BaselinkerOrderList"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d" 
+             d:DesignHeight="550" d:DesignWidth="1150">
+
+    <Control.Resources>
+
+
+
+        <Style x:Key="DataGridCellStyle" TargetType="TextBlock">
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+
+    </Control.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30"/>
+            <RowDefinition Height="500"/>
+        </Grid.RowDefinitions>
+
+        <Button Content="Odśwież" Click="RefreshBaselinkerList_Click" Grid.Row="0" HorizontalAlignment="Right" Margin="0,0,0,0" Width="100"/>
+
+        <TextBlock x:Name="BaselinkerProductsNot" Visibility="Hidden" Grid.Row="1" Text="Nie znaleziono żadnych zamówień w Baselinker."></TextBlock>
+        <DataGrid x:Name="DocsTable" AutoGenerateColumns="False" Grid.Column="0" Grid.Row="1" IsReadOnly="True"
+           VirtualizingStackPanel.IsVirtualizing="True"
+           PreviewMouseWheel="Table_PreviewMouseWheel"
+           SelectionUnit="Cell">
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Identyfikator" Binding="{Binding BaselinkerId}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Status" Binding="{Binding Status}" Width="170" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Zamawiający" Binding="{Binding OrderPerson}" Width="*" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Kwota zamówienia" Binding="{Binding OrderPrice}" Width="130" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Dokument Subiekt" Binding="{Binding SubiektDocNumber}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Wykonaj akcje" Binding="{Binding Action}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+
+            </DataGrid.Columns>
+        </DataGrid>
+
+    </Grid>
+</UserControl>

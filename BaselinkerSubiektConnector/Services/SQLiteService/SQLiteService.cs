@@ -67,7 +67,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                             customer_name TEXT,
                                             price TEXT,
                                             baselinker_data TEXT,
-                                            status TEXT,
+                                            status_string TEXT,
                                             created_at TEXT
                                         );";
                     command.ExecuteNonQuery();
@@ -355,6 +355,9 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         public string errors { get; set; }
         public int status { get; set; }
         public string created_at { get; set; }
+        public string status_string { get; set; }
+        public string customer_name { get; set; }
+        public string price { get; set; }
 
 
 

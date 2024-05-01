@@ -30,6 +30,11 @@ namespace BaselinkerSubiektConnector.Support
             return "sales_docs";
         }
 
+        public static string GetBaselinkerOrdersTable()
+        {
+            return "baselinker_orders";
+        }
+
 
         public static string GetBaselinkerInventoryWarehousesDatabaseName()
         {

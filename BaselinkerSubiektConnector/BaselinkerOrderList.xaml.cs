@@ -1,4 +1,10 @@
-﻿using System;
+﻿using BaselinkerSubiektConnector;
+using BaselinkerSubiektConnector.Adapters;
+using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
+using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
+using BaselinkerSubiektConnector.Repositories.SQLite;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,6 +18,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace NexoLink
 {
@@ -22,11 +29,36 @@ namespace NexoLink
         private int itemsPerPage = 100;
         private int currentPage = 1;
         private List<SalesDocumentItem> allRecordsSalesDocs;
+        private BaselinkerAdapter baselinkerAdapter;
+        private List<BaselinkerOrderResponseOrder> baselinkerOrderResponseOrders;
+        private DispatcherTimer timer;
 
         public BaselinkerOrderList()
         {
             InitializeComponent();
+
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMinutes(1);
+            timer.Tick += GetOrders;
+            timer.Start();
         }
+
+        private async void GetOrders(object sender, EventArgs e)
+        {
+            string baselinkerApiKey = ConfigRepository.GetValue(RegistryConfigurationKeys.Baselinker_ApiKey);
+            if (baselinkerApiKey != null && baselinkerApiKey.Length > 10)
+            {
+                this.baselinkerAdapter = new BaselinkerAdapter(baselinkerApiKey);
+                BaselinkerOrderResponse baselinkerOrderResponse = await baselinkerAdapter.GetOrdersAsync();
+                baselinkerOrderResponseOrders = baselinkerOrderResponse.orders;
+
+
+                string json = JsonConvert.SerializeObject(baselinkerOrderResponseOrders);
+                Console.WriteLine("Nowe zamówienia: ");
+                Console.WriteLine(json);
+            }
+        }
+
 
         private void RefreshBaselinkerList_Click(object sender, EventArgs e)
         {

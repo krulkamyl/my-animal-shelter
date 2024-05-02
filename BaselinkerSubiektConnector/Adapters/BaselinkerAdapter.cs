@@ -92,6 +92,25 @@ namespace BaselinkerSubiektConnector.Adapters
         }
 
 
+        public async Task<BaselinkerOrderResponse> GetOrdersAsync()
+        {
+            var parameters = new Dictionary<string, object>
+            {
+            };
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getOrders" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<BaselinkerOrderResponse>(responseBody);
+        }
+
+
         public async Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject)
         {
 

@@ -48,5 +48,21 @@ namespace BaselinkerSubiektConnector.Repositories.SQLite
                 );
             }
         }
+
+        public static void CreateRecordWhenNotExist(string searchKey, string searchValue, SQLiteBaselinkerOrderObject objectToUpdate)
+        {
+            Record record = SQLiteService.ReadRecord(
+            SQLiteDatabaseNames.GetBaselinkerOrdersTable(),
+                searchKey,
+                searchValue
+            );
+            if (record == null)
+            {
+                SQLiteService.CreateRecord(
+                    SQLiteDatabaseNames.GetBaselinkerOrdersTable(),
+                    objectToUpdate
+                );
+            }
+        }
     }
 }

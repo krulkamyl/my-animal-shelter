@@ -94,8 +94,17 @@ namespace BaselinkerSubiektConnector.Adapters
 
         public async Task<BaselinkerOrderResponse> GetOrdersAsync()
         {
+            DateTime now = DateTime.Now;
+
+            DateTime threeHoursAgo = now.AddHours(-8);
+
+            long timestamp = (long)(threeHoursAgo - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+
+            Console.WriteLine("TimeStamp = {0}", timestamp);
+
             var parameters = new Dictionary<string, object>
             {
+                { "date_confirmed_from", timestamp },
             };
 
             var data = new Dictionary<string, string>

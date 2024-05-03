@@ -2,6 +2,7 @@
 using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
+using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using Newtonsoft.Json;
 using System;
@@ -53,10 +54,52 @@ namespace NexoLink
                 baselinkerOrderResponseOrders = baselinkerOrderResponse.orders;
 
 
-                string json = JsonConvert.SerializeObject(baselinkerOrderResponseOrders);
-                Console.WriteLine("Nowe zamówienia: ");
-                Console.WriteLine(json);
+                foreach (BaselinkerOrderResponseOrder baselinkerOrderItem in baselinkerOrderResponseOrders)
+                {
+
+                    DateTime date = UnixTimeStampToDateTime(baselinkerOrderItem.date_confirmed);
+
+                    SQLiteBaselinkerOrderObject obj = new SQLiteBaselinkerOrderObject();
+                    obj.baselinker_id = baselinkerOrderItem.order_id.ToString();
+
+                    if (baselinkerOrderItem.invoice_fullname.Length > 3)
+                    {
+                        obj.customer_name = baselinkerOrderItem.invoice_fullname.ToString();
+                    }
+                    else
+                    {
+                        obj.customer_name = baselinkerOrderItem.delivery_fullname.ToString();
+                    }
+
+                    obj.status_string = baselinkerOrderItem.order_source_id.ToString();
+
+                    double priceProducts = 0.00;
+
+                    foreach (BaselinkerOrderResponseOrderProduct baselinkerOrderResponseOrderProduct in baselinkerOrderItem.products)
+                    {
+                        priceProducts += (double)baselinkerOrderResponseOrderProduct.price_brutto;
+                    }
+
+                    priceProducts += (double)baselinkerOrderItem.delivery_price;
+
+                    obj.price = priceProducts.ToString() +" "+ baselinkerOrderItem.currency;
+
+
+                    obj.created_at = date.ToString("dd-MM-yyyy HH:mm");
+
+                    string json = JsonConvert.SerializeObject(baselinkerOrderItem);
+                    obj.baselinker_data = json;
+
+                    BaselinkerOrderRepository.CreateRecordWhenNotExist("baselinker_id", baselinkerOrderItem.order_id.ToString(), obj);
+                }
+
             }
+        }
+
+        private DateTime UnixTimeStampToDateTime(int? unixTimeStamp)
+        {
+            DateTime unixEpoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            return unixEpoch.AddSeconds((double)unixTimeStamp).ToLocalTime();
         }
 
 

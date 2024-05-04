@@ -100,8 +100,6 @@ namespace BaselinkerSubiektConnector.Adapters
 
             long timestamp = (long)(threeHoursAgo - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
 
-            Console.WriteLine("TimeStamp = {0}", timestamp);
-
             var parameters = new Dictionary<string, object>
             {
                 { "date_confirmed_from", timestamp },
@@ -167,6 +165,24 @@ namespace BaselinkerSubiektConnector.Adapters
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
             return JsonConvert.DeserializeObject<InventoryWarehouseResponse>(responseBody);
+
+        }
+
+
+        public async Task<BaselinkerOrderStatusList> GetOrderStatusList()
+        {
+            var parameters = new Dictionary<string, object>();
+
+            var data = new Dictionary<string, string>
+            {
+                { "method", "getOrderStatusList" },
+                { "parameters", JsonConvert.SerializeObject(parameters) }
+            };
+
+            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
+            response.EnsureSuccessStatusCode();
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return JsonConvert.DeserializeObject<BaselinkerOrderStatusList>(responseBody);
 
         }
 

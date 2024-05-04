@@ -1,5 +1,6 @@
 ﻿using BaselinkerSubiektConnector.Adapters;
 using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
+using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.Baselinker.Products;
 using BaselinkerSubiektConnector.Objects.Baselinker.Storages;
 using BaselinkerSubiektConnector.Repositories.SQLite;
@@ -46,6 +47,9 @@ namespace BaselinkerSubiektConnector.Builders.Baselinker
 
             InventoryWarehouseResponse inventoryWarehouse = await baselinkerAdapter.GetInventoryWarehousesAsync();
             BaselinkerInventoryWarehouses.UpdateExistingData(inventoryWarehouse.warehouses);
+
+            BaselinkerOrderStatusList orderStatusList = await baselinkerAdapter.GetOrderStatusList();
+            BaselinkerOrderStatusListRepository.UpdateExistingData(orderStatusList.statuses);
 
             return true;
         }

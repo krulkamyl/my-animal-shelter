@@ -72,7 +72,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                                         );";
                     command.ExecuteNonQuery();
 
-                    foreach (var databaseTable in new[] { "baselinker_storages", "baselinker_inventory_warehouses", "baselinker_inventories", "baselinker_categories", "baselinker_inventory_price_groups", "baselinker_inventory_manufactuters", "subiekt_warehouses", "subiekt_branches", "subiekt_cashregisters", "subiekt_logins" })
+                    foreach (var databaseTable in new[] { "baselinker_storages", "baselinker_order_statuses", "baselinker_inventory_warehouses", "baselinker_inventories", "baselinker_categories", "baselinker_inventory_price_groups", "baselinker_inventory_manufactuters", "subiekt_warehouses", "subiekt_branches", "subiekt_cashregisters", "subiekt_logins" })
                     {
                         command.CommandText = $"CREATE TABLE IF NOT EXISTS {databaseTable} (id INTEGER PRIMARY KEY AUTOINCREMENT, key TEXT, value TEXT);";
                         command.ExecuteNonQuery();

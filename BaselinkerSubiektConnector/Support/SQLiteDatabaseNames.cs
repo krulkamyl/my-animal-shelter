@@ -41,6 +41,12 @@ namespace BaselinkerSubiektConnector.Support
             return "baselinker_inventory_warehouses";
         }
 
+
+        public static string GetBaselinkerOrderStatusesDatabaseName()
+        {
+            return "baselinker_order_statuses";
+        }
+
         public static string GetBaselinkerCategoriesDatabaseName()
         {
             return "baselinker_categories";

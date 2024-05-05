@@ -218,6 +218,58 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         }
 
 
+
+        public static List<Record> GetBaselinkerOrders()
+        {
+            string queryString = $"SELECT bo.id, bo.baselinker_id, bo.customer_name, bo.price, bo.baselinker_data, bos.key as status_string, sd.subiekt_doc_number, bo.created_at FROM baselinker_orders bo LEFT JOIN baselinker_order_statuses bos ON bo.status_string = bos.value LEFT JOIN sales_docs sd ON sd.baselinker_id = bo.baselinker_id;";
+
+            List<Record> records = new List<Record>();
+            using (SQLiteConnection connection = new SQLiteConnection(connectionString))
+            {
+                connection.Open();
+
+                using (SQLiteCommand command = new SQLiteCommand(queryString, connection))
+                {
+                    using (SQLiteDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Record record = new Record();
+                            record.id = Convert.ToInt32(reader["id"]);
+                            for (int i = 0; i < reader.FieldCount; i++)
+                            {
+                                string columnName = reader.GetName(i);
+                                if (columnName != "id")
+                                {
+                                    if (reader.IsDBNull(i))
+                                    {
+                                        typeof(Record).GetProperty(columnName)?.SetValue(record, null);
+                                    }
+                                    else
+                                    {
+                                        if (typeof(Record).GetProperty(columnName) != null)
+                                        {
+                                            typeof(Record).GetProperty(columnName).SetValue(record, reader[columnName]);
+                                        }
+                                        else
+                                        {
+                                            record.AdditionalProperties[columnName] = reader[columnName];
+                                        }
+                                    }
+                                }
+                            }
+                            records.Add(record);
+                        }
+                        Console.WriteLine();
+                    }
+                }
+
+                connection.Close();
+            }
+            return records;
+        }
+
+
         public static Record ReadRecord(string tableName, string column, string value)
         {
             string queryString = $"SELECT * FROM {tableName} WHERE {column} = @value";

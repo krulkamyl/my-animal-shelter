@@ -71,7 +71,7 @@ namespace NexoLink
                         obj.customer_name = baselinkerOrderItem.delivery_fullname.ToString();
                     }
 
-                    obj.status_string = baselinkerOrderItem.order_source_id.ToString();
+                    obj.status_string = baselinkerOrderItem.order_status_id.ToString();
 
                     double priceProducts = 0.00;
 

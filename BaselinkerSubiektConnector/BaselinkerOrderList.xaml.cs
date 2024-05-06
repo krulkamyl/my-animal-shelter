@@ -4,6 +4,8 @@ using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Repositories.SQLite;
+using BaselinkerSubiektConnector.Services.SQLiteService;
+using BaselinkerSubiektConnector.Support;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -29,7 +31,7 @@ namespace NexoLink
         private double prevVerticalOffset;
         private int itemsPerPage = 100;
         private int currentPage = 1;
-        private List<SalesDocumentItem> allRecordsSalesDocs;
+        private List<BaselinkerOrderItem> allRecords;
         private BaselinkerAdapter baselinkerAdapter;
         private List<BaselinkerOrderResponseOrder> baselinkerOrderResponseOrders;
         private DispatcherTimer timer;
@@ -42,6 +44,8 @@ namespace NexoLink
             timer.Interval = TimeSpan.FromMinutes(1);
             timer.Tick += GetOrders;
             timer.Start();
+
+            RefreshData();
         }
 
         private async void GetOrders(object sender, EventArgs e)
@@ -105,8 +109,13 @@ namespace NexoLink
 
         private void RefreshBaselinkerList_Click(object sender, EventArgs e)
         {
+            RefreshData();
+        }
+
+        private void RefreshData()
+        {
             currentPage = 1;
-            allRecordsSalesDocs = null;
+            allRecords = null;
             DocsTable.Items.Clear();
 
             LoadPage();
@@ -120,8 +129,42 @@ namespace NexoLink
 
         private void LoadPage()
         {
+            if (allRecords == null)
+            {
+                allRecords = SQLiteService.GetBaselinkerOrders()
+                    .Select(record => new BaselinkerOrderItem
+                    {
+                        Status = record.status_string.ToString(),
+                        SubiektDocNumber = record.subiekt_doc_number ?? "---",
+                        BaselinkerId = record.baselinker_id.Length > 3 ? "#" + record.baselinker_id : "",
+                        CreatedAt = record.created_at,
+                        OrderPerson = record.customer_name,
+                        OrderPrice = record.price
+                    }).ToList();
+            }
 
+            if (allRecords.Count == 0)
+            {
+                DocsTable.Visibility = Visibility.Hidden;
+                DocsTable.Visibility = Visibility.Visible;
+                return;
+            }
+
+            int startIndex = (currentPage - 1) * itemsPerPage;
+            int endIndex = Math.Min(startIndex + itemsPerPage, allRecords.Count);
+
+            for (int i = startIndex; i < endIndex; i++)
+            {
+                DocsTable.Items.Add(allRecords[i]);
+            }
+            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
+            if (scrollViewer != null)
+            {
+                scrollViewer.ScrollToVerticalOffset(prevVerticalOffset);
+            }
+            currentPage++;
         }
+
 
         private void DocsCopyMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -245,6 +288,7 @@ namespace NexoLink
         public string OrderPerson { get; set; }
         public string OrderPrice { get; set; }
         public string SubiektDocNumber { get; set; }
+        public string CreatedAt { get; set; }
         public string Action { get; set; }
     }
 }

@@ -221,7 +221,7 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
 
         public static List<Record> GetBaselinkerOrders()
         {
-            string queryString = $"SELECT bo.id, bo.baselinker_id, bo.customer_name, bo.price, bo.baselinker_data, bos.key as status_string, sd.subiekt_doc_number, bo.created_at FROM baselinker_orders bo LEFT JOIN baselinker_order_statuses bos ON bo.status_string = bos.value LEFT JOIN sales_docs sd ON sd.baselinker_id = bo.baselinker_id;";
+            string queryString = $"SELECT bo.id, bo.baselinker_id, bo.customer_name, bo.price, bo.baselinker_data, bos.key as status_string, sd.subiekt_doc_number, bo.created_at FROM baselinker_orders bo LEFT JOIN baselinker_order_statuses bos ON bo.status_string = bos.value LEFT JOIN sales_docs sd ON sd.baselinker_id = bo.baselinker_id ORDER BY bo.id DESC;";
 
             List<Record> records = new List<Record>();
             using (SQLiteConnection connection = new SQLiteConnection(connectionString))

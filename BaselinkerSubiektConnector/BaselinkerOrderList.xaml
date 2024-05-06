@@ -36,6 +36,7 @@
                 <DataGridTextColumn Header="Zamawiający" Binding="{Binding OrderPerson}" Width="*" ElementStyle="{StaticResource DataGridCellStyle}" />
                 <DataGridTextColumn Header="Kwota zamówienia" Binding="{Binding OrderPrice}" Width="130" ElementStyle="{StaticResource DataGridCellStyle}" />
                 <DataGridTextColumn Header="Dokument Subiekt" Binding="{Binding SubiektDocNumber}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Data zamówienia" Binding="{Binding CreatedAt}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
                 <DataGridTextColumn Header="Wykonaj akcje" Binding="{Binding Action}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
 
             </DataGrid.Columns>

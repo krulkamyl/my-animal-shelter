@@ -8,8 +8,6 @@
 
     <Control.Resources>
 
-
-
         <Style x:Key="DataGridCellStyle" TargetType="TextBlock">
             <Setter Property="Margin" Value="5"/>
         </Style>
@@ -36,8 +34,14 @@
                 <DataGridTextColumn Header="Zamawiający" Binding="{Binding OrderPerson}" Width="*" ElementStyle="{StaticResource DataGridCellStyle}" />
                 <DataGridTextColumn Header="Kwota zamówienia" Binding="{Binding OrderPrice}" Width="130" ElementStyle="{StaticResource DataGridCellStyle}" />
                 <DataGridTextColumn Header="Dokument Subiekt" Binding="{Binding SubiektDocNumber}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
-                <DataGridTextColumn Header="Data zamówienia" Binding="{Binding CreatedAt}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
-                <DataGridTextColumn Header="Wykonaj akcje" Binding="{Binding Action}" Width="120" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTextColumn Header="Data zamówienia" Binding="{Binding CreatedAt}" Width="150" ElementStyle="{StaticResource DataGridCellStyle}" />
+                <DataGridTemplateColumn Header="Wykonaj akcje" Width="150">
+                   <DataGridTemplateColumn.CellTemplate>
+                       <DataTemplate>
+                           <Button Content="Utwórz dokument" Visibility="{Binding ShowButton}" Click="Button_Click" CommandParameter="{Binding BaselinkerId}"/>
+                       </DataTemplate>
+                   </DataGridTemplateColumn.CellTemplate>
+               </DataGridTemplateColumn>
 
             </DataGrid.Columns>
         </DataGrid>

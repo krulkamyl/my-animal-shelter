@@ -139,8 +139,10 @@ namespace NexoLink
                         BaselinkerId = record.baselinker_id.Length > 3 ? "#" + record.baselinker_id : "",
                         CreatedAt = record.created_at,
                         OrderPerson = record.customer_name,
-                        OrderPrice = record.price
+                        OrderPrice = record.price,
+                        ShowButton = (record.subiekt_doc_number ?? "---").Length == 3 ? Visibility.Visible : Visibility.Hidden
                     }).ToList();
+
             }
 
             if (allRecords.Count == 0)
@@ -165,6 +167,14 @@ namespace NexoLink
             currentPage++;
         }
 
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var baselinkerId = (sender as Button)?.CommandParameter as string;
+            baselinkerId = baselinkerId.Replace("#", "");
+
+            Console.WriteLine($"Kliknięto przycisk dla BaselinkerId: {baselinkerId}");
+        }
+
 
         private void DocsCopyMenuItem_Click(object sender, RoutedEventArgs e)
         {
@@ -185,6 +195,7 @@ namespace NexoLink
                 }
             }
         }
+
 
         private void Table_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
@@ -290,5 +301,6 @@ namespace NexoLink
         public string SubiektDocNumber { get; set; }
         public string CreatedAt { get; set; }
         public string Action { get; set; }
+        public Visibility ShowButton { get; set; }
     }
 }

@@ -38,7 +38,7 @@
                 <DataGridTemplateColumn Header="Wykonaj akcje" Width="150">
                    <DataGridTemplateColumn.CellTemplate>
                        <DataTemplate>
-                           <Button Content="Utwórz dokument" Visibility="{Binding ShowButton}" Click="Button_Click" CommandParameter="{Binding BaselinkerId}"/>
+                            <Button Content="Utwórz dokument" Visibility="{Binding ShowButton}" Click="Button_ClickAsync" CommandParameter="{Binding BaselinkerId}"/>
                        </DataTemplate>
                    </DataGridTemplateColumn.CellTemplate>
                </DataGridTemplateColumn>

@@ -88,7 +88,6 @@ namespace BaselinkerSubiektConnector
 
             configurationControl = new ConfigurationControl();
             salesViewControl = new SalesViewControl();
-            baselinkerOrderList = new BaselinkerOrderList();
 
 
             DataContext = ViewModel;

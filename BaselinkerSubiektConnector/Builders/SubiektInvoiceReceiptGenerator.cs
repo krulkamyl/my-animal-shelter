@@ -39,6 +39,7 @@ namespace BaselinkerSubiektConnector.Builders
         private string documentType;
         private string baselinkerId;
         public string subiektNumberSalesDoc;
+        public string errorMessage;
 
         public SubiektInvoiceReceiptBuilder(int baselinkerOrderId, MainWindowViewModel mainWindowViewModel)
         {
@@ -129,6 +130,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
                 return;
             }
         }
@@ -203,6 +205,7 @@ namespace BaselinkerSubiektConnector.Builders
                     {
                         Helpers.Log(ex.Message);
                         SendErrorMessage(ex.Message);
+                        this.errorMessage = ex.Message;
                     }
                 }
 
@@ -266,6 +269,8 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+
+                this.errorMessage = ex.Message;
             }
             return Task.CompletedTask;
         }
@@ -372,6 +377,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
             }
         }
 
@@ -410,6 +416,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
             }
         }
 
@@ -502,6 +509,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
                 return 0;
             }
         }
@@ -601,6 +609,7 @@ namespace BaselinkerSubiektConnector.Builders
             {
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
                 return 0;
             }
         }
@@ -688,6 +697,7 @@ namespace BaselinkerSubiektConnector.Builders
                 Helpers.Log("Problem z zapisem faktury detalicznej");
                 Helpers.Log(ex.Message);
                 SendErrorMessage(ex.Message);
+                this.errorMessage = ex.Message;
                 return 0;
             }
         }

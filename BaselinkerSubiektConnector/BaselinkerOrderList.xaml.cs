@@ -1,11 +1,14 @@
 ﻿using BaselinkerSubiektConnector;
 using BaselinkerSubiektConnector.Adapters;
+using BaselinkerSubiektConnector.Builders;
+using BaselinkerSubiektConnector.Composites;
 using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
 using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Repositories.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
+using InsERT.Mox.UIFramework;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -35,6 +38,7 @@ namespace NexoLink
         private BaselinkerAdapter baselinkerAdapter;
         private List<BaselinkerOrderResponseOrder> baselinkerOrderResponseOrders;
         private DispatcherTimer timer;
+        private readonly MainWindowViewModel mainWindowViewModel;
 
         public BaselinkerOrderList()
         {
@@ -167,13 +171,51 @@ namespace NexoLink
             currentPage++;
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_ClickAsync(object sender, RoutedEventArgs e)
         {
             var baselinkerId = (sender as Button)?.CommandParameter as string;
             baselinkerId = baselinkerId.Replace("#", "");
+            int orderId = int.Parse(baselinkerId);
 
-            Console.WriteLine($"Kliknięto przycisk dla BaselinkerId: {baselinkerId}");
+            var mainWindowViewModel = (MainWindowViewModel)this.DataContext;
+
+            Console.WriteLine("Sfera uruchomiona: ", mainWindowViewModel.CzySferaJestUruchomiona);
+            if (mainWindowViewModel != null && mainWindowViewModel.CzySferaJestUruchomiona)
+            {
+                if (orderId > 0)
+                {
+                    var progressDialog = new ProcessDialog("Trwa tworzenie dokumentu. Proszę czekać...");
+                    progressDialog.Show();
+
+                    try
+                    {
+                        await Task.Run(() =>
+                        {
+                            SubiektInvoiceReceiptBuilder subiektInvoiceReceiptBuilder = new SubiektInvoiceReceiptBuilder(orderId, mainWindowViewModel);
+                            if (subiektInvoiceReceiptBuilder.errorMessage != null)
+                            {
+                                throw new Exception(subiektInvoiceReceiptBuilder.errorMessage);
+                            }
+                        });
+
+                        progressDialog.Close();
+
+                        RefreshData();
+                        MessageBox.Show("Utworzono dokument", "Sukces", MessageBoxButton.OK, MessageBoxImage.Information);
+                    }
+                    catch (Exception ex)
+                    {
+                        progressDialog.Close();
+                        MessageBox.Show($"{ex.Message}", "Błąd podczas tworzenia dokumentu", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                }
+            }
+            else
+            {
+                MessageBox.Show("Sfera nie jest uruchomiona", "Błąd", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
         }
+
 
 
         private void DocsCopyMenuItem_Click(object sender, RoutedEventArgs e)

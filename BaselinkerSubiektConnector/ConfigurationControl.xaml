@@ -104,7 +104,7 @@
 
                     </Grid>
 
-                    <CheckBox x:Name="Baselinker_AddCommentDocNumber" Grid.Row="20" Content="Wysyłaj do Baselinker Baselinker z numerem dokumentu sprzedaży." Margin="5"/>
+                    <CheckBox x:Name="Baselinker_AddCommentDocNumber" Grid.Row="20" Content="Wysyłaj do Baselinker w komentarzu numer dokumentu sprzedaży." Margin="5"/>
                 </Grid>
 
 

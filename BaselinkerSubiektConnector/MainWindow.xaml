@@ -96,9 +96,12 @@
                 </Ellipse>
 
                 <TextBlock DockPanel.Dock="Left" 
-                       Padding="4" Margin="2 8 4 8"
-                       FontSize="14" FontWeight="SemiBold" x:Name="HttpServiceEnabled" Text="Serwer HTTP wyłączony">
+               Padding="4" Margin="2 8 4 8"
+               FontSize="14" FontWeight="SemiBold" x:Name="HttpServiceEnabled" Text="Serwer HTTP wyłączony">
                 </TextBlock>
+
+                <Rectangle DockPanel.Dock="Left" Width="590"/>
+                <CheckBox DockPanel.Dock="Right" x:Name="Baselinker_AddCommentDocNumber" VerticalContentAlignment="Center" Padding="4" Margin="2 8 4 8" FontSize="14" FontWeight="SemiBold" Content="Uruchamiaj sfere automatycznie po uruchomieniu aplikacji."/>
             </DockPanel>
 
             <Grid Visibility="{Binding CzyTrwaUruchamianieSfery, Converter={StaticResource BooleanToVisibilityConverter}}"

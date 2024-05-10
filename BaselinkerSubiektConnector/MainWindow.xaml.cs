@@ -28,6 +28,7 @@ using System.Diagnostics;
 using System.Data;
 using NexoLink;
 using System.Security.Principal;
+using System.Threading;
 
 namespace BaselinkerSubiektConnector
 {
@@ -49,6 +50,8 @@ namespace BaselinkerSubiektConnector
         private SalesViewControl salesViewControl = null;
         private string logFilePath = Path.Combine(Helpers.GetApplicationPath(), "Logs.txt");
         private System.Windows.Forms.NotifyIcon notifyIcon;
+        private static Timer autorunSfera;
+
         public MainWindowViewModel ViewModel { get; }
 
         public MainWindow()
@@ -103,6 +106,10 @@ namespace BaselinkerSubiektConnector
             checkSferaIsEnabled = new Timer(CheckSferaIsEnabledMethod, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
 
 
+            SferaAutoRun.Checked += SferaAutoRun_Checked;
+            SferaAutoRun.Unchecked += SferaAutoRun_Checked;
+
+
             Closing += MainWindow_Closing;
 
             LoadAssortmentsPage();
@@ -112,6 +119,22 @@ namespace BaselinkerSubiektConnector
             ReadLogFromFile();
             WatchLogFileChanges();
 
+            autorunSfera = new Timer(CheckAutoRunSfera, null, 3000, Timeout.Infinite);
+
+        }
+
+        private void CheckAutoRunSfera(object state)
+        {
+
+            Dispatcher.Invoke(() =>
+            {
+                if (ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Sfera_Autorun) == "1")
+                {
+                    SferaAutoRun.IsChecked = true;
+
+                    PolaczButton_Click(this, new RoutedEventArgs());
+                }
+            });
         }
 
         private void MainWindow_StateChanged(object sender, EventArgs e)
@@ -171,6 +194,31 @@ namespace BaselinkerSubiektConnector
                 EmailTemplate.Text = EmailService.GetEmailTemplate();
             }
         }
+
+
+        private void SferaAutoRun_Checked(object sender, RoutedEventArgs e)
+        {
+            if (SferaAutoRun.IsChecked == true)
+            {
+                string subiektLogin = ConfigRepository.GetValue(RegistryConfigurationKeys.Subiekt_Login);
+                string mssqlName = ConfigRepository.GetValue(RegistryConfigurationKeys.MSSQL_DB_NAME);
+
+                if (subiektLogin.Length > 2 && mssqlName.Length > 3 && mssqlName.Contains("Nexo_"))
+                {
+                    ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Sfera_Autorun, "1");
+                }
+                else
+                {
+                    MessageBox.Show("Brak danych do logowania do sfery", "Błąd!", MessageBoxButton.OK, MessageBoxImage.Error);
+                    SferaAutoRun.IsChecked = false;
+                }
+            }
+            else
+            {
+                ConfigRepository.SetValue(RegistryConfigurationKeys.Subiekt_Sfera_Autorun, "0");
+            }
+        }
+
 
         private void CheckAppDataFolderExists()
         {
@@ -864,7 +912,7 @@ namespace BaselinkerSubiektConnector
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Wystąpił błąd podczas odczytu pliku logów: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show($"Wystąpił błąd podczas odczytu pliku logów: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

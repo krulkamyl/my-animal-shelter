@@ -10,6 +10,7 @@
 
         // Subiekt
         public const string Subiekt_Login = "SUBIEKT_LOGIN";
+        public const string Subiekt_Sfera_Autorun = "SUBIEKT_SFERA_AUTORUN";
         public const string Subiekt_Password = "SUBIEKT_PASSWORD";
 
         public const string Subiekt_Default_Warehouse = "SUBIEKT_DEFAULT_WAREHOUSE";

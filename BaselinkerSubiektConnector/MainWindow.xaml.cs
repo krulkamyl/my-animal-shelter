@@ -695,7 +695,6 @@ namespace BaselinkerSubiektConnector
                     if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
                     {
                         prevVerticalOffset = scrollViewer.VerticalOffset;
-                        // TODO: below to sales docs
                         LoadAssortmentsPage();
                     }
                 }
@@ -912,7 +911,7 @@ namespace BaselinkerSubiektConnector
             }
             catch (Exception ex)
             {
-                //MessageBox.Show($"Wystąpił błąd podczas odczytu pliku logów: {ex.Message}", "Błąd", MessageBoxButton.OK, MessageBoxImage.Error);
+                Helpers.Log(ex.Message);
             }
         }
 

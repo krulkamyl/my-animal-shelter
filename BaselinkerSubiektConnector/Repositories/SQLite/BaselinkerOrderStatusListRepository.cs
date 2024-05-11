@@ -1,5 +1,4 @@
-﻿using BaselinkerSubiektConnector.Objects.Baselinker.Inventory;
-using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
+﻿using BaselinkerSubiektConnector.Objects.Baselinker.Orders;
 using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;

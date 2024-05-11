@@ -99,7 +99,7 @@ namespace BaselinkerSubiektConnector.Repositories
                                 break;
                         }
                     }
-                    assortment.Dane.StronaWWW = "https://cichy.cloud";
+                    assortment.Dane.StronaWWW = "https://nexolink.pl";
                     assortment.Dane.Opis = "Nie usuwać! Wykorzystywane przez program połączeniowy z Baselinker";
 
                     if (!assortment.Zapisz())

@@ -1,6 +1,4 @@
-﻿
-
-namespace BaselinkerSubiektConnector.Objects.SQLite
+﻿namespace BaselinkerSubiektConnector.Objects.SQLite
 {
     public class SQLiteSubiektCashRegisterObject
     {

@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Data.SQLite;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -216,8 +215,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
             }
             return records;
         }
-
-
 
         public static List<Record> GetBaselinkerOrders()
         {

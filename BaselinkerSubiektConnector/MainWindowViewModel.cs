@@ -60,7 +60,6 @@ namespace BaselinkerSubiektConnector
 
         internal void PolaczZeSfera(DaneDoUruchomieniaSfery daneDoUruchomieniaSfery)
         {
-            // Uwaga: tworzenie uchwytu musi się odbywać w wątku UI.
             try
             {
                 if (UchwytDoSfery == null)

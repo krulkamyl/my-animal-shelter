@@ -1,15 +1,12 @@
 ﻿using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
-using System;
 using System.Collections.Generic;
 
 namespace BaselinkerSubiektConnector.Repositories.SQLite
 {
     public class BaselinkerOrderRepository
     {
-
-        // TODO: convert below with relations
         public static List<Record> GetAll()
         {
             return SQLiteService.ReadRecords(

@@ -1,7 +1,6 @@
 ﻿using BaselinkerSubiektConnector.Objects.SQLite;
 using BaselinkerSubiektConnector.Services.SQLiteService;
 using BaselinkerSubiektConnector.Support;
-using System;
 
 namespace BaselinkerSubiektConnector.Repositories.SQLite
 {

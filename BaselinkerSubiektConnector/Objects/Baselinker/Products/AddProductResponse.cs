@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace BaselinkerSubiektConnector.Objects.Baselinker.Products
+﻿namespace BaselinkerSubiektConnector.Objects.Baselinker.Products
 {
     public class AddProductResponse
     {

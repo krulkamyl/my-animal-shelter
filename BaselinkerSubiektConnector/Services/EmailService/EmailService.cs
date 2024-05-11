@@ -170,7 +170,7 @@ namespace BaselinkerSubiektConnector.Services.EmailService
 <body>
     <div class=""container"">
         <div class=""header"">
-            <h1 style=""color: #007bff;"">BaseNexoConnector</h1>
+            <h1 style=""color: #007bff;"">NexoLink</h1>
         </div>
         <div class=""content"">
             [TRESC_WIADOMOSCI]
@@ -185,9 +185,8 @@ namespace BaselinkerSubiektConnector.Services.EmailService
         </div>
     </div>
 
-    <!-- Stopka -->
     <div class=""footer"">
-        <p style=""color: #ffffff;"">Email został wysłany przez BaseNexoConnector</p>
+        <p style=""color: #ffffff;"">Email został wysłany przez NexoLink</p>
     </div>
 </body>
 </html>";

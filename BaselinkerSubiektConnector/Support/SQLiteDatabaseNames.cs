@@ -1,5 +1,4 @@
-﻿
-namespace BaselinkerSubiektConnector.Support
+﻿namespace BaselinkerSubiektConnector.Support
 {
     public class SQLiteDatabaseNames
     {

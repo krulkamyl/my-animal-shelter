@@ -23,7 +23,7 @@ namespace BaselinkerSubiektConnector.Support
             }
             else
             {
-                Helpers.Log("[Baselinker GetOrderId] Nie znaleziono pasującego numeru.");
+                Helpers.Log("[GetOrderId] Nie znaleziono pasującego numeru.");
             }
             return url;
         }
@@ -87,8 +87,6 @@ namespace BaselinkerSubiektConnector.Support
 
         public static void StartLog()
         {
-            Log("############################");
-            Log("############################");
             Log("############################");
         }
 

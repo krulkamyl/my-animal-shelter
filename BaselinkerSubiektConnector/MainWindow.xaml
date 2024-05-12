@@ -323,6 +323,14 @@
 
             </TabItem>
         </TabControl>
+
+        <Grid Grid.RowSpan="2" Visibility="{Binding CzyTrwaUruchamianieSfery, Converter={StaticResource BooleanToVisibilityConverter}, FallbackValue=Collapsed}" >
+            <Grid.Background>
+                <SolidColorBrush Color="Black" Opacity="0.5"/>
+            </Grid.Background>
+            <TextBlock Text="Trwa ładowanie Sfery. Proszę czekać..." FontSize="24" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White"/>
+        </Grid>
+
     </Grid>
 
 </Window>

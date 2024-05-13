@@ -43,6 +43,9 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <TextBlock Text="Konfiguracja bazy danych" FontWeight="Bold" Grid.Row="0" Margin="5"/>
@@ -106,6 +109,9 @@
 
                     <CheckBox x:Name="Baselinker_AddCommentDocNumber" Grid.Row="20" Content="Wysyłaj do Baselinker w komentarzu numer dokumentu sprzedaży." Margin="5"/>
                 </Grid>
+                <TextBlock Text="Konfiguracja powiadomień" Grid.Row="21" FontWeight="Bold" Margin="5"/>
+                <TextBlock Text="Webhook Microsoft Teams" Grid.Row="22" Margin="0 0 5 0"/>
+                <TextBox x:Name="MSTEAMS_WEBHOOK_URL" Grid.Row="23" Margin="0 0 5 0"/>
 
 
             </StackPanel>

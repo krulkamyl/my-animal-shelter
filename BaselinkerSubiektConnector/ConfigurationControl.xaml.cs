@@ -53,6 +53,7 @@ namespace NexoLink
             Config_EmailPort.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPort);
             Config_EmailLogin.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailLogin);
             Config_EmailPassword.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailPassword);
+            MSTEAMS_WEBHOOK_URL.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.MSTeams_Webhook_Url);
 
 
             Config_EmailReporting.Text = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting);
@@ -247,6 +248,7 @@ namespace NexoLink
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPort, Config_EmailPort.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailLogin, Config_EmailLogin.Text);
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailPassword, Config_EmailPassword.Text);
+            ConfigRepository.SetValue(RegistryConfigurationKeys.MSTeams_Webhook_Url, MSTEAMS_WEBHOOK_URL.Text);
 
             ConfigRepository.SetValue(RegistryConfigurationKeys.Config_EmailReporting, Config_EmailReporting.Text);
 

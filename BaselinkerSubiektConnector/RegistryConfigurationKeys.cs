@@ -57,5 +57,7 @@
 
         public const string AutoRun_IntervalSyncQtyWarehouse = "AUTO_RUN_INTERVAL_SYNC_QTY_WAREHOUSE";
 
+        public const string MSTeams_Webhook_Url = "MSTEAMS_WEBHOOK_URL";
+
     }
 }

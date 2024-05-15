@@ -30,7 +30,7 @@ namespace BaselinkerSubiektConnector.Validators
             {
                 throw new Exception("Zaznaczono wydruk automatyczny faktur, a nie wybrano drukarki.");
             }
-            if (model.CashRegisterEnabled && (model.CashRegisterName== null || (model.CashRegisterName != null && model.CashRegisterName.Length < 2)))
+            if (model.CashRegisterEnabled && (model.CashRegisterName == null || (model.CashRegisterName != null && model.CashRegisterName.Length < 2)))
             {
                 throw new Exception("Zaznaczono wydruk automatyczny paragonów, a nie wybrano kasy fiskalnej.");
             }

@@ -103,7 +103,7 @@
                             <ColumnDefinition Width="*" />
                         </Grid.ColumnDefinitions>
                         <TextBlock Text="Domyślny magazyn" FontWeight="Bold" MinWidth="120"/>
-                        <ComboBox x:Name="Baselinker_InventoryWarehouseName" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0 0 5 0" />
+                        <ComboBox x:Name="Baselinker_InventoryWarehouseName" Grid.Column="1" HorizontalAlignment="Stretch" Margin="10 0 5 0" />
 
                     </Grid>
 
@@ -118,7 +118,7 @@
 
 
             <StackPanel Grid.Column="1">
-                <TextBlock Text="Konfiguracja magazynu/Oddziału" FontWeight="Bold" Grid.Row="0" Margin="5"/>
+                <TextBlock Text="Konfiguracja magazynu/Oddziału" FontWeight="Bold" Grid.Row="0" Margin="10 0 5 0"/>
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -156,19 +156,19 @@
                         </Grid.ColumnDefinitions>
 
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="Wybierz drukarkę" FontWeight="Bold" Grid.Row="0" Margin="5"/>
+                            <TextBlock Text="Wybierz drukarkę" FontWeight="Bold" Grid.Row="0" Margin="10 0 5 0"/>
                             <CheckBox x:Name="Subiekt_PrinterEnabled" Margin="5 0 0 0" Content="Drukować po utworzeniu dokumentu?" />
                             <ComboBox x:Name="Subiekt_PrinterName" Margin="5 0 0 0"/>
                         </StackPanel>
 
                         <StackPanel Grid.Column="1">
-                            <TextBlock Text="Wybierz kasę fiskalną" FontWeight="Bold" Grid.Row="0" Margin="5"/>
+                            <TextBlock Text="Wybierz kasę fiskalną" FontWeight="Bold" Grid.Row="0" Margin="10 0 5 0"/>
                             <CheckBox x:Name="Subiekt_CashRegisterEnabled" Margin="5 0 0 0" Content="Fiskalizować po utworzeniu dokumentu?" />
                             <ComboBox x:Name="Subiekt_CashRegisterName" Margin="5 0 0 0"/>
                         </StackPanel>
                     </Grid>
 
-                    <TextBlock Text="Konfiguracja poczty email" FontWeight="Bold" Grid.Row="4" Margin="5"/>
+                    <TextBlock Text="Konfiguracja poczty email" FontWeight="Bold" Grid.Row="4" Margin="10 0 5 0"/>
                     <Grid Grid.Row="5">
 
                         <Grid.ColumnDefinitions>
@@ -213,10 +213,10 @@
                         </StackPanel>
                     </Grid>
                 </Grid>
-                <TextBlock Text="Błędy aplikacji" FontWeight="Bold" Grid.Row="4" Margin="5"/>
+                <TextBlock Text="Błędy aplikacji" FontWeight="Bold" Grid.Row="4" Margin="10 0 5 0"/>
                 <TextBlock Text="Powiadamiaj o błędach działania na adres e-mail" Grid.Row="0" Margin="5 0 0 0"/>
                 <TextBox x:Name="Config_EmailReporting"  Margin="5 0 0 0"/>
-                <TextBlock Text="Informacje o firmie" FontWeight="Bold" Grid.Row="4" Margin="5"/>
+                <TextBlock Text="Informacje o firmie" FontWeight="Bold" Grid.Row="4" Margin="10 0 5 0"/>
                 <Grid Grid.Row="7">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />

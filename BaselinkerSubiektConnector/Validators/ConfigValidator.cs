@@ -10,6 +10,10 @@ namespace BaselinkerSubiektConnector.Validators
             {
                 throw new Exception("Wybrano niepoprawną bazę danych Subiekta. Powinna ona posiadać przedrostek \"Nexo_\"");
             }
+            if (model.MsTeamsWebhookUrl == null || (model.MsTeamsWebhookUrl != null && !model.MsTeamsWebhookUrl.Contains("https://") && !model.MsTeamsWebhookUrl.Contains(".webhook.office.com")))
+            {
+                throw new Exception("Podano nieprawidłowe adres URL do Webhook'a.");
+            }
             if (model.BaselinkerStorage == null || (model.BaselinkerStorage != null && model.BaselinkerStorage.Length < 4))
             {
                 throw new Exception("Wybrano niepoprawny katalog produktów baselinker Baselinker.");
@@ -86,5 +90,6 @@ namespace BaselinkerSubiektConnector.Validators
         public string CompanyName { get; set; }
         public string CompanyNip { get; set; }
         public string CompanyEmail { get; set; }
+        public string MsTeamsWebhookUrl { get; set; }
     }
 }

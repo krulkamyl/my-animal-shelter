@@ -129,6 +129,7 @@ namespace NexoLink
             ConfigValidatorModel model = new ConfigValidatorModel
             {
                 MssqlDatabaseName = MSSQL_Name.Text,
+                MsTeamsWebhookUrl = MSTEAMS_WEBHOOK_URL.Text,
                 BaselinkerStorage = Baselinker_StorageName.Text,
                 BaselinkerInventoryWarehouse = Baselinker_InventoryWarehouseName.Text,
                 SubiektWarehouse = Subiekt_DefaultWarehouse.Text,

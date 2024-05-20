@@ -378,6 +378,7 @@
     <Compile Include="SalesViewControl.xaml.cs">
       <DependentUpon>SalesViewControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\Webhooks\MicrosoftTeamsWebhookService.cs" />
     <Compile Include="Validators\ConfigValidator.cs" />
   </ItemGroup>
   <ItemGroup>

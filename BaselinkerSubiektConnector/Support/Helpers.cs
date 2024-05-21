@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BaselinkerSubiektConnector.Repositories.SQLite;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management;
@@ -44,6 +45,15 @@ namespace BaselinkerSubiektConnector.Support
             string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
             return appDataFolder + "\\cichy.cloud\\NexoLink\\";
+        }
+
+        public static void SendWebhook(string message)
+        {
+            string webhookUrl = ConfigRepository.GetValue(RegistryConfigurationKeys.MSTeams_Webhook_Url);
+            if (webhookUrl != null && webhookUrl.Length > 10) {
+                TeamsWebhookClient teamsWebhookClient = new TeamsWebhookClient(webhookUrl);
+                _ = teamsWebhookClient.SendMessageAsync(message);
+            }
         }
 
         public static List<string> GetPrinters()

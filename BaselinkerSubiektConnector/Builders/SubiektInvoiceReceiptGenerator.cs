@@ -677,7 +677,6 @@ namespace BaselinkerSubiektConnector.Builders
                     }
 
                     retailInvoice.Platnosci.DodajDomyslnaPlatnoscNatychmiastowaNaKwoteDokumentu();
-                    Helpers.Log("save invoice");
                     if (retailInvoice.Zapisz())
                     {
                         subiektNumberSalesDoc = retailInvoice.Dane.NumerWewnetrzny.PelnaSygnatura;

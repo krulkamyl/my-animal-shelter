@@ -704,6 +704,7 @@ namespace BaselinkerSubiektConnector.Builders
         private void SendErrorMessage(string error)
         {
             InsertRecord(error, 0);
+            Helpers.SendWebhook(error);
 
             EmaiReportError.Build(
                 error,

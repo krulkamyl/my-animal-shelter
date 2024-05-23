@@ -275,7 +275,7 @@
         </Grid>
 
         <Grid Grid.Row="1">
-            <Button Content="Sprawdź konfigurację i zapisz" Click="SaveConfiguration_Click" Grid.Row="2" Margin="10" Padding="10"/>
+            <Button Content="Zweryfikuj konfigurację i zapisz" Click="SaveConfiguration_Click" Grid.Row="2" Margin="10" Padding="10"/>
         </Grid>
     </Grid>
 </UserControl>

@@ -24,7 +24,7 @@ namespace BaselinkerSubiektConnector.Support
             }
             else
             {
-                Helpers.Log("[GetOrderId] Nie znaleziono pasującego numeru.");
+                Helpers.Log("[Helpers-GetOrderId] Nie znaleziono pasującego numeru.");
             }
             return url;
         }
@@ -89,7 +89,7 @@ namespace BaselinkerSubiektConnector.Support
             }
             catch (Exception ex)
             {
-                Helpers.Log($"Błąd podczas zapisu do pliku logów: {ex.Message}");
+
             }
 
             Console.WriteLine(logMessage);
@@ -112,16 +112,16 @@ namespace BaselinkerSubiektConnector.Support
                 if (!Directory.Exists(GetExportApplicationPath()))
                 {
                     Directory.CreateDirectory(GetExportApplicationPath());
-                    Log("Utworzono folder 'Export'.");
+                    Log("[Helpers - EnsureExportFolderExists] Utworzono folder 'Export'.");
                 }
                 else
                 {
-                    Log("Folder 'Export' już istnieje.");
+                    Log("[Helpers - EnsureExportFolderExists] Folder 'Export' już istnieje.");
                 }
             }
             catch (Exception ex)
             {
-                Log($"Wystąpił błąd podczas sprawdzania/utwarzania folderu 'Export': {ex.Message}");
+                Log($"[Helpers - EnsureExportFolderExists] Wystąpił błąd podczas sprawdzania/utwarzania folderu 'Export': {ex.Message}");
             }
         }
     }

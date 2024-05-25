@@ -97,8 +97,12 @@ namespace BaselinkerSubiektConnector.Support
 
         public static void StartLog()
         {
+            string startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            Log("############################");
+            Log($"# Uruchomiono program: {startTime} #");
             Log("############################");
         }
+
 
         public static string GetExportApplicationPath()
         {

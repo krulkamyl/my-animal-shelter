@@ -169,7 +169,6 @@ namespace NexoLink
 
             var mainWindowViewModel = (MainWindowViewModel)this.DataContext;
 
-            Console.WriteLine("Sfera uruchomiona: ", mainWindowViewModel.CzySferaJestUruchomiona);
             if (mainWindowViewModel != null && mainWindowViewModel.CzySferaJestUruchomiona)
             {
                 if (orderId > 0)

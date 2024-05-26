@@ -147,7 +147,6 @@ namespace BaselinkerSubiektConnector.Adapters
             var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(responseBody);
             return JsonConvert.DeserializeObject<UpdateInventoryProductsStockResponse>(responseBody);
         }
 
@@ -330,7 +329,6 @@ namespace BaselinkerSubiektConnector.Adapters
             var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
-            Console.Write(JsonConvert.DeserializeObject<BaselinkerStoragesResponse>(responseBody));
 
         }
     }

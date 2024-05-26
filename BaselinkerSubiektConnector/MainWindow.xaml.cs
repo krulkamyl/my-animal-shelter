@@ -243,8 +243,7 @@ namespace BaselinkerSubiektConnector
             }
             catch (Exception ex)
             {
-                Console.WriteLine("[SQLITE] " + ex.Message);
-                Console.WriteLine(ex.StackTrace);
+                Helpers.Log("[SQLITE] " + ex.Message);
                 MessageBox.Show(ex.Message, "Błąd SQLite!", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
@@ -839,8 +838,6 @@ namespace BaselinkerSubiektConnector
 
                 if (double.TryParse(intervalString, out double interval))
                 {
-
-                    Console.WriteLine("Serwis działa...");
                     await Task.Run(() =>
                     {
                         BaselinkerSyncInventoryQtyService.Sync();

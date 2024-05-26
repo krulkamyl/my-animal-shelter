@@ -156,7 +156,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                             }
                             records.Add(record);
                         }
-                        Console.WriteLine();
                     }
                 }
 
@@ -207,7 +206,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                             }
                             records.Add(record);
                         }
-                        Console.WriteLine();
                     }
                 }
 
@@ -257,7 +255,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
                             }
                             records.Add(record);
                         }
-                        Console.WriteLine();
                     }
                 }
 

@@ -13,7 +13,6 @@
     <PlikParametrowInstalacji>..\..\..\ParametryInstalacji.txt</PlikParametrowInstalacji>
   </ParametryInstalacji>-->
   <Pakiet>
-    <!-- source manifest -->
     <Package Identity="NexoLink-49.0.1.7256" DisplayName="" VersionDisplayName="" MinimumServerVersion="">
       <Contents>
         <File Name="NexoLink.exe"/>
@@ -29,12 +28,11 @@
         <!--<Dependency Kind="Required" Specification="Nexo-49.0.1.7256"/>-->
       </Dependencies>
     </Package>
-    <!-- end of source manifest -->
   </Pakiet>
   <Instalator>
-    <Tytul>Instalator NexoLink</Tytul>
+    <Tytul>Instalator oprogramowania NexoLink</Tytul>
     <TekstPowitalny>Witamy w instalatorze oprogramowania NexoLink</TekstPowitalny>
-    <DostawcaInfo>Copyright © 2024 cichy.cloud</DostawcaInfo>
+    <DostawcaInfo>Copyright © 2024 nexolink.pl</DostawcaInfo>
     <UtworzSkrotNaPulpicie>true</UtworzSkrotNaPulpicie>
     <UtworzSkrotWMenuStart>false</UtworzSkrotWMenuStart>
     <WymaganyRestart>true</WymaganyRestart>

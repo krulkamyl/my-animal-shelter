@@ -11,335 +11,147 @@ using System.Threading.Tasks;
 
 namespace BaselinkerSubiektConnector.Adapters
 {
-    public class BaselinkerAdapter : BaselinkerAdapterInterface
+    public class BaselinkerAdapter : IBaselinkerAdapter
     {
         private readonly HttpClient _client;
-        private readonly string _endpoint;
+        private readonly string _endpoint = "connector.php";
         private readonly string _apiKey;
-        public string _storageId;
+        private readonly string _storageId;
 
         public BaselinkerAdapter(string apiKey, string storageId = null)
         {
             _apiKey = apiKey;
             _storageId = storageId;
-            _endpoint = "connector.php";
-            _client = new HttpClient
-            {
-                BaseAddress = new Uri("https://api.baselinker.com/")
-            };
+            _client = new HttpClient { BaseAddress = new Uri("https://api.baselinker.com/") };
             _client.DefaultRequestHeaders.Add("X-BLToken", _apiKey);
         }
 
-        public async Task<BaselinkerProductsListResponse> GetProductDataAsync(string productIds)
+        private async Task<T> PostAsync<T>(string method, object parameters)
         {
-            string[] products = { productIds };
-
-            var parameters = new Dictionary<string, object>
-            {
-                { "storage_id", _storageId },
-                { "products", products }
-            };
-
             var data = new Dictionary<string, string>
             {
-                { "method", "getProductsData" },
+                { "method", method },
                 { "parameters", JsonConvert.SerializeObject(parameters) }
             };
 
             var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
             response.EnsureSuccessStatusCode();
             var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BaselinkerProductsListResponse> (responseBody);
+            return JsonConvert.DeserializeObject<T>(responseBody);
         }
 
-        public async Task<BaselinkerProductsListResponse> GetProductsListAsync(int page = 1)
+        public Task<BaselinkerProductsListResponse> GetProductDataAsync(string productIds)
         {
-            var parameters = new Dictionary<string, object>
+            var parameters = new
             {
-                { "storage_id", _storageId },
-                { "page", page }
+                storage_id = _storageId,
+                products = new[] { productIds }
             };
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getProductsList" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject <BaselinkerProductsListResponse> (responseBody);
+            return PostAsync<BaselinkerProductsListResponse>("getProductsData", parameters);
         }
 
-        public async Task<BaselinkerOrderResponse> GetOrderAsync(int orderId = 0)
+        public Task<BaselinkerProductsListResponse> GetProductsListAsync(int page = 1)
         {
-            var parameters = new Dictionary<string, object>
-            {
-                { "order_id", orderId },
-            };
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getOrders" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BaselinkerOrderResponse>(responseBody);
+            var parameters = new { storage_id = _storageId, page };
+            return PostAsync<BaselinkerProductsListResponse>("getProductsList", parameters);
         }
 
-
-        public async Task<BaselinkerOrderResponse> GetOrdersAsync()
+        public Task<BaselinkerOrderResponse> GetOrderAsync(int orderId = 0)
         {
-            DateTime now = DateTime.Now;
-
-            DateTime threeHoursAgo = now.AddHours(-8);
-
-            long timestamp = (long)(threeHoursAgo - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
-
-            var parameters = new Dictionary<string, object>
-            {
-                { "date_confirmed_from", timestamp },
-            };
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getOrders" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BaselinkerOrderResponse>(responseBody);
+            var parameters = new { order_id = orderId };
+            return PostAsync<BaselinkerOrderResponse>("getOrders", parameters);
         }
 
-
-        public async Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject)
+        public Task<BaselinkerOrderResponse> GetOrdersAsync()
         {
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "addProduct" },
-                { "parameters", JsonConvert.SerializeObject(addBaselinkerObject) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<AddProductResponse>(responseBody);
+            long timestamp = ((DateTimeOffset)DateTime.Now.AddHours(-8)).ToUnixTimeSeconds();
+            var parameters = new { date_confirmed_from = timestamp };
+            return PostAsync<BaselinkerOrderResponse>("getOrders", parameters);
         }
 
-        public async Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory syncInventory)
+        public Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject)
         {
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "updateInventoryProductsStock" },
-                { "parameters", JsonConvert.SerializeObject(syncInventory) }
-            };
-
-
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<UpdateInventoryProductsStockResponse>(responseBody);
+            return PostAsync<AddProductResponse>("addProduct", addBaselinkerObject);
         }
 
-        public async Task<InventoryWarehouseResponse> GetInventoryWarehousesAsync()
+        public Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory syncInventory)
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getInventoryWarehouses" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<InventoryWarehouseResponse>(responseBody);
-
+            return PostAsync<UpdateInventoryProductsStockResponse>("updateInventoryProductsStock", syncInventory);
         }
 
-
-        public async Task<BaselinkerOrderStatusList> GetOrderStatusList()
+        public Task<InventoryWarehouseResponse> GetInventoryWarehousesAsync()
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getOrderStatusList" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BaselinkerOrderStatusList>(responseBody);
-
+            return PostAsync<InventoryWarehouseResponse>("getInventoryWarehouses", new { });
         }
 
-        public async Task<BaselinkerStoragesResponse> GetStoragesListAsync()
+        public Task<BaselinkerOrderStatusList> GetOrderStatusList()
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getStoragesList" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<BaselinkerStoragesResponse>(responseBody);
-
+            return PostAsync<BaselinkerOrderStatusList>("getOrderStatusList", new { });
         }
 
-
-        public async Task<InventoryResponse> GetInventoriesAsync()
+        public Task<BaselinkerStoragesResponse> GetStoragesListAsync()
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getInventories" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<InventoryResponse>(responseBody);
-
+            return PostAsync<BaselinkerStoragesResponse>("getStoragesList", new { });
         }
 
-        public async Task<InventoryManufactureResponse> GetInventoryManufactutersAsync()
+        public Task<InventoryResponse> GetInventoriesAsync()
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getInventoryManufacturers" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<InventoryManufactureResponse>(responseBody);
-
+            return PostAsync<InventoryResponse>("getInventories", new { });
         }
 
-        public async Task<InventoryPriceGroup> GetInventoryPriceGroupsAsync()
+        public Task<InventoryManufactureResponse> GetInventoryManufacturersAsync()
         {
-            var parameters = new Dictionary<string, object>();
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getInventoryPriceGroups" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<InventoryPriceGroup>(responseBody);
-
+            return PostAsync<InventoryManufactureResponse>("getInventoryManufacturers", new { });
         }
 
-        public async Task<CategoryResponse> GetCategoriesAsync(string storage_id = null)
+        public Task<InventoryPriceGroup> GetInventoryPriceGroupsAsync()
         {
-            var parameters = new Dictionary<string, object>
-            {
-                { "storage_id", storage_id },
-            };
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "getCategories" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<CategoryResponse>(responseBody);
+            return PostAsync<InventoryPriceGroup>("getInventoryPriceGroups", new { });
         }
 
-        public async Task<InventoryProductListResponse> GetInventoryProductsListAsync(int inventory_id, int page = 1)
+        public Task<CategoryResponse> GetCategoriesAsync(string storageId = null)
         {
-            var parameters = new Dictionary<string, object>
+            var parameters = new { storage_id = storageId };
+            return PostAsync<CategoryResponse>("getCategories", parameters);
+        }
+
+        public async Task<InventoryProductListResponse> GetInventoryProductsListAsync(int inventoryId, int page = 1)
+        {
+            var parameters = new { inventory_id = inventoryId, page };
+            var response = await PostAsync<dynamic>("getInventoryProductsList", parameters);
+
+            var productList = new List<InventoryProduct>();
+            if (response.products != null)
             {
-                { "inventory_id", inventory_id },
-                { "page", page },
-            };
-
-                    var data = new Dictionary<string, string>
-            {
-                { "method", "getInventoryProductsList" },
-                { "parameters", JsonConvert.SerializeObject(parameters) }
-            };
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-
-            dynamic parsedResponse = JsonConvert.DeserializeObject(responseBody);
-
-            List<InventoryProduct> productList = new List<InventoryProduct>();
-            if (parsedResponse.products != null)
-            {
-                foreach (var productKey in parsedResponse.products)
+                foreach (var productKey in response.products)
                 {
                     var product = JsonConvert.DeserializeObject<InventoryProduct>(productKey.Value.ToString());
                     productList.Add(product);
                 }
             }
 
-            var inventoryProductListResponse = new InventoryProductListResponse
+            return new InventoryProductListResponse
             {
-                status = parsedResponse.status,
+                status = response.status,
                 products = productList,
-                error_code = parsedResponse.error_code ?? string.Empty,
-                error_message = parsedResponse.error_message ?? string.Empty
+                error_code = response.error_code ?? string.Empty,
+                error_message = response.error_message ?? string.Empty
             };
-
-            return inventoryProductListResponse;
         }
 
-
-        public async void UpdateOrder(int order_id, Dictionary<string, string> postParams)
+        public async Task UpdateOrderAsync(int orderId, Dictionary<string, string> postParams)
         {
-            postParams.Add("order_id", order_id.ToString());
-
-            var data = new Dictionary<string, string>
-            {
-                { "method", "setOrderFields" },
-                { "parameters", JsonConvert.SerializeObject(postParams) }
-            };
-
-
-            var response = await _client.PostAsync(_endpoint, new FormUrlEncodedContent(data));
-            response.EnsureSuccessStatusCode();
-            var responseBody = await response.Content.ReadAsStringAsync();
-
+            postParams.Add("order_id", orderId.ToString());
+            await PostAsync<object>("setOrderFields", postParams);
         }
     }
 
-    public interface BaselinkerAdapterInterface
+    public interface IBaselinkerAdapter
     {
         Task<BaselinkerProductsListResponse> GetProductDataAsync(string productId);
         Task<BaselinkerProductsListResponse> GetProductsListAsync(int page = 1);
         Task<BaselinkerOrderResponse> GetOrderAsync(int orderId = 0);
         Task<BaselinkerStoragesResponse> GetStoragesListAsync();
-
         Task<InventoryResponse> GetInventoriesAsync();
     }
 }

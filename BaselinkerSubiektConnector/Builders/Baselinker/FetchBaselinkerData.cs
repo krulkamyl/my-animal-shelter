@@ -39,7 +39,7 @@ namespace BaselinkerSubiektConnector.Builders.Baselinker
             InventoryResponse inventoryResponse = await baselinkerAdapter.GetInventoriesAsync();
             BaselinkerIntentories.UpdateExistingData(inventoryResponse.inventories);
 
-            InventoryManufactureResponse inventoryManufactureResponse = await baselinkerAdapter.GetInventoryManufactutersAsync();
+            InventoryManufactureResponse inventoryManufactureResponse = await baselinkerAdapter.GetInventoryManufacturersAsync();
             BaselinkerInventoryManufacturers.UpdateExistingData(inventoryManufactureResponse.manufacturers);
 
             InventoryPriceGroup inventoryPriceGroup = await baselinkerAdapter.GetInventoryPriceGroupsAsync();

@@ -262,7 +262,7 @@ namespace BaselinkerSubiektConnector.Builders
                 },
             };
 
-                blAdapter.UpdateOrder(baselinkerOrderId, data);
+                blAdapter.UpdateOrderAsync(baselinkerOrderId, data);
                 return Task.CompletedTask;
             }
             catch (Exception ex)

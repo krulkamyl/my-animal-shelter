@@ -10,7 +10,7 @@ namespace BaselinkerSubiektConnector.Validators
             {
                 throw new Exception("Wybrano niepoprawną bazę danych Subiekta. Powinna ona posiadać przedrostek \"Nexo_\"");
             }
-            if (model.MsTeamsWebhookUrl == null || (model.MsTeamsWebhookUrl != null && !model.MsTeamsWebhookUrl.Contains("https://") && !model.MsTeamsWebhookUrl.Contains(".webhook.office.com")))
+            if (model.MsTeamsWebhookUrl.Length == 0 || (model.MsTeamsWebhookUrl != null && !model.MsTeamsWebhookUrl.Contains("https://") && !model.MsTeamsWebhookUrl.Contains(".webhook.office.com")))
             {
                 throw new Exception("Podano nieprawidłowe adres URL do Webhook'a.");
             }

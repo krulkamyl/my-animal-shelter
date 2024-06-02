@@ -6,69 +6,60 @@ namespace BaselinkerSubiektConnector.Validators
     {
         public static bool Validate(ConfigValidatorModel model)
         {
-            if (model.MssqlDatabaseName == null || (model.MssqlDatabaseName != null && !model.MssqlDatabaseName.Contains("Nexo_")))
+            ValidateNotNullAndContains(model.MssqlDatabaseName, "Nexo_", "Wybrano niepoprawną bazę danych Subiekta. Powinna ona posiadać przedrostek \"Nexo_\"");
+            ValidateUrl(model.MsTeamsWebhookUrl, "Podano nieprawidłowe adres URL do Webhook'a.");
+            ValidateNotNullAndMinLength(model.BaselinkerStorage, 4, "Wybrano niepoprawny katalog produktów baselinker Baselinker.");
+            ValidateNotNullAndMinLength(model.BaselinkerInventoryWarehouse, 4, "Wybrano niepoprawny magazyn Baselinker.");
+            ValidateNotNullAndMinLength(model.SubiektWarehouse, 2, "Wybrano niepoprawny magazyn w Subiekt.");
+            ValidateNotNullAndMinLength(model.SubiektBranch, 2, "Wybrano niepoprawny oddział w Subiekt.");
+
+            if (model.PrinterEnabled)
+                ValidateNotNullAndMinLength(model.PrinterName, 2, "Zaznaczono wydruk automatyczny faktur, a nie wybrano drukarki.");
+            if (model.CashRegisterEnabled)
+                ValidateNotNullAndMinLength(model.CashRegisterName, 2, "Zaznaczono wydruk automatyczny paragonów, a nie wybrano kasy fiskalnej.");
+            if (model.SendEmailEnabled)
             {
-                throw new Exception("Wybrano niepoprawną bazę danych Subiekta. Powinna ona posiadać przedrostek \"Nexo_\"");
+                ValidateNotNullAndMinLength(model.EmailLogin, 3, "Zaznaczono automatyczne wysyłanie e-maili a nie podano prawidłowych danych logowania do serwera SMTP.");
+                ValidateNotNullAndMinLength(model.EmailPassword, 3, "Zaznaczono automatyczne wysyłanie e-maili a nie podano prawidłowych danych logowania do serwera SMTP.");
             }
-            if (model.MsTeamsWebhookUrl.Length == 0 || (model.MsTeamsWebhookUrl != null && !model.MsTeamsWebhookUrl.Contains("https://") && !model.MsTeamsWebhookUrl.Contains(".webhook.office.com")))
-            {
-                throw new Exception("Podano nieprawidłowe adres URL do Webhook'a.");
-            }
-            if (model.BaselinkerStorage == null || (model.BaselinkerStorage != null && model.BaselinkerStorage.Length < 4))
-            {
-                throw new Exception("Wybrano niepoprawny katalog produktów baselinker Baselinker.");
-            }
-            if (model.BaselinkerInventoryWarehouse == null || (model.BaselinkerInventoryWarehouse != null && model.BaselinkerInventoryWarehouse.Length < 4))
-            {
-                throw new Exception("Wybrano niepoprawny magazyn Baselinker.");
-            }
-            if (model.SubiektWarehouse == null || (model.SubiektWarehouse != null && model.SubiektWarehouse.Length < 2))
-            {
-                throw new Exception("Wybrano niepoprawny magazyn w Subiekt.");
-            }
-            if (model.SubiektBranch == null || (model.SubiektBranch != null && model.SubiektBranch.Length < 2))
-            {
-                throw new Exception("Wybrano niepoprawny oddział w Subiekt.");
-            }
-            if (model.PrinterEnabled && (model.PrinterName == null || (model.PrinterName != null && model.PrinterName.Length < 2)))
-            {
-                throw new Exception("Zaznaczono wydruk automatyczny faktur, a nie wybrano drukarki.");
-            }
-            if (model.CashRegisterEnabled && (model.CashRegisterName == null || (model.CashRegisterName != null && model.CashRegisterName.Length < 2)))
-            {
-                throw new Exception("Zaznaczono wydruk automatyczny paragonów, a nie wybrano kasy fiskalnej.");
-            }
-            if (model.SendEmailEnabled && (
-                (model.EmailLogin == null || (model.EmailLogin != null && model.EmailLogin.Length < 3))
-                ||
-                (model.EmailPassword == null || (model.EmailPassword != null && model.EmailPassword.Length < 3))
-                )
-            )
-            {
-                throw new Exception("Zaznaczono automatyczne wysyłanie e-maili a nie podano prawidłowych danych logowania do serwera SMTP.");
-            }
-            if (model.EmailReporting == null || (model.EmailReporting != null && model.EmailReporting.Length < 3) || (model.EmailReporting != null && !model.EmailReporting.Contains("@")))
-            {
-                throw new Exception("Nie podano poprawnego adresu e-mail do raportowania błędów.");
-            }
-            if (model.CompanyName == null || (model.CompanyName != null && model.CompanyName.Length < 3))
-            {
-                throw new Exception("Wybrano niepoprawną nazwę firmy.");
-            }
-            if (model.CompanyName == null || (model.CompanyName != null && model.CompanyName.Length < 3))
-            {
-                throw new Exception("Wybrano niepoprawną nazwę firmy.");
-            }
-            if (model.CompanyNip == null || (model.CompanyNip != null && model.CompanyNip.Length < 9))
-            {
-                throw new Exception("Podano niepoprawny numer NIP.");
-            }
-            if (model.CompanyEmail == null || (model.CompanyEmail != null && model.CompanyEmail.Length < 3) || (model.CompanyEmail != null && !model.CompanyEmail.Contains("@")))
-            {
-                throw new Exception("Nie podano poprawnego adresu e-mail firmowego.");
-            }
+            ValidateEmail(model.EmailReporting, "Nie podano poprawnego adresu e-mail do raportowania błędów.");
+            ValidateNotNullAndMinLength(model.CompanyName, 3, "Wybrano niepoprawną nazwę firmy.");
+            ValidateNotNullAndMinLength(model.CompanyNip, 9, "Podano niepoprawny numer NIP.");
+            ValidateEmail(model.CompanyEmail, "Nie podano poprawnego adresu e-mail firmowego.");
 
             return true;
+        }
+
+        private static void ValidateNotNullAndContains(string value, string substring, string errorMessage)
+        {
+            if (string.IsNullOrEmpty(value) || !value.Contains(substring))
+            {
+                throw new Exception(errorMessage);
+            }
+        }
+
+        private static void ValidateUrl(string url, string errorMessage)
+        {
+            if (string.IsNullOrEmpty(url) || (!url.Contains("https://") && !url.Contains(".webhook.office.com")))
+            {
+                throw new Exception(errorMessage);
+            }
+        }
+
+        private static void ValidateNotNullAndMinLength(string value, int minLength, string errorMessage)
+        {
+            if (string.IsNullOrEmpty(value) || value.Length < minLength)
+            {
+                throw new Exception(errorMessage);
+            }
+        }
+
+        private static void ValidateEmail(string email, string errorMessage)
+        {
+            if (string.IsNullOrEmpty(email) || email.Length < 3 || !email.Contains("@"))
+            {
+                throw new Exception(errorMessage);
+            }
         }
     }
 

@@ -7,89 +7,74 @@ using System.Text.RegularExpressions;
 
 namespace BaselinkerSubiektConnector.Support
 {
-
-    public class Helpers
+    public static class Helpers
     {
+        private const string OrdersUrlPattern = @"https://orders-e\.baselinker\.com/(\d+)/";
+        private const string DigitsPattern = @"\D+";
+        private const string ExportFolderName = "Export";
+        private const string LogsFileName = "Logs.txt";
 
         public static string GetOrderId(string url)
         {
-            Regex regex = new Regex(@"https://orders-e\.baselinker\.com/(\d+)/");
-
-            Match match = regex.Match(url);
-
+            var match = Regex.Match(url, OrdersUrlPattern);
             if (match.Success)
             {
-                string number = match.Groups[1].Value;
-                return number;
+                return match.Groups[1].Value;
             }
-            else
-            {
-                Helpers.Log("[Helpers-GetOrderId] Nie znaleziono pasującego numeru.");
-            }
+
+            Log("[Helpers-GetOrderId] Nie znaleziono pasującego numeru.");
             return url;
         }
 
-       public static string ExtractDigits(string input)
-       {
-            string pattern = @"\D+";
-
-            string result = Regex.Replace(input, pattern, "");
-
-            return result;
+        public static string ExtractDigits(string input)
+        {
+            return Regex.Replace(input, DigitsPattern, string.Empty);
         }
-
-
 
         public static string GetApplicationPath()
         {
-            string appDataFolder = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-            return appDataFolder + "\\cichy.cloud\\NexoLink\\";
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "cichy.cloud", "NexoLink");
         }
 
         public static void SendWebhook(string message)
         {
-            string webhookUrl = ConfigRepository.GetValue(RegistryConfigurationKeys.MSTeams_Webhook_Url);
-            if (webhookUrl != null && webhookUrl.Length > 10) {
-                TeamsWebhookClient teamsWebhookClient = new TeamsWebhookClient(webhookUrl);
+            var webhookUrl = ConfigRepository.GetValue(RegistryConfigurationKeys.MSTeams_Webhook_Url);
+            if (!string.IsNullOrEmpty(webhookUrl) && webhookUrl.Length > 10)
+            {
+                var teamsWebhookClient = new TeamsWebhookClient(webhookUrl);
                 _ = teamsWebhookClient.SendMessageAsync(message);
             }
         }
 
         public static List<string> GetPrinters()
         {
-            List<string> printers = new List<string>();
-            ManagementScope objScope = new ManagementScope(ManagementPath.DefaultPath);
+            var printers = new List<string>();
+            var objScope = new ManagementScope(ManagementPath.DefaultPath);
             objScope.Connect();
 
-            SelectQuery selectQuery = new SelectQuery();
-            selectQuery.QueryString = "Select * from win32_Printer";
-            ManagementObjectSearcher MOS = new ManagementObjectSearcher(objScope, selectQuery);
-            ManagementObjectCollection MOC = MOS.Get();
-            foreach (ManagementObject mo in MOC)
+            var query = new SelectQuery("Select * from win32_Printer");
+            var searcher = new ManagementObjectSearcher(objScope, query);
+            foreach (ManagementObject mo in searcher.Get())
             {
                 printers.Add(mo["Name"].ToString());
             }
+
             return printers;
         }
 
         public static void Log(string message)
         {
-            DateTime now = DateTime.Now;
-            string timestamp = now.ToString("yyyy-MM-dd HH:mm:ss");
-            string logMessage = $"{timestamp}: {message}";
-            string logFilePath = Path.Combine(GetApplicationPath(), "Logs.txt");
+            var timestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var logMessage = $"{timestamp}: {message}";
+            var logFilePath = Path.Combine(GetApplicationPath(), LogsFileName);
 
             try
             {
-                using (StreamWriter writer = new StreamWriter(logFilePath, true))
-                {
-                    writer.WriteLine(logMessage);
-                }
+                File.AppendAllText(logFilePath, logMessage + Environment.NewLine);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-
+                // Log exception if necessary
             }
 
             Console.WriteLine(logMessage);
@@ -97,25 +82,25 @@ namespace BaselinkerSubiektConnector.Support
 
         public static void StartLog()
         {
-            string startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var startTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
             Log("############################");
             Log($"# Uruchomiono program: {startTime} #");
             Log("############################");
         }
 
-
         public static string GetExportApplicationPath()
         {
-            return Path.Combine(GetApplicationPath(),"Export");
+            return Path.Combine(GetApplicationPath(), ExportFolderName);
         }
 
         public static void EnsureExportFolderExists()
         {
             try
             {
-                if (!Directory.Exists(GetExportApplicationPath()))
+                var exportPath = GetExportApplicationPath();
+                if (!Directory.Exists(exportPath))
                 {
-                    Directory.CreateDirectory(GetExportApplicationPath());
+                    Directory.CreateDirectory(exportPath);
                     Log("[Helpers - EnsureExportFolderExists] Utworzono folder 'Export'.");
                 }
                 else

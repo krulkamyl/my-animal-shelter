@@ -373,11 +373,6 @@ namespace BaselinkerSubiektConnector.Services.SQLiteService
         {
             return System.IO.Path.Combine(Helpers.GetApplicationPath(), "database.sqlite");
         }
-
-        private static string getPassword()
-        {
-            return "RandomPassword123";
-        }
     }
 
     public class Record

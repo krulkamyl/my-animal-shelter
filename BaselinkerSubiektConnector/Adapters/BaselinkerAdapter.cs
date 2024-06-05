@@ -40,80 +40,44 @@ namespace BaselinkerSubiektConnector.Adapters
             return JsonConvert.DeserializeObject<T>(responseBody);
         }
 
-        public Task<BaselinkerProductsListResponse> GetProductDataAsync(string productIds)
-        {
-            var parameters = new
-            {
-                storage_id = _storageId,
-                products = new[] { productIds }
-            };
-            return PostAsync<BaselinkerProductsListResponse>("getProductsData", parameters);
-        }
+        public Task<BaselinkerProductsListResponse> GetProductDataAsync(string productIds) =>
+            PostAsync<BaselinkerProductsListResponse>("getProductsData", new { storage_id = _storageId, products = new[] { productIds } });
 
-        public Task<BaselinkerProductsListResponse> GetProductsListAsync(int page = 1)
-        {
-            var parameters = new { storage_id = _storageId, page };
-            return PostAsync<BaselinkerProductsListResponse>("getProductsList", parameters);
-        }
+        public Task<BaselinkerProductsListResponse> GetProductsListAsync(int page = 1) =>
+            PostAsync<BaselinkerProductsListResponse>("getProductsList", new { storage_id = _storageId, page });
 
-        public Task<BaselinkerOrderResponse> GetOrderAsync(int orderId = 0)
-        {
-            var parameters = new { order_id = orderId };
-            return PostAsync<BaselinkerOrderResponse>("getOrders", parameters);
-        }
+        public Task<BaselinkerOrderResponse> GetOrderAsync(int orderId = 0) =>
+            PostAsync<BaselinkerOrderResponse>("getOrders", new { order_id = orderId });
 
-        public Task<BaselinkerOrderResponse> GetOrdersAsync()
-        {
-            long timestamp = ((DateTimeOffset)DateTime.Now.AddHours(-8)).ToUnixTimeSeconds();
-            var parameters = new { date_confirmed_from = timestamp };
-            return PostAsync<BaselinkerOrderResponse>("getOrders", parameters);
-        }
+        public Task<BaselinkerOrderResponse> GetOrdersAsync() =>
+            PostAsync<BaselinkerOrderResponse>("getOrders", new { date_confirmed_from = DateTimeOffset.Now.AddHours(-8).ToUnixTimeSeconds() });
 
-        public Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject)
-        {
-            return PostAsync<AddProductResponse>("addProduct", addBaselinkerObject);
-        }
+        public Task<AddProductResponse> AddProductAsync(AddBaselinkerObject addBaselinkerObject) =>
+            PostAsync<AddProductResponse>("addProduct", addBaselinkerObject);
 
-        public Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory syncInventory)
-        {
-            return PostAsync<UpdateInventoryProductsStockResponse>("updateInventoryProductsStock", syncInventory);
-        }
+        public Task<UpdateInventoryProductsStockResponse> UpdateInventoryProductsStock(SyncInventory syncInventory) =>
+            PostAsync<UpdateInventoryProductsStockResponse>("updateInventoryProductsStock", syncInventory);
 
-        public Task<InventoryWarehouseResponse> GetInventoryWarehousesAsync()
-        {
-            return PostAsync<InventoryWarehouseResponse>("getInventoryWarehouses", new { });
-        }
+        public Task<InventoryWarehouseResponse> GetInventoryWarehousesAsync() =>
+            PostAsync<InventoryWarehouseResponse>("getInventoryWarehouses", new { });
 
-        public Task<BaselinkerOrderStatusList> GetOrderStatusList()
-        {
-            return PostAsync<BaselinkerOrderStatusList>("getOrderStatusList", new { });
-        }
+        public Task<BaselinkerOrderStatusList> GetOrderStatusList() =>
+            PostAsync<BaselinkerOrderStatusList>("getOrderStatusList", new { });
 
-        public Task<BaselinkerStoragesResponse> GetStoragesListAsync()
-        {
-            return PostAsync<BaselinkerStoragesResponse>("getStoragesList", new { });
-        }
+        public Task<BaselinkerStoragesResponse> GetStoragesListAsync() =>
+            PostAsync<BaselinkerStoragesResponse>("getStoragesList", new { });
 
-        public Task<InventoryResponse> GetInventoriesAsync()
-        {
-            return PostAsync<InventoryResponse>("getInventories", new { });
-        }
+        public Task<InventoryResponse> GetInventoriesAsync() =>
+            PostAsync<InventoryResponse>("getInventories", new { });
 
-        public Task<InventoryManufactureResponse> GetInventoryManufacturersAsync()
-        {
-            return PostAsync<InventoryManufactureResponse>("getInventoryManufacturers", new { });
-        }
+        public Task<InventoryManufactureResponse> GetInventoryManufacturersAsync() =>
+            PostAsync<InventoryManufactureResponse>("getInventoryManufacturers", new { });
 
-        public Task<InventoryPriceGroup> GetInventoryPriceGroupsAsync()
-        {
-            return PostAsync<InventoryPriceGroup>("getInventoryPriceGroups", new { });
-        }
+        public Task<InventoryPriceGroup> GetInventoryPriceGroupsAsync() =>
+            PostAsync<InventoryPriceGroup>("getInventoryPriceGroups", new { });
 
-        public Task<CategoryResponse> GetCategoriesAsync(string storageId = null)
-        {
-            var parameters = new { storage_id = storageId };
-            return PostAsync<CategoryResponse>("getCategories", parameters);
-        }
+        public Task<CategoryResponse> GetCategoriesAsync(string storageId = null) =>
+            PostAsync<CategoryResponse>("getCategories", new { storage_id = storageId });
 
         public async Task<InventoryProductListResponse> GetInventoryProductsListAsync(int inventoryId, int page = 1)
         {

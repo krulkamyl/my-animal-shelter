@@ -29,78 +29,20 @@ namespace BaselinkerSubiektConnector.Services.EmailService
         {
             try
             {
-                using (MailMessage mail = new MailMessage())
+                using (var mail = new MailMessage())
                 {
-                    string emailAddress = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress);
-                    if (emailAddress != null && emailAddress.Contains("@"))
-                    {
-                        mail.From = new MailAddress(emailAddress);
-                    }
-                    else if (!_senderEmail.Contains("@"))
-                    {
-                        mail.From = new MailAddress(_senderEmail+"@"+_smtpServer);
-                    }
-                    else
-                    {
-                        mail.From = new MailAddress(_senderEmail);
-                    }
+                    ConfigureMailSender(mail);
                     mail.To.Add(recipient);
                     mail.Subject = subject;
                     mail.IsBodyHtml = true;
 
-                    if (recipient != ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting))
-                    {
-                        mail.Bcc.Add(ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting));
-                    }
+                    AddBccIfNecessary(mail, recipient);
+                    mail.Body = GenerateEmailBody(body);
 
-                    var message = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template);
-                    if (message == null)
-                    {
-                        message = GetEmailTemplate();
-                    }
-
-                    string bodyMessage = Regex.Replace(body, "\n", "<br />");
-
-                    var replacements = new (string, string)[]
-                    {
-                        ("[TRESC_WIADOMOSCI]", bodyMessage),
-                        ("[FIRMA_NAZWA]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName)),
-                        ("[FIRMA_NIP]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip)),
-                        ("[FIRMA_ADRES]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress)),
-                        ("[FIRMA_KOD_POCZTOWY]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyZipCode)),
-                        ("[FIRMA_MIEJSCOWOSC]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyCity)),
-                        ("[FIRMA_TELEFON]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress)),
-                        ("[FIRMA_EMAIL]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone)),
-                    };
-
-                    foreach (var (oldValue, newValue) in replacements)
-                    {
-                        int index = message.IndexOf(oldValue, StringComparison.OrdinalIgnoreCase);
-                        while (index != -1)
-                        {
-                            message = message.Substring(0, index) + newValue + message.Substring(index + oldValue.Length);
-                            index = message.IndexOf(oldValue, index + newValue.Length, StringComparison.OrdinalIgnoreCase);
-                        }
-                    }
-
-
-                    mail.Body = message;
-
-                    if (attachments != null)
-                    {
-                        foreach (string attachmentPath in attachments)
-                        {
-                            mail.Attachments.Add(new Attachment(attachmentPath));
-                        }
-                    }
-
-                    using (SmtpClient smtpClient = new SmtpClient(_smtpServer, _smtpPort))
-                    {
-                        smtpClient.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
-                        smtpClient.EnableSsl = true;
-                        smtpClient.Send(mail);
-                    }
+                    AddAttachments(mail, attachments);
+                    SendMail(mail);
                 }
+
                 Helpers.Log("Email sent successfully.");
             }
             catch (Exception ex)
@@ -109,7 +51,95 @@ namespace BaselinkerSubiektConnector.Services.EmailService
             }
         }
 
-        public static string GetEmailTemplate()
+        private void ConfigureMailSender(MailMessage mail)
+        {
+            string emailAddress = ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress);
+            if (!string.IsNullOrEmpty(emailAddress) && emailAddress.Contains("@"))
+            {
+                mail.From = new MailAddress(emailAddress);
+            }
+            else if (!_senderEmail.Contains("@"))
+            {
+                mail.From = new MailAddress($"{_senderEmail}@{_smtpServer}");
+            }
+            else
+            {
+                mail.From = new MailAddress(_senderEmail);
+            }
+        }
+
+        private void AddBccIfNecessary(MailMessage mail, string recipient)
+        {
+            if (recipient != ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting))
+            {
+                mail.Bcc.Add(ConfigRepository.GetValue(RegistryConfigurationKeys.Config_EmailReporting));
+            }
+        }
+
+        private string GenerateEmailBody(string body)
+        {
+            string template = ConfigRepository.GetValue(RegistryConfigurationKeys.Email_Template) ?? GetDefaultEmailTemplate();
+            string bodyHtml = Regex.Replace(body, "\n", "<br />");
+
+            var replacements = new Dictionary<string, string>
+        {
+            { "[TRESC_WIADOMOSCI]", bodyHtml },
+            { "[FIRMA_NAZWA]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyName) },
+            { "[FIRMA_NIP]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyNip) },
+            { "[FIRMA_ADRES]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyAddress) },
+            { "[FIRMA_KOD_POCZTOWY]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyZipCode) },
+            { "[FIRMA_MIEJSCOWOSC]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyCity) },
+            { "[FIRMA_TELEFON]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyEmailAddress) },
+            { "[FIRMA_EMAIL]", ConfigRepository.GetValue(RegistryConfigurationKeys.Config_CompanyPhone) }
+        };
+
+            return ReplacePlaceholders(template, replacements);
+        }
+
+        private string ReplacePlaceholders(string template, Dictionary<string, string> replacements)
+        {
+            foreach (var replacement in replacements)
+            {
+                template = ReplaceIgnoreCase(template, replacement.Key, replacement.Value);
+            }
+
+            return template;
+        }
+
+        private string ReplaceIgnoreCase(string input, string search, string replacement)
+        {
+            int index = input.IndexOf(search, StringComparison.OrdinalIgnoreCase);
+            while (index != -1)
+            {
+                input = input.Substring(0, index) + replacement + input.Substring(index + search.Length);
+                index = input.IndexOf(search, index + replacement.Length, StringComparison.OrdinalIgnoreCase);
+            }
+
+            return input;
+        }
+
+        private void AddAttachments(MailMessage mail, List<string> attachments)
+        {
+            if (attachments != null)
+            {
+                foreach (var attachmentPath in attachments)
+                {
+                    mail.Attachments.Add(new Attachment(attachmentPath));
+                }
+            }
+        }
+
+        private void SendMail(MailMessage mail)
+        {
+            using (var smtpClient = new SmtpClient(_smtpServer, _smtpPort))
+            {
+                smtpClient.Credentials = new NetworkCredential(_senderEmail, _senderPassword);
+                smtpClient.EnableSsl = true;
+                smtpClient.Send(mail);
+            }
+        }
+
+        private string GetDefaultEmailTemplate()
         {
             return @"<!DOCTYPE html>
 <html lang=""pl"">

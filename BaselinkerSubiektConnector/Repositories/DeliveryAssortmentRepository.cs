@@ -9,32 +9,31 @@ namespace BaselinkerSubiektConnector.Repositories
 {
     public class DeliveryAssortmentRepository
     {
-        public MainWindowViewModel sfera { get; set; }
-        public IAsortymenty asortymenty { get; set; }
-
-        public const string ASSORTMENT_SYMBOL = "DOSTAWA_ECOMMERCE";
+        private const string AssortmentSymbol = "DOSTAWA_ECOMMERCE";
+        private readonly MainWindowViewModel _sfera;
+        private IAsortymenty _asortymenty;
 
         public DeliveryAssortmentRepository(MainWindowViewModel sfera)
         {
-            this.sfera = sfera;
-
+            _sfera = sfera;
         }
 
         public InsERT.Moria.ModelDanych.Asortyment GetAssortment()
         {
-            this.asortymenty = this.sfera.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
+            _asortymenty = _sfera.UchwytDoSfery.PodajObiektTypu<IAsortymenty>();
             Helpers.Log("DeliveryAssortmentRepository Get()");
+
             try
             {
-                InsERT.Moria.ModelDanych.Asortyment assortment = this.asortymenty.Dane.Wszystkie().Where(k => k.Symbol == ASSORTMENT_SYMBOL).FirstOrDefault();
+                var assortment = _asortymenty.Dane.Wszystkie().FirstOrDefault(k => k.Symbol == AssortmentSymbol);
+
                 if (assortment != null)
                 {
-                    Helpers.Log("ASSORTMENT FOUND! : "+ assortment.Symbol);
+                    Helpers.Log($"ASSORTMENT FOUND! : {assortment.Symbol}");
                     return assortment;
                 }
-                var assortmentCreated = this.CreateAssortment();
 
-                return assortmentCreated;
+                return CreateAssortment();
             }
             catch (Exception ex)
             {
@@ -47,58 +46,26 @@ namespace BaselinkerSubiektConnector.Repositories
         public InsERT.Moria.ModelDanych.Asortyment CreateAssortment()
         {
             Helpers.Log("DeliveryAssortmentRepository Create()");
+
             try
             {
-                var jednostkiMiar = this.sfera.UchwytDoSfery.JednostkiMiar();
-                var walutyDD = this.sfera.UchwytDoSfery.Waluty().DaneDomyslne;
+                var jednostkiMiar = _sfera.UchwytDoSfery.JednostkiMiar();
+                var walutyDD = _sfera.UchwytDoSfery.Waluty().DaneDomyslne;
+                var jednostkaMiary = jednostkiMiar.Dane.WyszukajPoSymbolu("usl") ?? CreateJednostkaMiary(jednostkiMiar);
 
-                var jednostkaMiarySzt = jednostkiMiar.Dane.WyszukajPoSymbolu("szt");
-                var jednostkaMiary = jednostkiMiar.Dane.WyszukajPoSymbolu("usl");
-                if (jednostkaMiary == null)
+                using (var assortment = _asortymenty.Utworz())
                 {
-                    using (var jednostkaMiaryBO = jednostkiMiar.Utworz())
-                    {
-                        jednostkaMiaryBO.Dane.Symbol = "usl";
-                        jednostkaMiaryBO.Dane.Nazwa = "Usługa";
-                        jednostkaMiaryBO.Dane.Precyzja = 0;
-                        jednostkaMiaryBO.Dane.Typ = jednostkiMiar.DaneDomyslne.Usluga.Typ;
-                        jednostkaMiaryBO.UstawPrzelicznikDoJednostkiPodstawowej(12.0m, 1.0m, jednostkiMiar.DaneDomyslne.Sztuka);
-                        if (!jednostkaMiaryBO.Zapisz())
-                        {
-                            throw new Exception(jednostkaMiaryBO.DumpErrors());
-                        }
-                        jednostkaMiary = jednostkaMiaryBO.Dane;
-                    }
-                }
-
-                using (IAsortyment assortment = this.asortymenty.Utworz())
-                {
-                    var szablony = this.sfera.UchwytDoSfery.SzablonyAsortymentu();
+                    var szablony = _sfera.UchwytDoSfery.SzablonyAsortymentu();
                     assortment.WypelnijNaPodstawieSzablonu(szablony.DaneDomyslne.Usluga);
 
-
-                    assortment.Dane.Symbol = ASSORTMENT_SYMBOL;
+                    assortment.Dane.Symbol = AssortmentSymbol;
                     assortment.Dane.Nazwa = "Dostawa";
-
                     assortment.JednostkiMiary.UstawPodstawowaJednostkeMiary(jednostkaMiary);
-
 
                     assortment.Dane.CenaEwidencyjna = 12.30m;
                     assortment.Dane.WalutaCenyEwidencyjnej = walutyDD.PLN;
+                    UstawCeny(assortment);
 
-                    foreach (var poz in assortment.Dane.PozycjeCennika)
-                    {
-                        poz.CenaKalkulacyjna = assortment.Dane.CenaEwidencyjna;
-                        switch (poz.Cennik.PoziomCen.Nazwa)
-                        {
-                            case "Detaliczny":
-                                poz.CenaBrutto = 12.30m;
-                                break;
-                            case "Hurtowy":
-                                poz.CenaNetto = 12.30m;
-                                break;
-                        }
-                    }
                     assortment.Dane.StronaWWW = "https://nexolink.pl";
                     assortment.Dane.Opis = "Nie usuwać! Wykorzystywane przez program połączeniowy z Baselinker";
 
@@ -106,14 +73,50 @@ namespace BaselinkerSubiektConnector.Repositories
                     {
                         throw new Exception(assortment.DumpErrors());
                     }
-                    return this.GetAssortment();
+                    return GetAssortment();
                 }
             }
             catch (Exception ex)
             {
                 Helpers.Log(ex.Message);
+                return null;
             }
-            return null;
+        }
+
+        private InsERT.Moria.ModelDanych.JednostkaMiary CreateJednostkaMiary(IJednostkiMiar jednostkiMiar)
+        {
+            using (var jednostkaMiaryBO = jednostkiMiar.Utworz())
+            {
+                jednostkaMiaryBO.Dane.Symbol = "usl";
+                jednostkaMiaryBO.Dane.Nazwa = "Usługa";
+                jednostkaMiaryBO.Dane.Precyzja = 0;
+                jednostkaMiaryBO.Dane.Typ = jednostkiMiar.DaneDomyslne.Usluga.Typ;
+                jednostkaMiaryBO.UstawPrzelicznikDoJednostkiPodstawowej(12.0m, 1.0m, jednostkiMiar.DaneDomyslne.Sztuka);
+
+                if (!jednostkaMiaryBO.Zapisz())
+                {
+                    throw new Exception(jednostkaMiaryBO.DumpErrors());
+                }
+                return jednostkaMiaryBO.Dane;
+            }
+        }
+
+        private void UstawCeny(IAsortyment assortment)
+        {
+            foreach (var poz in assortment.Dane.PozycjeCennika)
+            {
+                poz.CenaKalkulacyjna = assortment.Dane.CenaEwidencyjna;
+
+                switch (poz.Cennik.PoziomCen.Nazwa)
+                {
+                    case "Detaliczny":
+                        poz.CenaBrutto = 12.30m;
+                        break;
+                    case "Hurtowy":
+                        poz.CenaNetto = 12.30m;
+                        break;
+                }
+            }
         }
     }
 }

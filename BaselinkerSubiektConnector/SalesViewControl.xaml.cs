@@ -13,7 +13,6 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Navigation;
 
-
 namespace NexoLink
 {
     public partial class SalesViewControl : UserControl
@@ -29,171 +28,107 @@ namespace NexoLink
             LoadPage();
         }
 
-
         private void AssortmentsTable_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
-            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
-            if (scrollViewer != null)
+            HandleMouseWheel(DocsTable, e);
+        }
+
+        private void DocsTableProductsNotFound_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        {
+            HandleMouseWheel(DocsTable, e);
+        }
+
+        private void HandleMouseWheel(DataGrid dataGrid, MouseWheelEventArgs e)
+        {
+            var scrollViewer = GetScrollViewer(dataGrid);
+            if (scrollViewer != null && e.Delta < 0 && scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
             {
-                if (e.Delta < 0)
-                {
-                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-                    {
-                        prevVerticalOffset = scrollViewer.VerticalOffset;
-                        LoadPage();
-                    }
-                }
+                prevVerticalOffset = scrollViewer.VerticalOffset;
+                LoadPage();
             }
         }
 
         private void RefreshSellerDocsButton_Click(object sender, EventArgs e)
         {
+            ResetData();
+            LoadPage();
+            ScrollToTop(DocsTable);
+        }
+
+        private void ResetData()
+        {
             currentPage = 1;
             allRecordsSalesDocs = null;
             DocsTable.Items.Clear();
-
-            LoadPage();
-
-            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(0);
-            }
         }
 
-        private void DocsTableProductsNotFound_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
+        private void ScrollToTop(DataGrid dataGrid)
         {
-            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
-            if (scrollViewer != null)
-            {
-                if (e.Delta < 0)
-                {
-                    if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
-                    {
-                        prevVerticalOffset = scrollViewer.VerticalOffset;
-
-                        LoadPage();
-                    }
-                }
-            }
+            var scrollViewer = GetScrollViewer(dataGrid);
+            scrollViewer?.ScrollToVerticalOffset(0);
         }
 
         private void DocsTableProductsNotFound_PreviewMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
-            DataGrid dataGrid = sender as DataGrid;
-            if (dataGrid != null)
+            ShowContextMenuOnRightClick(sender as DataGrid, e);
+        }
+
+        private void ShowContextMenuOnRightClick(DataGrid dataGrid, MouseButtonEventArgs e)
+        {
+            if (dataGrid == null) return;
+
+            var dep = (DependencyObject)e.OriginalSource;
+            while (dep != null && !(dep is DataGridCell))
             {
-                DependencyObject dep = (DependencyObject)e.OriginalSource;
+                dep = VisualTreeHelper.GetParent(dep);
+            }
 
-                while ((dep != null) && !(dep is DataGridCell))
-                {
-                    dep = VisualTreeHelper.GetParent(dep);
-                }
-
-                if (dep is DataGridCell)
-                {
-                    dataGrid.ContextMenu.Visibility = Visibility.Visible;
-                    dataGrid.ContextMenu.IsOpen = true;
-                }
-                else
-                {
-                    dataGrid.ContextMenu.Visibility = Visibility.Collapsed;
-                }
+            if (dep is DataGridCell)
+            {
+                dataGrid.ContextMenu.Visibility = Visibility.Visible;
+                dataGrid.ContextMenu.IsOpen = true;
+            }
+            else
+            {
+                dataGrid.ContextMenu.Visibility = Visibility.Collapsed;
             }
         }
 
         private void DocsCopyMenuItem_Click(object sender, RoutedEventArgs e)
         {
-            MenuItem menuItem = sender as MenuItem;
-            if (menuItem != null)
-            {
-                DataGrid dataGrid = DocsTable;
-                if (dataGrid != null)
-                {
-                    DataGridCell cell = GetSelectedCell(dataGrid);
+            CopySelectedCellContentToClipboard(DocsTable);
+        }
 
-                    if (cell != null && cell.Content is TextBlock)
-                    {
-                        TextBlock textBlock = cell.Content as TextBlock;
-                        string cellContent = textBlock.Text;
-                        Clipboard.SetText(cellContent);
-                    }
-                }
+        private void CopySelectedCellContentToClipboard(DataGrid dataGrid)
+        {
+            var cell = GetSelectedCell(dataGrid);
+            if (cell?.Content is TextBlock textBlock)
+            {
+                Clipboard.SetText(textBlock.Text);
             }
         }
 
         private ScrollViewer GetScrollViewer(DependencyObject depObj)
         {
-            if (depObj is ScrollViewer)
-            {
-                return depObj as ScrollViewer;
-            }
+            if (depObj is ScrollViewer scrollViewer)
+                return scrollViewer;
 
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
-                DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                ScrollViewer scrollViewer = GetScrollViewer(child);
+                var child = VisualTreeHelper.GetChild(depObj, i);
+                scrollViewer = GetScrollViewer(child);
                 if (scrollViewer != null)
-                {
                     return scrollViewer;
-                }
             }
             return null;
         }
 
         private DataGridCell GetSelectedCell(DataGrid dataGrid)
         {
-            if (dataGrid == null || dataGrid.SelectedCells.Count == 0)
-                return null;
-
-            DataGridCellInfo cellInfo = dataGrid.SelectedCells[0];
-            if (cellInfo == null)
-                return null;
-
-            DataGridCell cell = null;
-            try
+            if (dataGrid?.SelectedCells.Count > 0)
             {
-                cell = (DataGridCell)cellInfo.Column.GetCellContent(cellInfo.Item).Parent;
-            }
-            catch
-            {
-                cell = null;
-            }
-
-            return cell;
-        }
-
-        private T FindParent<T>(DependencyObject child) where T : DependencyObject
-        {
-            DependencyObject parentObject = VisualTreeHelper.GetParent(child);
-
-            if (parentObject == null)
-                return null;
-
-            T parent = parentObject as T;
-            if (parent != null)
-            {
-                return parent;
-            }
-            else
-            {
-                return FindParent<T>(parentObject);
-            }
-        }
-
-        private childItem GetVisualChild<childItem>(DependencyObject obj) where childItem : DependencyObject
-        {
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                if (child != null && child is childItem)
-                    return (childItem)child;
-                else
-                {
-                    childItem childOfChild = GetVisualChild<childItem>(child);
-                    if (childOfChild != null)
-                        return childOfChild;
-                }
+                var cellInfo = dataGrid.SelectedCells[0];
+                return cellInfo.Column?.GetCellContent(cellInfo.Item)?.Parent as DataGridCell;
             }
             return null;
         }
@@ -202,38 +137,60 @@ namespace NexoLink
         {
             if (allRecordsSalesDocs == null)
             {
-                allRecordsSalesDocs = SQLiteService.ReadRecords(SQLiteDatabaseNames.GetSalesDocsDatabaseTable())
-                    .Select(record => new SalesDocumentItem
-                    {
-                        Status = record.status.ToString(),
-                        SubiektDocNumber = record.subiekt_doc_number ?? "---",
-                        BaselinkerId = record.baselinker_id.Length > 3 ? "#"+record.baselinker_id : "",
-                        CreatedAt = record.created_at,
-                        Errors = record.errors ?? "---",
-                        DocType = record.type
-                    }).ToList();
+                allRecordsSalesDocs = LoadSalesDocuments();
             }
 
             if (allRecordsSalesDocs.Count == 0)
             {
-                DocsTable.Visibility = Visibility.Hidden;
-                DocsTable.Visibility = Visibility.Visible;
+                ToggleDocsTableVisibility();
                 return;
             }
 
-            int startIndex = (currentPage - 1) * itemsPerPage;
-            int endIndex = Math.Min(startIndex + itemsPerPage, allRecordsSalesDocs.Count);
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                DocsTable.Items.Add(allRecordsSalesDocs[i]);
-            }
-            ScrollViewer scrollViewer = GetScrollViewer(DocsTable);
-            if (scrollViewer != null)
-            {
-                scrollViewer.ScrollToVerticalOffset(prevVerticalOffset);
-            }
+            var pagedRecords = GetPagedRecords();
+            AddRecordsToTable(pagedRecords);
+            ScrollToPreviousOffset(DocsTable);
             currentPage++;
+        }
+
+        private List<SalesDocumentItem> LoadSalesDocuments()
+        {
+            return SQLiteService.ReadRecords(SQLiteDatabaseNames.GetSalesDocsDatabaseTable())
+                .Select(record => new SalesDocumentItem
+                {
+                    Status = record.status.ToString(),
+                    SubiektDocNumber = record.subiekt_doc_number ?? "---",
+                    BaselinkerId = record.baselinker_id.Length > 3 ? "#" + record.baselinker_id : "",
+                    CreatedAt = record.created_at,
+                    Errors = record.errors ?? "---",
+                    DocType = record.type
+                }).ToList();
+        }
+
+        private void ToggleDocsTableVisibility()
+        {
+            DocsTable.Visibility = Visibility.Hidden;
+            DocsTable.Visibility = Visibility.Visible;
+        }
+
+        private IEnumerable<SalesDocumentItem> GetPagedRecords()
+        {
+            var startIndex = (currentPage - 1) * itemsPerPage;
+            var endIndex = Math.Min(startIndex + itemsPerPage, allRecordsSalesDocs.Count);
+            return allRecordsSalesDocs.Skip(startIndex).Take(itemsPerPage);
+        }
+
+        private void AddRecordsToTable(IEnumerable<SalesDocumentItem> records)
+        {
+            foreach (var record in records)
+            {
+                DocsTable.Items.Add(record);
+            }
+        }
+
+        private void ScrollToPreviousOffset(DataGrid dataGrid)
+        {
+            var scrollViewer = GetScrollViewer(dataGrid);
+            scrollViewer?.ScrollToVerticalOffset(prevVerticalOffset);
         }
 
         private void Hyperlink_RequestNavigate(object sender, RequestNavigateEventArgs e)
@@ -246,11 +203,10 @@ namespace NexoLink
         {
             if (e.AddedCells.Count > 0)
             {
-                DataGridCellInfo cellInfo = e.AddedCells[0];
-                if (cellInfo.Column != null && cellInfo.Column.DisplayIndex == 3)
+                var cellInfo = e.AddedCells[0];
+                if (cellInfo.Column?.DisplayIndex == 3)
                 {
-                    var errorText = cellInfo.Item.GetType().GetProperty("Errors").GetValue(cellInfo.Item, null)?.ToString();
-
+                    var errorText = cellInfo.Item.GetType().GetProperty("Errors")?.GetValue(cellInfo.Item, null)?.ToString();
                     if (!string.IsNullOrEmpty(errorText) && errorText != "---")
                     {
                         Clipboard.SetText(errorText);
@@ -262,8 +218,7 @@ namespace NexoLink
 
         private void SubiektDocNumber_Clicked(object sender, RoutedEventArgs e)
         {
-            var textBlock = sender as TextBlock;
-            if (textBlock != null || textBlock.Text != "---")
+            if (sender is TextBlock textBlock && textBlock.Text != "---")
             {
                 var fileName = textBlock.Text.Replace("/", "_");
                 var filepath = Helpers.GetExportApplicationPath() + "\\" + fileName + ".pdf";
@@ -277,8 +232,6 @@ namespace NexoLink
                 }
             }
         }
-
-
     }
 
     public class SalesDocumentItem
@@ -296,11 +249,10 @@ namespace NexoLink
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value != null && value.ToString().Length > 3)
+            if (value is string stringValue && stringValue.Length > 3)
             {
-                return "https://panel-e.baselinker.com/orders.php#order:" + value.ToString();
+                return "https://panel-e.baselinker.com/orders.php#order:" + stringValue;
             }
-
             return value;
         }
 
@@ -314,7 +266,7 @@ namespace NexoLink
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value != null && value.ToString() != "---")
+            if (value is string stringValue && stringValue != "---")
             {
                 return new DocNumberProperties
                 {
